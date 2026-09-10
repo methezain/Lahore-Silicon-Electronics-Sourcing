@@ -4,12 +4,14 @@
   --font-sans: "Inter", system-ui, sans-serif;
   --font-mono: "JetBrains Mono", monospace;
 
-  --color-brand-900: #0f172a;
-  --color-brand-700: #334155;
-  --color-brand-50: #f8fafc;
+  /* Colors from pallet 2.jpg */
+  --color-brand-900: #0C1D32; /* Deep Navy */
+  --color-brand-500: #007AAD; /* Vibrant Blue */
+  --color-brand-200: #D9E2E9; /* Light Blue-Gray (Borders/Cards) */
+  --color-brand-50: #FFFBFC;  /* Off-White (Background) */
   
-  --color-accent-emerald: #10b981;
-  --color-accent-amber: #f59e0b;
+  --color-accent-emerald: #10b981; /* Keeping for UI success states */
+  --color-accent-amber: #f59e0b; /* Keeping for UI warning states */
 
   /* Disable drop-shadows and blurs as requested in MVP Step 2 */
   --shadow-sm: none;
