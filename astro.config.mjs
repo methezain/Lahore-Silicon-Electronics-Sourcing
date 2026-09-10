@@ -9,7 +9,10 @@ import cloudflare from '@astrojs/cloudflare';
 export default defineConfig({
   output: 'static',
   vite: {
-    plugins: [tailwindcss()]
+    plugins: [tailwindcss()],
+    optimizeDeps: {
+      exclude: ['@astrojs/cloudflare']
+    }
   },
 
   integrations: [preact()],

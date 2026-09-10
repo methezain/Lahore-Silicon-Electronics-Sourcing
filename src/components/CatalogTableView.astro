@@ -1,0 +1,39 @@
+---
+import type { CollectionEntry } from 'astro:content';
+interface Props {
+  components: CollectionEntry<'components'>[];
+}
+const { components } = Astro.props;
+---
+<div class="border border-brand-700 rounded-2xl overflow-hidden overflow-x-auto bg-brand-50">
+  <table class="w-full text-left text-sm whitespace-nowrap">
+    <thead class="bg-brand-900 text-brand-50 border-b border-brand-700 font-medium">
+      <tr>
+        <th class="px-5 py-4">Part No.</th>
+        <th class="px-5 py-4">Component Name</th>
+        <th class="px-5 py-4">Category</th>
+        <th class="px-5 py-4">Package</th>
+        <th class="px-5 py-4">Price (PKR)</th>
+        <th class="px-5 py-4 text-right">Action</th>
+      </tr>
+    </thead>
+    <tbody class="divide-y divide-brand-700">
+      {components.map(component => (
+        <tr class="hover:bg-white transition-colors">
+          <td class="px-5 py-4 font-mono font-bold">{component.data.part_number}</td>
+          <td class="px-5 py-4 min-w-[250px] truncate max-w-sm">{component.data.name}</td>
+          <td class="px-5 py-4 text-xs">
+            <span class="border border-brand-700 px-3 py-1.5 rounded-full bg-brand-50 font-medium">{component.data.category}</span>
+          </td>
+          <td class="px-5 py-4 text-xs text-brand-700">{component.data.package_type}</td>
+          <td class="px-5 py-4 font-mono font-semibold text-base">Rs. {component.data.price}</td>
+          <td class="px-5 py-4 text-right">
+            <button class="bg-accent-emerald text-brand-900 text-xs font-bold px-5 py-2 rounded-full border border-brand-900 uppercase tracking-tight hover:bg-emerald-400 transition-colors">
+              Add
+            </button>
+          </td>
+        </tr>
+      ))}
+    </tbody>
+  </table>
+</div>

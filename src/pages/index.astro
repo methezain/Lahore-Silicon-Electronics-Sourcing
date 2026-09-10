@@ -1,11 +1,66 @@
 ---
-import Welcome from '../components/Welcome.astro';
 import Layout from '../layouts/Layout.astro';
+import CatalogGridView from '../components/CatalogGridView.astro';
+import CatalogTableView from '../components/CatalogTableView.astro';
+import { getCollection } from 'astro:content';
 
-// Welcome to Astro! Wondering what to do next? Check out the Astro documentation at https://docs.astro.build
-// Don't want to use any of this? Delete everything in this file, the `assets`, `components`, and `layouts` directories, and start fresh.
+const components = await getCollection('components');
 ---
 
 <Layout>
-	<Welcome />
+  <div class="mb-10">
+    <h1 class="text-4xl md:text-5xl font-black tracking-tighter mb-3 uppercase text-brand-900">Component Catalog</h1>
+    <p class="text-brand-700 text-lg">Direct sourcing from Hall Road, Lahore. Real-time pricing and stock.</p>
+  </div>
+  
+  <div class="flex flex-col md:flex-row justify-between items-start md:items-center gap-4 mb-8">
+    <div class="flex flex-wrap gap-2">
+      <button class="px-5 py-2 bg-brand-900 text-brand-50 rounded-full text-sm font-semibold border border-brand-900">All Parts</button>
+      <button class="px-5 py-2 bg-white text-brand-900 rounded-full text-sm font-medium border border-brand-700 hover:border-brand-900 transition-colors">Microcontrollers</button>
+      <button class="px-5 py-2 bg-white text-brand-900 rounded-full text-sm font-medium border border-brand-700 hover:border-brand-900 transition-colors">Power Modules</button>
+    </div>
+    
+    <div class="flex items-center gap-1 bg-white border border-brand-700 rounded-full p-1 shadow-sm">
+      <button id="view-grid" class="px-5 py-1.5 bg-brand-900 text-brand-50 rounded-full text-xs font-bold uppercase tracking-tight transition-colors">Grid</button>
+      <button id="view-table" class="px-5 py-1.5 bg-transparent text-brand-900 rounded-full text-xs font-bold uppercase tracking-tight hover:bg-brand-50 transition-colors">Table</button>
+    </div>
+  </div>
+
+  <div id="catalog-grid" class="block animate-in fade-in duration-300">
+    <CatalogGridView components={components} />
+  </div>
+  
+  <div id="catalog-table" class="hidden animate-in fade-in duration-300">
+    <CatalogTableView components={components} />
+  </div>
 </Layout>
+
+<script>
+  // Lean vanilla JS for view toggling without framework bloat
+  const btnGrid = document.getElementById('view-grid');
+  const btnTable = document.getElementById('view-table');
+  const viewGrid = document.getElementById('catalog-grid');
+  const viewTable = document.getElementById('catalog-table');
+  
+  if(btnGrid && btnTable && viewGrid && viewTable) {
+    const activeBtnClass = 'px-5 py-1.5 bg-brand-900 text-brand-50 rounded-full text-xs font-bold uppercase tracking-tight transition-colors';
+    const inactiveBtnClass = 'px-5 py-1.5 bg-transparent text-brand-900 rounded-full text-xs font-bold uppercase tracking-tight hover:bg-brand-50 transition-colors';
+
+    const setGrid = () => {
+      viewGrid.classList.replace('hidden', 'block');
+      viewTable.classList.replace('block', 'hidden');
+      btnGrid.className = activeBtnClass;
+      btnTable.className = inactiveBtnClass;
+    };
+    
+    const setTable = () => {
+      viewTable.classList.replace('hidden', 'block');
+      viewGrid.classList.replace('block', 'hidden');
+      btnTable.className = activeBtnClass;
+      btnGrid.className = inactiveBtnClass;
+    };
+    
+    btnGrid.addEventListener('click', setGrid);
+    btnTable.addEventListener('click', setTable);
+  }
+</script>

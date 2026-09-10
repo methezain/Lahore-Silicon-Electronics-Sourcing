@@ -1,0 +1,12 @@
+{
+  "part_number": "ESP32-WROOM-32D",
+  "name": "Wi-Fi & Bluetooth Dual-Core Microcontroller",
+  "category": "Microcontrollers",
+  "voltage": "3.3V",
+  "package_type": "Module (SMD)",
+  "price": 1250,
+  "mounting_type": "SMD",
+  "in_stock": true,
+  "image": "https://placehold.co/400x400/334155/f8fafc?text=ESP32",
+  "description": "ESP32-WROOM-32D Wi-Fi & Bluetooth Module. Powerful 32-bit MCU for IoT projects. Sourced direct from Hall Road, Lahore for electronic hobbyists, R&D labs, and B2B projects."
+}
