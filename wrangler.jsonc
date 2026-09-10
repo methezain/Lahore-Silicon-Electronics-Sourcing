@@ -4,7 +4,7 @@
 	"compatibility_flags": [
 		"global_fetch_strictly_public"
 	],
-	"name": "purple-proxima",
+	"name": "lahore-silicon-electronics-sourcing",
 	"main": "@astrojs/cloudflare/entrypoints/server",
 	"assets": {
 		"directory": "./dist",
