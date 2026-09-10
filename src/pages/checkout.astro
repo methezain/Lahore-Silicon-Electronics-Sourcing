@@ -1,0 +1,193 @@
+---
+import Layout from '../layouts/Layout.astro';
+---
+
+<Layout title="Checkout | Lahore Silicon">
+  <div class="max-w-4xl mx-auto" id="checkout-container">
+    <h1 class="text-3xl font-black uppercase tracking-tight text-brand-900 mb-8">Checkout</h1>
+    
+    <div class="grid grid-cols-1 md:grid-cols-2 gap-12">
+      <!-- Left: Form -->
+      <div>
+        <div class="bg-white border border-brand-200 rounded-2xl p-6 shadow-sm mb-6">
+          <h2 class="text-xl font-bold uppercase tracking-tight text-brand-900 mb-4 border-b border-brand-200 pb-2">Customer Details</h2>
+          <form id="checkout-form" class="space-y-4">
+            <div>
+              <label class="block text-sm font-bold text-brand-900/70 mb-1">Full Name *</label>
+              <input type="text" name="name" required class="w-full border border-brand-200 rounded-xl px-4 py-2.5 focus:outline-none focus:border-brand-500 focus:ring-1 focus:ring-brand-500 transition-colors" />
+            </div>
+            
+            <div>
+              <label class="block text-sm font-bold text-brand-900/70 mb-1">Phone (WhatsApp) *</label>
+              <input type="tel" name="phone" required placeholder="03XXXXXXXXX" pattern="[0-9]{11}" class="w-full border border-brand-200 rounded-xl px-4 py-2.5 focus:outline-none focus:border-brand-500 focus:ring-1 focus:ring-brand-500 transition-colors" />
+            </div>
+            
+            <div>
+              <label class="block text-sm font-bold text-brand-900/70 mb-1">Shipping Address *</label>
+              <textarea name="address" required rows="3" class="w-full border border-brand-200 rounded-xl px-4 py-2.5 focus:outline-none focus:border-brand-500 focus:ring-1 focus:ring-brand-500 transition-colors"></textarea>
+            </div>
+            
+            <!-- Stubbed Payment Selection -->
+            <div class="pt-4 border-t border-brand-200">
+              <h3 class="font-bold text-brand-900 mb-3">Payment Protocol</h3>
+              <div class="space-y-3">
+                <label class="flex items-center gap-3 p-3 border border-brand-200 rounded-xl cursor-pointer hover:bg-brand-50 transition-colors">
+                  <input type="radio" name="payment_method" value="raast" checked class="text-brand-500 focus:ring-brand-500 w-4 h-4" />
+                  <span class="font-bold text-sm">Raast / Nayapay / Sadapay</span>
+                </label>
+                <label class="flex items-center gap-3 p-3 border border-brand-200 rounded-xl cursor-pointer hover:bg-brand-50 transition-colors">
+                  <input type="radio" name="payment_method" value="bank" class="text-brand-500 focus:ring-brand-500 w-4 h-4" />
+                  <span class="font-bold text-sm">Bank Transfer (IBFT)</span>
+                </label>
+              </div>
+            </div>
+
+            <!-- Transaction Reference -->
+            <div class="pt-2">
+              <label class="block text-sm font-bold text-brand-900/70 mb-1">Transaction Reference / TID *</label>
+              <input type="text" name="payment_ref" required placeholder="e.g. 123456789012" class="w-full border border-brand-200 rounded-xl px-4 py-2.5 focus:outline-none focus:border-brand-500 focus:ring-1 focus:ring-brand-500 transition-colors" />
+              <p class="text-xs text-brand-900/50 mt-1">Please transfer the total amount first and enter the TID here to process the order.</p>
+            </div>
+
+            <button type="submit" id="submit-btn" class="w-full bg-brand-500 text-brand-50 py-4 rounded-xl font-bold uppercase tracking-widest hover:bg-brand-900 transition-colors shadow-sm mt-4">
+              Place Order
+            </button>
+            <div id="error-msg" class="text-red-500 text-sm font-bold text-center mt-2 hidden"></div>
+          </form>
+        </div>
+      </div>
+
+      <!-- Right: Order Summary & Instructions -->
+      <div class="space-y-6">
+        <!-- Bank Details -->
+        <div class="bg-brand-900 text-brand-50 rounded-2xl p-6 shadow-sm">
+          <h2 class="text-xl font-bold uppercase tracking-tight text-accent-amber mb-4">Payment Instructions</h2>
+          <p class="text-sm opacity-80 mb-4 leading-relaxed">
+            Please transfer the exact order total to the following account to secure dispatch. Orders are verified and dispatched immediately upon receipt.
+          </p>
+          <div class="bg-white/10 rounded-xl p-4 space-y-2 font-mono text-sm border border-white/20">
+            <div class="flex justify-between">
+              <span class="opacity-60">Bank:</span>
+              <span class="font-bold">Meezan Bank</span>
+            </div>
+            <div class="flex justify-between">
+              <span class="opacity-60">Title:</span>
+              <span class="font-bold">Lahore Silicon ODS</span>
+            </div>
+            <div class="flex justify-between">
+              <span class="opacity-60">IBAN:</span>
+              <span class="font-bold text-accent-emerald">PK45 MEZN 0001 2345 6789</span>
+            </div>
+            <div class="flex justify-between pt-2 border-t border-white/10 mt-2">
+              <span class="opacity-60">Raast ID:</span>
+              <span class="font-bold text-accent-emerald">03001234567</span>
+            </div>
+          </div>
+        </div>
+
+        <!-- Summary island -->
+        <div class="bg-white border border-brand-200 rounded-2xl p-6 shadow-sm" id="summary-block">
+          <h2 class="text-xl font-bold uppercase tracking-tight text-brand-900 mb-4 border-b border-brand-200 pb-2">Order Summary</h2>
+          <div id="summary-items" class="space-y-3 mb-4 max-h-64 overflow-y-auto">
+            <!-- Populated via JS -->
+          </div>
+          <div class="border-t border-brand-200 pt-4 flex justify-between items-center text-lg">
+            <span class="font-bold text-brand-900/70">Total to Pay</span>
+            <span class="font-black font-mono text-xl text-brand-900" id="summary-total">Rs. 0</span>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</Layout>
+
+<script>
+  // Hydrate summary from Nano Stores
+  import { cartStore } from '../store/cartStore';
+  
+  const container = document.getElementById('checkout-container');
+  const itemsContainer = document.getElementById('summary-items');
+  const totalEl = document.getElementById('summary-total');
+  const form = document.getElementById('checkout-form') as HTMLFormElement;
+  const submitBtn = document.getElementById('submit-btn') as HTMLButtonElement;
+  const errorMsg = document.getElementById('error-msg');
+  
+  if (container) {
+    const renderSummary = () => {
+      const items = Object.values(cartStore.get());
+      if (items.length === 0) {
+        if (itemsContainer) itemsContainer.innerHTML = '<p class="text-sm opacity-50">Your cart is empty.</p>';
+        if (totalEl) totalEl.innerText = 'Rs. 0';
+        submitBtn.disabled = true;
+        submitBtn.classList.add('opacity-50', 'cursor-not-allowed');
+        return;
+      }
+      
+      let total = 0;
+      let html = '';
+      items.forEach(item => {
+        total += item.price * item.quantity;
+        html += `
+          <div class="flex justify-between items-start text-sm">
+            <div class="pr-4">
+              <span class="font-bold">${item.quantity}x</span> ${item.part_number}
+              <p class="text-xs opacity-50 truncate w-48">${item.name}</p>
+            </div>
+            <span class="font-mono font-bold whitespace-nowrap">Rs. ${(item.price * item.quantity).toLocaleString()}</span>
+          </div>
+        `;
+      });
+      
+      if (itemsContainer) itemsContainer.innerHTML = html;
+      if (totalEl) totalEl.innerText = `Rs. ${total.toLocaleString()}`;
+    };
+    
+    // Subscribe to store changes
+    cartStore.subscribe(renderSummary);
+    
+    // Handle submission
+    if (form) {
+      form.addEventListener('submit', async (e) => {
+        e.preventDefault();
+        
+        submitBtn.disabled = true;
+        submitBtn.innerText = 'Processing...';
+        if (errorMsg) errorMsg.classList.add('hidden');
+        
+        const formData = new FormData(form);
+        const payload = {
+          name: formData.get('name'),
+          phone: formData.get('phone'),
+          address: formData.get('address'),
+          payment_ref: formData.get('payment_ref'),
+          items: Object.values(cartStore.get()),
+          total: Object.values(cartStore.get()).reduce((acc, item) => acc + (item.price * item.quantity), 0),
+          turnstile_token: 'dummy_token' // Stubbed for MVP unless keys provided
+        };
+        
+        try {
+          const res = await fetch('/api/order', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify(payload)
+          });
+          
+          const data = await res.json();
+          if (res.ok) {
+            cartStore.set({}); // Clear cart
+            window.location.href = `/order-success/${data.id}`;
+          } else {
+            throw new Error(data.error || 'Failed to place order');
+          }
+        } catch (err: any) {
+          if (errorMsg) {
+            errorMsg.innerText = err.message;
+            errorMsg.classList.remove('hidden');
+          }
+          submitBtn.disabled = false;
+          submitBtn.innerText = 'Place Order';
+        }
+      });
+    }
+  }
+</script>

@@ -1,8 +1,9 @@
 ---
+import CartButton from './CartButton.tsx';
 ---
 <header class="fixed top-12 left-0 right-0 z-50 px-4">
-  <div class="max-w-7xl mx-auto">
-    <div class="bg-brand-50 border border-brand-700 rounded-full px-6 py-3 flex flex-col md:flex-row items-center justify-between gap-4">
+  <div class="max-w-5xl mx-auto">
+    <div class="bg-brand-50 border border-brand-200 rounded-full px-6 py-3 flex flex-col md:flex-row items-center justify-between gap-4">
       <div class="flex items-center gap-2">
         <a href="/" class="text-xl font-bold tracking-tight text-brand-900 uppercase">
           Lahore Silicon
@@ -12,18 +13,73 @@
       <div class="flex-1 w-full max-w-2xl md:mx-4">
         <div class="relative w-full">
           <input 
+            id="search-input"
             type="text" 
             placeholder="Search part number (e.g., NE555)..." 
-            class="w-full bg-white border border-brand-700 rounded-full py-2.5 px-6 text-sm focus:outline-none focus:ring-1 focus:ring-brand-900 font-mono text-brand-900"
+            autocomplete="off"
+            class="w-full bg-white border border-brand-200 rounded-full py-2.5 px-6 text-sm focus:outline-none focus:ring-1 focus:ring-brand-900 font-mono text-brand-900"
           />
+          <div id="search-results" class="absolute top-full mt-2 w-full bg-white border border-brand-200 rounded-2xl shadow-lg hidden flex-col overflow-hidden max-h-96 overflow-y-auto z-[60]"></div>
         </div>
       </div>
       
-      <div class="flex items-center gap-2">
-        <button class="bg-accent-emerald text-brand-900 rounded-full px-6 py-2.5 text-sm font-bold border border-brand-900 uppercase tracking-tight hover:bg-emerald-400 transition-colors">
-          Cart (0)
-        </button>
+      <div class="flex items-center gap-3">
+        <CartButton client:load />
       </div>
     </div>
   </div>
 </header>
+
+<script is:inline>
+  window.addEventListener('DOMContentLoaded', () => {
+    let pagefind;
+    const input = document.getElementById('search-input');
+    const resultsContainer = document.getElementById('search-results');
+    
+    if (!input || !resultsContainer) return;
+
+    input.addEventListener('input', async (e) => {
+      const query = e.target.value;
+      if (query.length < 2) {
+        resultsContainer.classList.add('hidden');
+        return;
+      }
+      
+      if (!pagefind) {
+        try {
+          pagefind = await import('/pagefind/pagefind.js');
+          await pagefind.init();
+        } catch (err) {
+          resultsContainer.classList.remove('hidden');
+          resultsContainer.innerHTML = '<div class="p-4 text-center text-sm text-brand-900/50">Search requires running a production build (npm run build).</div>';
+          return;
+        }
+      }
+      
+      const search = await pagefind.search(query);
+      resultsContainer.innerHTML = '';
+      
+      if (search.results.length > 0) {
+        resultsContainer.classList.remove('hidden');
+        const topResults = search.results.slice(0, 5);
+        for (const result of topResults) {
+          const data = await result.data();
+          const div = document.createElement('a');
+          div.href = data.url;
+          div.className = "p-4 border-b border-brand-200 hover:bg-brand-50 transition-colors block last:border-b-0";
+          div.innerHTML = `<p class="font-bold text-brand-900">${data.meta.title}</p><p class="text-xs text-brand-900/70 truncate mt-1">${data.excerpt}</p>`;
+          resultsContainer.appendChild(div);
+        }
+      } else {
+        resultsContainer.classList.remove('hidden');
+        resultsContainer.innerHTML = '<div class="p-4 text-center text-sm text-brand-900/50 font-medium">No results found for "' + query + '"</div>';
+      }
+    });
+
+    document.addEventListener('click', (e) => {
+      if (!input.contains(e.target) && !resultsContainer.contains(e.target)) {
+        resultsContainer.classList.add('hidden');
+      }
+    });
+  });
+</script>

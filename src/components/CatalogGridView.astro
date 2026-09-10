@@ -6,22 +6,17 @@ interface Props {
 const { components } = Astro.props;
 ---
 <div class="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-6">
-  {components.map(component => (
-    <div class="bg-brand-50 border border-brand-700 rounded-2xl overflow-hidden hover:border-brand-900 transition-colors flex flex-col h-full relative">
-      <div class="aspect-square bg-white border-b border-brand-700 flex items-center justify-center p-4">
-        {component.data.image && (
-          <img src={component.data.image} alt={component.data.name} class="max-w-full max-h-full object-contain" loading="lazy" decoding="async" />
-        )}
-      </div>
-      <div class="p-5 flex flex-col flex-grow">
-        <div class="flex justify-between items-start mb-3">
-          <span class="font-mono text-sm font-bold bg-brand-900 text-brand-50 px-2 py-0.5 rounded-sm">{component.data.part_number}</span>
-          {component.data.in_stock && (
-            <span class="w-3 h-3 rounded-full bg-accent-emerald mt-1 border border-brand-900" title="In Stock - Same Day Dispatch"></span>
+  {components.map((component: any) => (
+    <a href={`/product/${component.data.part_number.toLowerCase()}`} class="block group">
+      <div class="bg-brand-50 border border-brand-200 rounded-2xl overflow-hidden group-hover:border-brand-500 group-hover:shadow-md transition-all flex flex-col h-full relative">
+        <div class="aspect-square bg-white border-b border-brand-200 flex items-center justify-center p-4">
+          {component.data.image ? (
+            <img src={component.data.image} alt={component.data.name} class="w-full h-full object-contain mix-blend-multiply" loading="lazy" decoding="async" />
+          ) : (
+            <div class="text-3xl font-black text-brand-900/10">{component.data.part_number}</div>
           )}
         </div>
-        <h3 class="font-bold text-sm leading-tight mb-2 flex-grow">{component.data.name}</h3>
-        <p class="text-xs text-brand-700 mb-5">{component.data.voltage} • {component.data.package_type}</p>
+        <p class="text-xs text-brand-900/70 mb-5">{component.data.voltage} • {component.data.package_type}</p>
         <div class="flex items-center justify-between mt-auto">
           <span class="font-mono font-bold text-lg">Rs. {component.data.price}</span>
           <button class="bg-brand-900 text-brand-50 rounded-full w-9 h-9 flex items-center justify-center hover:bg-accent-amber hover:text-brand-900 transition-colors border border-brand-900">
@@ -29,6 +24,6 @@ const { components } = Astro.props;
           </button>
         </div>
       </div>
-    </div>
+    </a>
   ))}
 </div>

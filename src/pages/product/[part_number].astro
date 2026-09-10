@@ -1,0 +1,172 @@
+---
+import Layout from '../../layouts/Layout.astro';
+import { getCollection } from 'astro:content';
+import AddToCartButton from '../../components/AddToCartButton.tsx';
+
+export const prerender = true;
+
+export async function getStaticPaths() {
+  const components = await getCollection('components');
+  return components.map(component => ({
+    params: { part_number: component.data.part_number.toLowerCase() },
+    props: { component },
+  }));
+}
+
+const { component } = Astro.props;
+const { data } = component;
+
+// SEO JSON-LD
+const schemaLD = {
+  "@context": "https://schema.org/",
+  "@type": "Product",
+  "name": `${data.part_number} ${data.name}`,
+  "image": [data.image || "https://placeholder.com/image.webp"],
+  "description": data.description || `${data.part_number} ${data.name}: ${data.voltage} ${data.package_type} ${data.category}. Sourced from Hall Road, Lahore with fast nationwide delivery across Pakistan.`,
+  "sku": `MOD-${data.part_number}`,
+  "mpn": data.part_number,
+  "brand": {
+    "@type": "Brand",
+    "name": "Generic"
+  },
+  "offers": {
+    "@type": "Offer",
+    "url": `https://lahoresilicon.com/product/${data.part_number.toLowerCase()}`,
+    "priceCurrency": "PKR",
+    "price": data.price.toString(),
+    "priceValidUntil": "2027-12-31",
+    "itemCondition": "https://schema.org/NewCondition",
+    "availability": data.in_stock ? "https://schema.org/InStock" : "https://schema.org/OutOfStock",
+    "seller": {
+      "@type": "Organization",
+      "name": "Lahore Silicon",
+      "address": {
+        "@type": "PostalAddress",
+        "addressLocality": "Lahore",
+        "addressRegion": "Punjab",
+        "addressCountry": "PK"
+      }
+    }
+  }
+};
+---
+
+<Layout title={`${data.part_number} ${data.name} - Price in Pakistan | Hall Road Sourcing`}>
+  <!-- Inject JSON-LD into Head via slot or fragment -->
+  <Fragment slot="head">
+    <meta name="description" content={data.description || `${data.part_number} ${data.name}: ${data.voltage} ${data.package_type}. Sourced direct from Hall Road, Lahore.`} />
+    <script type="application/ld+json" set:html={JSON.stringify(schemaLD)} />
+  </Fragment>
+
+  <div class="mb-6" data-pagefind-body>
+    <div class="flex items-center gap-2 text-sm opacity-70 mb-8 font-medium">
+      <a href="/" class="hover:text-brand-500 transition-colors">Catalog</a>
+      <span>/</span>
+      <span>{data.category}</span>
+      <span>/</span>
+      <span class="text-brand-900 font-bold">{data.part_number}</span>
+    </div>
+
+    <div class="grid grid-cols-1 md:grid-cols-2 gap-12">
+      <!-- Left: Image & Datasheet -->
+      <div class="flex flex-col gap-6">
+        <div class="aspect-square bg-white border border-brand-200 rounded-2xl flex items-center justify-center p-8 overflow-hidden shadow-sm relative">
+          {data.image ? (
+            <img 
+              src={data.image} 
+              alt={`${data.part_number} ${data.name}`} 
+              width="500" 
+              height="500" 
+              class="object-contain w-full h-full"
+              loading="eager"
+              fetchpriority="high"
+            />
+          ) : (
+            <div class="w-full h-full flex flex-col items-center justify-center bg-brand-50 rounded-xl text-brand-900/50">
+              <span class="text-6xl font-black">{data.part_number}</span>
+              <span class="text-sm mt-2">Image unavailable</span>
+            </div>
+          )}
+        </div>
+        
+        <div class="bg-brand-50 border border-brand-200 rounded-2xl p-6 shadow-sm">
+          <h3 class="font-bold text-lg mb-3 tracking-tight">Datasheets & Resources</h3>
+          <ul class="space-y-3">
+            <li>
+              <a href="#" class="flex items-center gap-2 text-brand-500 hover:text-brand-900 transition-colors text-sm font-medium">
+                <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M14.5 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V7.5L14.5 2z"/><polyline points="14 2 14 8 20 8"/></svg>
+                {data.part_number} Technical Datasheet (PDF)
+              </a>
+            </li>
+          </ul>
+        </div>
+      </div>
+
+      <!-- Right: Specs & Order -->
+      <div class="flex flex-col">
+        <h1 class="text-3xl md:text-5xl font-black tracking-tighter mb-2 text-brand-900 uppercase leading-none">
+          {data.part_number}
+        </h1>
+        <h2 class="text-xl text-brand-900/70 mb-6 font-medium tracking-tight">
+          {data.name}
+        </h2>
+        
+        <p class="text-brand-900 mb-8 leading-relaxed">
+          {data.description || `${data.part_number} ${data.name}: ${data.voltage} ${data.package_type} ${data.category}. Sourced from Hall Road, Lahore with fast nationwide delivery across Pakistan.`}
+        </p>
+        
+        <div class="bg-white border border-brand-200 rounded-2xl p-6 mb-8 shadow-sm">
+          <div class="flex justify-between items-end mb-6">
+            <div>
+              <p class="text-sm text-brand-900/70 font-bold tracking-tight uppercase mb-1">Unit Price</p>
+              <p class="text-4xl font-black text-brand-900">Rs. {data.price.toLocaleString()}</p>
+            </div>
+            <div class="flex items-center gap-2">
+              <span class={`w-2.5 h-2.5 rounded-full ${data.in_stock ? 'bg-accent-emerald' : 'bg-red-500'}`}></span>
+              <span class="text-sm font-bold text-brand-900">{data.in_stock ? 'IN STOCK' : 'OUT OF STOCK'}</span>
+            </div>
+          </div>
+          
+          <AddToCartButton 
+            client:load 
+            part_number={data.part_number}
+            name={data.name}
+            price={data.price}
+            image={data.image}
+            in_stock={data.in_stock}
+          />
+          
+          <p class="text-xs text-center text-brand-900/50 mt-4 font-medium">
+            Dispatched via Leopards/TCS from Hall Road, Lahore.
+          </p>
+        </div>
+        
+        <div>
+          <h3 class="font-bold text-xl mb-4 tracking-tight uppercase border-b border-brand-200 pb-2">Technical Specifications</h3>
+          <dl class="divide-y divide-brand-200 text-sm">
+            <div class="flex justify-between py-3">
+              <dt class="font-bold text-brand-900/70">Part Number</dt>
+              <dd class="font-medium text-brand-900">{data.part_number}</dd>
+            </div>
+            <div class="flex justify-between py-3">
+              <dt class="font-bold text-brand-900/70">Category</dt>
+              <dd class="font-medium text-brand-900">{data.category}</dd>
+            </div>
+            <div class="flex justify-between py-3">
+              <dt class="font-bold text-brand-900/70">Package/Case</dt>
+              <dd class="font-medium text-brand-900">{data.package_type}</dd>
+            </div>
+            <div class="flex justify-between py-3">
+              <dt class="font-bold text-brand-900/70">Mounting Type</dt>
+              <dd class="font-medium text-brand-900">{data.mounting_type}</dd>
+            </div>
+            <div class="flex justify-between py-3">
+              <dt class="font-bold text-brand-900/70">Operating Voltage</dt>
+              <dd class="font-medium text-brand-900">{data.voltage}</dd>
+            </div>
+          </dl>
+        </div>
+      </div>
+    </div>
+  </div>
+</Layout>
