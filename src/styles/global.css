@@ -1,0 +1,36 @@
+@import "tailwindcss";
+
+@theme {
+  --font-sans: "Inter", system-ui, sans-serif;
+  --font-mono: "JetBrains Mono", monospace;
+
+  --color-brand-900: #0f172a;
+  --color-brand-700: #334155;
+  --color-brand-50: #f8fafc;
+  
+  --color-accent-emerald: #10b981;
+  --color-accent-amber: #f59e0b;
+
+  /* Disable drop-shadows and blurs as requested in MVP Step 2 */
+  --shadow-sm: none;
+  --shadow-md: none;
+  --shadow-lg: none;
+  --shadow-xl: none;
+  --shadow-2xl: none;
+  --shadow-inner: none;
+  
+  --blur-sm: 0;
+  --blur-md: 0;
+  --blur-lg: 0;
+  --blur-xl: 0;
+  --blur-2xl: 0;
+  --blur-3xl: 0;
+}
+
+@layer base {
+  body {
+    background-color: var(--color-brand-50);
+    color: var(--color-brand-900);
+    font-family: var(--font-sans);
+  }
+}

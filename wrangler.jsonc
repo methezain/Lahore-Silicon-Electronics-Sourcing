@@ -1,0 +1,23 @@
+{
+	"$schema": "./node_modules/wrangler/config-schema.json",
+	"compatibility_date": "2026-09-08",
+	"compatibility_flags": [
+		"global_fetch_strictly_public"
+	],
+	"name": "purple-proxima",
+	"main": "@astrojs/cloudflare/entrypoints/server",
+	"assets": {
+		"directory": "./dist",
+		"binding": "ASSETS"
+	},
+	"observability": {
+		"enabled": true
+	},
+	"d1_databases": [
+		{
+			"binding": "DB",
+			"database_name": "electronics-sourcing-db",
+			"database_id": "f13d4da5-1b2f-4387-9a18-dc5a7bc7c65c"
+		}
+	]
+}
