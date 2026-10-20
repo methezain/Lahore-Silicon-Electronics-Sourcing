@@ -1,130 +1,101 @@
 # Copy
 
-Words on this shop are part of the counter. They tell the buyer what the object is, what it costs, and what happens next. They are not a place to sound expensive.
+Words are part of the interface. They follow the same discipline as spacing.
 
 ## Voice
 
-- Sentence case. Plain verbs. Short sentences.
-- Address the buyer only when the sentence needs it. “Add to cart,” not “Add this premium component to your cart.”
-- Name the object by its job, the way a careful salesperson would, and then give the number.
-- Specific beats clever. “Echo pin is 5 V logic” is the voice. “Unleash your next build” is not.
-- An action keeps its name. “Add to cart” leads to “Added.” “Place order” leads to “Order placed.”
-- Errors state the rule and the repair. “Enter a Pakistani mobile number, 03XX XXXXXXX.” They do not say “Oops” and they do not apologize.
-- An empty state invites the next action. “No parts in Sensors. Show the full catalog.”
+The voice of a careful counter: plain, specific, unhurried, a little dry. It informs; it does not sell.
 
-## The job sentence
+- Say what the part does and what the buyer controls. "Turns 7–35 V into a steady 5 V", not "Power your dreams".
+- Active voice, sentence case, plain verbs. No exclamation marks.
+- English throughout the interface. Roman Urdu is welcome in WhatsApp templates and may appear in help text when the owner approves it.
+- Be specific over clever. A number beats an adjective.
 
-`name` is the job sentence. It includes the distinguishing facts the buyer would ask for at the counter.
+## The truth rule
 
-| Part | Shape |
+A sentence ships only when data, the shipping module, or the server can prove it.
+
+| Allowed | Not allowed |
 | --- | --- |
-| LM7805 | 5 V, 1 A, TO-220 linear regulator |
-| AMS1117-3.3 | 3.3 V LDO regulator, SOT-223 |
-| HC-SR04 | Ultrasonic distance module, 5 V |
-| NE555 | Timer IC, 8-pin |
+| "48 in stock" (from `stock_qty`) | "Plenty in stock", "Selling fast" |
+| "Paid before 3 PM, Monday to Saturday, ships the same day" | "Lightning-fast delivery" |
+| "Representative studio photograph" (from `image_note`) | Implying a stock photo is the lot |
+| "10 parts on the counter" (computed) | "500+ components" |
+| "Report a defect within 3 days" | "100% genuine guaranteed" without a policy behind it |
 
-Keep a fact in the sentence only when the spec row agrees with it. If the LM7805 record says 1 A in one place and 1.5 A in another, fix the data before publishing either number.
+Never cite outside studies (Baymard, Google, Deloitte) on the site.
 
 ## Vocabulary
 
-Use these words. Do not rotate synonyms.
+Use one word for one thing, everywhere.
 
-| Thing | Word |
+| Use | Not |
 | --- | --- |
-| The bag of parts | Cart |
-| The confirmation step | Checkout |
-| The button that adds | Add to cart |
-| The button that buys | Place order |
-| Money | Rs, with a grouping separator |
-| How many are in the drawer | “24 in stock”, the integer |
-| When it leaves Lahore | Dispatch |
-| When it arrives | Delivery |
-| The PDF | Datasheet |
-| The shop | Lahore Silicon |
-| The market | Hall Road, when the sentence is about sourcing |
+| part | product, item, component (in UI labels) |
+| cart | bag, basket |
+| Add to cart → Added | Buy now, Add to bag |
+| Check out | Proceed to checkout, Continue |
+| Place order | Submit, Confirm |
+| in stock / out of stock | available / unavailable |
+| delivery | shipping (buyer-facing), except the page name "Shipping and payment" |
+| dispatch | ship out |
+| datasheet | spec sheet, PDF |
+| counter | store, shop (in brand voice; "shop" is fine in legal text) |
 
-Do not say “SKU” in the interface. Say “part number.” Do not say “buyflow,” “PDP,” or “landing.”
+## Formatting
 
-## Claims that may ship
+- Money: `Rs 1,250`. Thousand grouping, no decimals, no "PKR" in the UI (JSON-LD uses `PKR`).
+- Units: non-breaking space between value and unit (`5 V`, `1 A`, `3.3 V`, `10 kΩ`, `100 µF`). Ranges with an en dash (`7–35 V`, `48–72 hours`).
+- Times: `3:00 PM PKT`, days `Monday to Saturday`. Dates `12 Nov 2026`.
+- Part numbers exactly as the manufacturer writes them, in the `part` style.
+- Counts with their noun: "1 part", "2 parts".
 
-A claim may ship when the source named next to it is true.
+## Microcopy
 
-| Claim | Source required |
+| Moment | Text |
 | --- | --- |
-| A price | The catalog integer, formatted by the money module |
-| A stock count | `stock_qty` |
-| A restock date | `restock_on` |
-| A dispatch window | `src/lib/shipping.ts`, matching the policy page |
-| Antistatic packaging | The policy page, and only for parts whose `in_the_bag` says so |
-| Advance payment | The policy page |
-| A datasheet | A URL that opens |
-| A bank account or wallet | The operator’s environment variable |
-| A phone or WhatsApp link | The operator’s real number |
-| “Representative image” | `image_note`, when the photo is not the stocked lot |
+| Hero headline (home) | Parts from Hall Road, counted before you pay. |
+| Hero lede | Regulators, boards, sensors and relays. Every price is the price at checkout. Every stock number is a real count. |
+| Status chip, before cutoff | Dispatching today · order within 3 h 12 m |
+| Status chip, after cutoff | Order now for dispatch tomorrow |
+| Status chip, Sunday | Dispatch resumes Monday |
+| Search placeholder | LM7805, ESP32, "5 V regulator" |
+| Search no results | We don't stock "[query]". Send the part number on WhatsApp and we'll check Hall Road. |
+| Add button | Add to cart · Rs 45 |
+| Add confirmation | Added LM7805 to cart |
+| Quantity corrected | LM2596S: only 16 in stock. Quantity set to 16. |
+| Out of stock button | Out of stock |
+| Cart empty | Your cart is empty. Browse the catalog. |
+| Cart footer note | Guest checkout. No account needed. |
+| Delivery rule (no rate table) | Delivery cost is confirmed from your city before you pay. |
+| Checkout submit | Place order · Rs 2,545 |
+| Submitting | Placing order… |
+| Order saved | Order received. We'll confirm your payment and dispatch. |
+| Order not saved | The order was not saved. Nothing was charged. Try again, or message us on WhatsApp. |
+| Copy button | Copy → Copied |
 
-## Claims that do not ship
+## Errors
 
-Do not write these unless the source appears in the repo and a person could check it.
+Name the rule, keep the value, sit on the field, no apology.
 
-- “500+ components,” “100% inspected,” “2 hour dispatch,” or any statistic that is a literal in a component.
-- “Premium,” “world-class,” “cutting-edge,” “best prices,” “trusted by engineers.”
-- “Genuine” or “100% authentic” as a badge. The datasheet, the manufacturer, and the part number do that work. A badge without a named distributor or a named lot is advertising.
-- A pulsing “open now” that is not computed from the cutoff and the clock.
-- A discount percentage the cart does not apply.
-- A delivery date the shop has not calculated. If the shop can only promise dispatch, say dispatch.
-- Fake reviews, star ratings, “customers also bought,” and countdown timers.
-- Payment logos for methods the checkout cannot take.
-- “Track your order” when the page is a contact form.
-- Brand “Generic.”
-
-## Shipping sentence
-
-The policy page is the authority until the operator changes it. As written in `src/pages/shipping-and-payments.astro`, the facts are:
-
-- Cutoff: 3:00 PM PKT, Monday–Saturday.
-- Lahore: 1 business day, via Bykea same-day or a local courier.
-- Nationwide: 48–72 hours.
-
-Write that once, in the shipping module, and render it everywhere:
-
-> Lahore: 1 business day, by Bykea or a local courier. Nationwide: 48–72 hours. Order by 3:00 PM PKT, Monday–Saturday.
-
-These current strings disagree with that page and get replaced by the module, not by a new invention:
-
-- The homepage says Lahore 24h and nationwide 48h.
-- The product page says Lahore 24h and nationwide 48–72h.
-- Checkout says same-day Bykea and nationwide 48–72h.
-- Contact lists Sunday as closed and the cutoff as “daily.”
-
-Do not shorten 48–72 hours to 48 hours. Do not call a 1-business-day Lahore delivery “same-day dispatch” in a second place unless the policy page says both and says which one is which.
-
-The product page adds the cost assumption in the same block:
-
-> Delivery in Lahore from Rs {amount}. Nationwide from Rs {amount}.
-
-If the amount is unknown, do not print a blank. Print: “Delivery cost is confirmed from your city, before you pay.”
-
-## Buttons and errors
-
-| Situation | Copy |
+| Field | Message |
 | --- | --- |
-| Add | Add to cart |
-| Added | Added |
-| Out of stock, no date | Out of stock |
-| Out of stock, with date | Back on {date} |
-| Quantity too high | Only {stock_qty} in stock |
-| Bad phone | Enter a Pakistani mobile number, 03XX XXXXXXX |
-| Order failed to save | The order was not saved. Nothing was charged. Try again, or message the shop |
-| Unknown order id | No order with this id |
+| Name | Enter your name (at least 2 letters). |
+| Phone | Enter a Pakistani mobile number, like 0300 1234567. |
+| City | Enter your city or area. |
+| Address | Enter the full address, with house and street. |
+| Payment reference | Paste the transaction ID from your payment (at least 5 characters). |
+| Total mismatch | Prices changed while you were checking out. The new total is Rs 2,600. |
+| Stock exceeded | ESP32-WROOM-32D: only 9 in stock. |
 
-## Page titles
+## Alt text
 
-| Page | Title |
-| --- | --- |
-| Home | Parts — Lahore Silicon |
-| Product | {part number} — {job sentence} |
-| Checkout | Checkout — Lahore Silicon |
-| Success | Order {id} — Lahore Silicon |
-| Shipping | Shipping and payment — Lahore Silicon |
+- Product photo: "[part number], [package]" plus what is visible ("LM7805 regulator in a TO-220 package").
+- Decorative images and thumbnails next to a visible part number: `alt=""`.
+- Icons with visible labels: `aria-hidden="true"`. Icon-only buttons: an `aria-label` that says the action ("Close cart", "Search parts").
 
-The visible `h1` can be shorter than the document title. The product `h1` is the job sentence.
+## Metadata
+
+- Title: `[PART] [job sentence] | Lahore Silicon` on product pages; `[Page] | Lahore Silicon` elsewhere.
+- Description: the part's `summary`, then "Ships from Hall Road, Lahore."
+- Product description formula: `[Part number] [job]: [key electrical ratings], [package]. [What it is used for]. Ships from Hall Road, Lahore.`

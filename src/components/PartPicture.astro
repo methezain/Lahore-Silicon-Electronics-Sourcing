@@ -1,0 +1,54 @@
+---
+import { Picture } from "astro:assets";
+import type { ImageMetadata } from "astro";
+import { partTransitionClass } from "../lib/part-image";
+
+interface Props {
+  src: ImageMetadata;
+  partNumber: string;
+  alt: string;
+  width: number;
+  height: number;
+  sizes: string;
+  widths?: number[];
+  /** Product gallery only. Sets fetchpriority and skips lazy loading. */
+  priority?: boolean;
+  /** Off when the same part is drawn twice on one page. */
+  transition?: boolean;
+  class?: string;
+  frameClass?: string;
+}
+
+const {
+  src,
+  partNumber,
+  alt,
+  width,
+  height,
+  sizes,
+  widths,
+  priority = false,
+  transition = true,
+  class: className,
+  frameClass,
+} = Astro.props;
+
+const loading = priority
+  ? { priority: true as const }
+  : { loading: "lazy" as const, decoding: "async" as const };
+---
+
+<Picture
+  src={src}
+  alt={alt}
+  width={width}
+  height={height}
+  sizes={sizes}
+  widths={widths}
+  layout="constrained"
+  fit="cover"
+  formats={["avif", "webp"]}
+  class:list={[className, transition && partTransitionClass(partNumber)]}
+  pictureAttributes={frameClass ? { class: frameClass } : undefined}
+  {...loading}
+/>

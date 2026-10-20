@@ -26,8 +26,6 @@ export default function ProductPurchase(props: Props) {
     const amount = commit(Number(quantity));
     if (amount < 1) return;
     addToCart({ part_number: props.part_number, name: props.name, image: props.image }, amount);
-    const status = document.getElementById("cart-status");
-    if (status) status.textContent = "Added";
   }
 
   return (

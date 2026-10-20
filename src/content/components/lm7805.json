@@ -39,6 +39,6 @@
   "min_qty": 1,
   "qty_multiple": 1,
   "description": "LM7805 positive 5 V linear regulator. TO-220, 1 A continuous output, with thermal shutdown and short-circuit protection. Sourced from Hall Road, Lahore.",
-  "image": "/parts/lm7805.jpg",
+  "image": "../../assets/parts/lm7805.jpg",
   "image_note": "Representative studio photograph, not a photo of the lot in the drawer."
 }

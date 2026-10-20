@@ -37,6 +37,6 @@
   "min_qty": 1,
   "qty_multiple": 1,
   "description": "NE555 timer in DIP-8. Supply 4.5–16 V. Used for monostable, astable, and bistable timing. Sourced from Hall Road, Lahore.",
-  "image": "/parts/ne555.jpg",
+  "image": "../../assets/parts/ne555.jpg",
   "image_note": "Representative studio photograph, not a photo of the lot in the drawer."
 }

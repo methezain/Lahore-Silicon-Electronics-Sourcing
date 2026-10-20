@@ -1,0 +1,459 @@
+---
+/**
+ * Dev-only gallery for the Phase 2 controls.
+ * Production requests 404. Not linked from the storefront.
+ */
+import Layout from "../../layouts/Layout.astro";
+import Button from "../../components/Button.astro";
+import Input from "../../components/Input.astro";
+import Stepper from "../../components/Stepper.tsx";
+import FilterPills from "../../components/FilterPills.astro";
+import StockIndicator from "../../components/StockIndicator.astro";
+import ProductCard from "../../components/ProductCard.astro";
+import CatalogTable from "../../components/CatalogTable.astro";
+import KeyFigures from "../../components/KeyFigures.astro";
+import ProcessBand from "../../components/ProcessBand.astro";
+import { CartEmptyButton, CartSampleButton } from "../../components/CartSheet.tsx";
+import { getCollection } from "astro:content";
+import { CATEGORIES, type Category } from "../../lib/categories";
+import { formatPkr, unitPrice } from "../../lib/money";
+
+if (import.meta.env.PROD) {
+  return new Response(null, { status: 404, statusText: "Not Found" });
+}
+
+const parts = await getCollection("components");
+const requested = Astro.url.searchParams.get("category");
+const known = CATEGORIES.find((category) => category === requested);
+const shown = !requested
+  ? parts
+  : parts.filter((part) => part.data.category === requested);
+
+const counts = new Map<Category, number>(
+  CATEGORIES.map((category) => [
+    category,
+    parts.filter((part) => part.data.category === category).length,
+  ]),
+);
+
+const sortParam = Astro.url.searchParams.get("sort");
+const sort =
+  sortParam === "price" || sortParam === "price-desc" || sortParam === "stock" || sortParam === "stock-desc"
+    ? sortParam
+    : "catalog";
+
+function devQuery(category?: string | null, nextSort = sort) {
+  const params = new URLSearchParams();
+  if (category) params.set("category", category);
+  if (nextSort && nextSort !== "catalog") params.set("sort", nextSort);
+  return params.toString();
+}
+
+function pillHref(category?: string) {
+  const query = devQuery(category);
+  return query ? `/dev/components?${query}` : "/dev/components";
+}
+
+function sortHref(key: "price" | "stock") {
+  const next = sort === key ? `${key}-desc` : sort === `${key}-desc` ? "catalog" : key;
+  const query = devQuery(requested, next);
+  return `${query ? `/dev/components?${query}` : "/dev/components"}#catalog-table`;
+}
+
+const pills = [
+  { label: "All", href: pillHref(), count: parts.length, current: !requested },
+  ...CATEGORIES.filter((category) => (counts.get(category) ?? 0) > 0).map((category) => ({
+    label: category,
+    href: pillHref(category),
+    count: counts.get(category) ?? 0,
+    current: requested === category,
+  })),
+];
+
+const lm7805 = parts.find((part) => part.data.part_number === "LM7805");
+const esp32 = parts.find((part) => part.data.part_number === "ESP32-WROOM-32D");
+const lm2596 = parts.find((part) => part.data.part_number === "LM2596S");
+if (!lm7805 || !esp32 || !lm2596) {
+  throw new Error("Catalog is missing LM7805, ESP32-WROOM-32D, or LM2596S.");
+}
+
+const lmPrice = unitPrice(lm7805.data, 1);
+const espPrice = unitPrice(esp32.data, 1);
+
+const ordered = [...shown].sort((a, b) => {
+  const categoryDiff = CATEGORIES.indexOf(a.data.category) - CATEGORIES.indexOf(b.data.category);
+  if (categoryDiff !== 0) return categoryDiff;
+  return a.data.part_number.localeCompare(b.data.part_number);
+});
+
+const tableParts = [...ordered].sort((a, b) => {
+  if (sort === "price" || sort === "price-desc") {
+    const diff = unitPrice(a.data, 1) - unitPrice(b.data, 1);
+    return sort === "price" ? diff : -diff;
+  }
+  if (sort === "stock" || sort === "stock-desc") {
+    const diff = a.data.stock_qty - b.data.stock_qty;
+    return sort === "stock" ? diff : -diff;
+  }
+  return 0;
+});
+
+const catalogRows = [
+  ...tableParts.map((part) => ({
+    partNumber: part.data.part_number,
+    name: part.data.name,
+    keySpec: part.data.voltage ?? part.data.package_type,
+    price: part.data.price,
+    breaks: part.data.breaks,
+    stockQty: part.data.stock_qty,
+    href: `/product/${part.data.part_number.toLowerCase()}`,
+    image: part.data.image,
+    packageType: part.data.package_type,
+    minQty: part.data.min_qty,
+    qtyMultiple: part.data.qty_multiple,
+  })),
+  ...(!requested
+    ? [{
+        partNumber: "Sample",
+        name: "Layout only. Not a part.",
+        keySpec: "Layout only",
+        price: 12345,
+        sample: true as const,
+      }]
+    : []),
+];
+
+const stockSort = sort === "stock" ? "ascending" as const : sort === "stock-desc" ? "descending" as const : "none" as const;
+const priceSort = sort === "price" ? "ascending" as const : sort === "price-desc" ? "descending" as const : "none" as const;
+---
+
+<Layout
+  title="Components | Lahore Silicon"
+  description="Component states used while building the storefront."
+  robots="noindex, nofollow"
+>
+  <div class="dev-components">
+    <header class="intro">
+      <h1 class="display">Components</h1>
+      <p class="caption">
+        Development only. Part numbers, prices and stock counts come from the catalog.
+        Rows marked as a sample are not catalog facts.
+      </p>
+    </header>
+
+    <section aria-labelledby="buttons-heading">
+      <h2 id="buttons-heading" class="heading">Buttons</h2>
+      <p class="caption">These labels are the system words. Clicks here do not change the cart.</p>
+      <div class="cluster">
+        <Button variant="primary">Add to cart · {formatPkr(lmPrice)}</Button>
+        <Button variant="secondary" type="button">Datasheet</Button>
+        <Button variant="ghost" type="button">Remove</Button>
+        <Button variant="primary" disabled>Out of stock</Button>
+      </div>
+      <div class="navy-pad">
+        <Button variant="signal" type="button">Search</Button>
+      </div>
+      <Button variant="primary" size="large" block>Add to cart · {formatPkr(espPrice)}</Button>
+      <p class="caption">Five-digit price, layout only. Not a catalog price.</p>
+      <Button variant="primary" size="large" block>Add to cart · {formatPkr(12345)}</Button>
+    </section>
+
+    <section aria-labelledby="inputs-heading">
+      <h2 id="inputs-heading" class="heading">Inputs</h2>
+      <div class="fields">
+        <Input
+          id="phone"
+          label="Phone"
+          name="phone"
+          type="tel"
+          inputmode="tel"
+          autocomplete="tel"
+          placeholder="0300 1234567"
+          help="We use this if the courier cannot find the address."
+        />
+        <Input
+          id="city"
+          label="City or area"
+          name="city"
+          value="L"
+          error="Enter your city or area."
+          autocomplete="address-level2"
+        />
+        <Input
+          id="search-sample"
+          label="Search"
+          type="search"
+          shape="pill"
+          size="large"
+          placeholder='LM7805, ESP32, "5 V regulator"'
+          disabled
+        />
+      </div>
+    </section>
+
+    <section aria-labelledby="stepper-heading">
+      <h2 id="stepper-heading" class="heading">Stepper</h2>
+      <div class="buy">
+        <Stepper
+          client:visible
+          id="qty-lm7805"
+          partNumber={lm7805.data.part_number}
+          min_qty={lm7805.data.min_qty}
+          qty_multiple={lm7805.data.qty_multiple}
+          stock_qty={lm7805.data.stock_qty}
+          value={lm7805.data.min_qty}
+        />
+        <div class="buy-action">
+          <Button variant="primary" size="large" block>Add to cart · {formatPkr(lmPrice)}</Button>
+        </div>
+      </div>
+      <div class="buy">
+        <Stepper
+          client:visible
+          id="qty-esp32"
+          partNumber={esp32.data.part_number}
+          min_qty={esp32.data.min_qty}
+          qty_multiple={esp32.data.qty_multiple}
+          stock_qty={esp32.data.stock_qty}
+          value={esp32.data.stock_qty}
+        />
+        <div class="buy-action">
+          <Button variant="primary" size="large" block>Add to cart · {formatPkr(espPrice)}</Button>
+        </div>
+      </div>
+      <p class="caption">Rule sample, not a part: minimum 2, multiple of 2, stock 10. The field opens already corrected.</p>
+      <Stepper client:visible id="qty-rule" label="Rule sample" min_qty={2} qty_multiple={2} stock_qty={10} value={3} />
+      <p class="caption">Zero stock. No catalog part is at zero.</p>
+      <div class="cluster">
+        <Stepper client:visible id="qty-out" label="Zero stock" min_qty={1} qty_multiple={1} stock_qty={0} />
+        <Button variant="primary" disabled>Out of stock</Button>
+      </div>
+      <p class="caption">Compact line stepper.</p>
+      <Stepper
+        client:visible
+        id="qty-compact"
+        label="Compact"
+        size="compact"
+        min_qty={lm7805.data.min_qty}
+        qty_multiple={lm7805.data.qty_multiple}
+        stock_qty={lm7805.data.stock_qty}
+        value={1}
+      />
+    </section>
+
+    <section aria-labelledby="pills-heading">
+      <h2 id="pills-heading" class="heading">Filter pills</h2>
+      <FilterPills items={pills} />
+      {requested && ordered.length === 0 && (
+        <p class="body">No parts in {requested}. <a href={pillHref()}>Show the full catalog.</a></p>
+      )}
+      {known && (
+        <p class="caption">Showing {known}. <a href={pillHref()}>Remove</a></p>
+      )}
+    </section>
+
+    <section aria-labelledby="stock-heading">
+      <h2 id="stock-heading" class="heading">Stock</h2>
+      <div class="stock-grid">
+        <StockIndicator stockQty={lm7805.data.stock_qty} />
+        <StockIndicator stockQty={esp32.data.stock_qty} />
+        <StockIndicator stockQty={0} />
+      </div>
+      <p class="caption">No part has restock_on. This date shows the format only.</p>
+      <StockIndicator stockQty={0} restockOn="2026-11-12" />
+      <p class="caption">No part has shelf_qty, so catalog cards omit the meter. These three use a sample shelf of 20.</p>
+      <div class="stock-grid">
+        <StockIndicator stockQty={16} shelfQty={20} meter />
+        <StockIndicator stockQty={8} shelfQty={20} meter />
+        <StockIndicator stockQty={0} shelfQty={20} meter />
+      </div>
+    </section>
+
+    <section aria-labelledby="cards-heading">
+      <h2 id="cards-heading" class="heading">Product cards</h2>
+      <div class="card-list">
+        <ProductCard
+          layout="stack"
+          href={`/product/${lm2596.data.part_number.toLowerCase()}`}
+          partNumber={lm2596.data.part_number}
+          name={lm2596.data.name}
+          price={lm2596.data.price}
+          breaks={lm2596.data.breaks}
+          stockQty={lm2596.data.stock_qty}
+          packageType={lm2596.data.package_type}
+          image={lm2596.data.image}
+          transition={false}
+          priority
+        />
+        {ordered.map((part) => (
+          <ProductCard
+            href={`/product/${part.data.part_number.toLowerCase()}`}
+            partNumber={part.data.part_number}
+            name={part.data.name}
+            price={part.data.price}
+            breaks={part.data.breaks}
+            stockQty={part.data.stock_qty}
+            packageType={part.data.package_type}
+            image={part.data.image}
+          />
+        ))}
+      </div>
+      <p class="caption">Photograph omitted, so the well shows the package. LM7805 does have a photograph in the catalog.</p>
+      <div class="card-list">
+        <ProductCard
+          href={`/product/${lm7805.data.part_number.toLowerCase()}`}
+          partNumber={lm7805.data.part_number}
+          name={lm7805.data.name}
+          price={lm7805.data.price}
+          breaks={lm7805.data.breaks}
+          stockQty={lm7805.data.stock_qty}
+          packageType={lm7805.data.package_type}
+          transition={false}
+        />
+      </div>
+    </section>
+
+    <section id="catalog-table" aria-labelledby="catalog-table-heading">
+      <h2 id="catalog-table-heading" class="heading">Catalog table</h2>
+      <p class="caption">
+        Below 900px these rows are cards. Stock and price headers sort this list.
+        The last row, when the full catalog is showing, is a five-digit price for layout. Not a catalog price.
+      </p>
+      {catalogRows.length === 0 ? (
+        <p class="body">No parts in {requested ?? "this category"}. <a href={pillHref()}>Show the full catalog.</a></p>
+      ) : (
+        <CatalogTable
+          rows={catalogRows}
+          sort={{
+            stockHref: sortHref("stock"),
+            priceHref: sortHref("price"),
+            stock: stockSort,
+            price: priceSort,
+          }}
+        />
+      )}
+      <p class="caption">Five-digit price, layout only. Not a catalog price. Longest part number: ESP32-WROOM-32D.</p>
+      <p class="sample-price">{formatPkr(12345)}</p>
+      <p class="caption">Disabled add. No catalog part is at zero.</p>
+      <button type="button" class="catalog-add" disabled>Out of stock</button>
+    </section>
+
+    <section aria-labelledby="figures-heading">
+      <h2 id="figures-heading" class="heading">Key figures</h2>
+      <p class="caption">LM7805. The first four specs in the catalog, in that order.</p>
+      <KeyFigures
+        figures={lm7805.data.specs.slice(0, 4).map((spec) => ({
+          label: spec.label,
+          value: spec.value,
+          unit: spec.unit,
+        }))}
+      />
+    </section>
+  </div>
+
+  <ProcessBand />
+
+  <div class="dev-components">
+    <section id="cart-sheet" aria-labelledby="cart-sheet-heading">
+      <h2 id="cart-sheet-heading" class="heading">Cart sheet</h2>
+      <p class="caption">
+        Opens from the cart button in the header. Tab stays inside, Escape closes, and focus returns to that button.
+        These two buttons replace the cart saved in this browser. Prices come from the catalog.
+      </p>
+      <div class="cluster">
+        <CartSampleButton client:load />
+        <CartEmptyButton client:load />
+      </div>
+    </section>
+  </div>
+</Layout>
+
+<style>
+  .dev-components {
+    display: flex;
+    flex-direction: column;
+    gap: var(--space-56);
+    max-width: var(--page-max);
+    margin-inline: auto;
+    padding: var(--space-32) var(--gutter) var(--space-96);
+  }
+
+  .dev-components section,
+  .intro {
+    display: flex;
+    flex-direction: column;
+    gap: var(--space-16);
+    min-width: 0;
+  }
+
+  .cluster {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: center;
+    gap: var(--space-12);
+  }
+
+  .navy-pad {
+    display: inline-flex;
+    align-self: flex-start;
+    padding: var(--space-8);
+    border-radius: var(--radius-pill);
+    background: var(--color-navy);
+  }
+
+  .fields {
+    display: grid;
+    gap: var(--space-20);
+    max-width: var(--measure);
+  }
+
+  .buy {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: flex-start;
+    gap: var(--space-12);
+  }
+
+  .buy-action {
+    flex: 1 1 auto;
+    min-width: max-content;
+    max-width: 100%;
+  }
+
+  .stock-grid {
+    display: grid;
+    gap: var(--space-16);
+  }
+
+  .card-list {
+    display: grid;
+    gap: var(--space-16);
+    min-width: 0;
+  }
+
+  .sample-price {
+    margin: 0;
+    font-size: var(--text-heading);
+    font-weight: var(--font-weight-num);
+    font-variant-numeric: tabular-nums;
+    font-variation-settings: "wdth" var(--wdth-num);
+    letter-spacing: var(--tracking-num);
+  }
+
+  @media (min-width: 900px) {
+    .dev-components {
+      gap: var(--space-96);
+    }
+
+    .stock-grid {
+      grid-template-columns: repeat(3, minmax(0, 1fr));
+    }
+
+    .card-list {
+      grid-template-columns: repeat(3, minmax(0, 1fr));
+      gap: var(--space-24);
+      align-items: start;
+    }
+
+  }
+</style>

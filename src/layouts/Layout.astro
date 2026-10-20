@@ -1,9 +1,12 @@
 ---
+import { Font } from 'astro:assets';
 import '../styles/global.css';
 import SiteHeader from '../components/SiteHeader.astro';
 import Footer from '../components/Footer.astro';
-import CartDrawer from '../components/CartDrawer.tsx';
+import IconSprite from '../components/IconSprite.astro';
+import CartSheet from '../components/CartSheet.tsx';
 import { loadCatalog } from '../lib/catalog';
+import { partTransitionCss } from '../lib/part-image';
 import { shippingWindows } from '../lib/shipping';
 
 interface Props {
@@ -11,6 +14,7 @@ interface Props {
   description?: string;
   ogImage?: string;
   canonical?: string;
+  robots?: string;
 }
 
 const {
@@ -18,9 +22,11 @@ const {
   description = `On-demand sourcing of ICs, microcontrollers, sensors, and passive components from Hall Road, Lahore. ${shippingWindows}`,
   ogImage = "/og-image.png",
   canonical = Astro.url.href,
+  robots = "index, follow",
 } = Astro.props;
 
 const catalog = await loadCatalog();
+const transitionCss = partTransitionCss(catalog.map((part) => part.part_number));
 ---
 <!doctype html>
 <html lang="en" class="scroll-smooth">
@@ -33,7 +39,7 @@ const catalog = await loadCatalog();
     <title>{title}</title>
     <meta name="description" content={description} />
     <link rel="canonical" href={canonical} />
-    <meta name="robots" content="index, follow" />
+    <meta name="robots" content={robots} />
 
     <!-- Open Graph -->
     <meta property="og:type" content="website" />
@@ -54,17 +60,20 @@ const catalog = await loadCatalog();
     <link rel="icon" type="image/svg+xml" href="/favicon.svg" />
     <link rel="icon" href="/favicon.ico" />
 
-    <link rel="preload" href="/fonts/ibm-plex-sans-latin-400-normal.woff2" as="font" type="font/woff2" crossorigin />
+    <Font cssVariable="--font-mona" preload />
+    <Font cssVariable="--font-geist-mono" />
+    <style is:global set:html={transitionCss}></style>
 
     <!-- Page-level head slot -->
     <slot name="head" />
   </head>
   <body class="min-h-screen flex flex-col antialiased">
+    <IconSprite />
     <SiteHeader parts={catalog} />
     <main id="main" class="flex-grow w-full">
       <slot />
     </main>
     <Footer />
-    <CartDrawer client:load catalog={catalog} />
+    <CartSheet client:load catalog={catalog} />
   </body>
 </html>

@@ -1,4 +1,4 @@
-import { atom } from 'nanostores';
+import { atom, map } from 'nanostores';
 import { persistentMap } from '@nanostores/persistent';
 
 export type CartItem = {
@@ -18,6 +18,21 @@ export const cartStore = persistentMap<Record<string, CartItem>>(
   }
 );
 
+/** Bumps on every add so a second add of the same part still announces. */
+export const addedNotice = atom<{ partNumber: string; nonce: number } | null>(null);
+
+let addedNonce = 0;
+
+/** Correction messages for a line. Not persisted. */
+export const quantityNotes = map<Record<string, string>>({});
+
+export function setQuantityNote(partNumber: string, message?: string) {
+  const next = { ...quantityNotes.get() };
+  if (message) next[partNumber] = message;
+  else delete next[partNumber];
+  quantityNotes.set(next);
+}
+
 export function addToCart(item: Omit<CartItem, 'quantity'>, quantity = 1) {
   const existing = cartStore.get()[item.part_number];
   const nextQuantity = (existing?.quantity ?? 0) + quantity;
@@ -27,8 +42,9 @@ export function addToCart(item: Omit<CartItem, 'quantity'>, quantity = 1) {
     image: item.image ?? existing?.image,
     quantity: nextQuantity,
   });
-  
-  // Also open the drawer when an item is added
+
+  addedNonce += 1;
+  addedNotice.set({ partNumber: item.part_number, nonce: addedNonce });
   isCartDrawerOpen.set(true);
 }
 

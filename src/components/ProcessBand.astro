@@ -1,0 +1,135 @@
+---
+/**
+ * Three-step band. docs/design-system.md section 9 (Process band).
+ * Delivery and dispatch sentences come from src/lib/shipping.ts.
+ */
+import { deliveryCost, sameDayDispatch } from "../lib/shipping";
+
+const steps = [
+  {
+    title: "Add the parts",
+    body: "Prices and stock come from the counter. The cart shows the catalog price.",
+  },
+  {
+    title: "Pay the total",
+    body: `Transfer the amount shown, then paste the reference. ${deliveryCost}`,
+  },
+  {
+    title: "We pack and dispatch",
+    body: sameDayDispatch,
+  },
+];
+---
+
+<section class="band" id="ordering" aria-labelledby="ordering-title">
+  <div class="band-inner">
+    <p class="eyebrow">How ordering works</p>
+    <h2 id="ordering-title" class="band-title">Three steps, and you pay the total shown.</h2>
+    <ol class="steps">
+      {steps.map((step, index) => (
+        <li class="step">
+          <p class="step-k">Step {index + 1}</p>
+          <h3 class="step-title">{step.title}</h3>
+          <p class="step-body">{step.body}</p>
+        </li>
+      ))}
+    </ol>
+  </div>
+</section>
+
+<style>
+  .band {
+    margin: 0 var(--inset);
+    border-radius: var(--radius-frame);
+    background: var(--color-navy);
+    color: var(--color-on-navy);
+    padding: var(--space-48) var(--space-20);
+  }
+
+  .band-inner {
+    max-width: var(--page-max);
+    margin-inline: auto;
+  }
+
+  .eyebrow {
+    margin: 0;
+    font-family: var(--font-label);
+    font-size: var(--text-label);
+    font-weight: var(--text-label--font-weight);
+    font-variation-settings: normal;
+    line-height: var(--text-label--line-height);
+    letter-spacing: var(--text-label--letter-spacing);
+    text-transform: uppercase;
+    color: var(--color-on-navy-muted);
+  }
+
+  .band-title {
+    max-width: 18ch;
+    margin: var(--space-12) 0 0;
+    color: var(--color-on-navy);
+    font-size: var(--text-display);
+    font-weight: var(--text-display--font-weight);
+    line-height: var(--text-display--line-height);
+    letter-spacing: var(--text-display--letter-spacing);
+    font-variation-settings: "wdth" var(--wdth-display);
+    font-stretch: calc(var(--wdth-display) * 1%);
+    text-wrap: balance;
+  }
+
+  .steps {
+    display: grid;
+    gap: var(--space-12);
+    margin: var(--space-40) 0 0;
+    padding: 0;
+    list-style: none;
+  }
+
+  .step {
+    min-width: 0;
+    padding: var(--space-24);
+    border-radius: var(--radius-panel);
+    background: var(--color-navy-raised);
+    box-shadow: inset 0 0 0 1px var(--color-navy-line);
+  }
+
+  .step-k {
+    margin: 0;
+    font-family: var(--font-label);
+    font-size: var(--text-label);
+    font-weight: var(--text-label--font-weight);
+    font-variation-settings: normal;
+    line-height: var(--text-label--line-height);
+    letter-spacing: var(--text-label--letter-spacing);
+    text-transform: uppercase;
+    color: var(--color-signal);
+  }
+
+  .step-title {
+    margin: var(--space-12) 0 0;
+    color: var(--color-on-navy);
+    font-size: var(--text-heading);
+    font-weight: var(--text-heading--font-weight);
+    line-height: var(--text-heading--line-height);
+    letter-spacing: var(--text-heading--letter-spacing);
+    font-variation-settings: "wdth" var(--wdth-heading);
+    text-wrap: balance;
+  }
+
+  .step-body {
+    margin: var(--space-8) 0 0;
+    color: var(--color-on-navy-muted);
+    font-size: var(--text-small);
+    line-height: var(--text-small--line-height);
+    text-wrap: pretty;
+  }
+
+  @media (min-width: 900px) {
+    .band {
+      padding: var(--space-80) var(--space-56);
+    }
+
+    .steps {
+      grid-template-columns: repeat(3, minmax(0, 1fr));
+    }
+  }
+</style>

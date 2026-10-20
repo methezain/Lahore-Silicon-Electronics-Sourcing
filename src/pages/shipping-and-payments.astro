@@ -31,7 +31,7 @@ const wa = whatsappHref();
       <section class="panel">
         <h2 class="heading">Payment details</h2>
         {methods.map((method) => (
-          <div style="margin-top: 16px;">
+          <div class="mt-16">
             <p class="label">{method.label}</p>
             <dl>
               {method.lines.map((line) => (
@@ -49,7 +49,7 @@ const wa = whatsappHref();
     <section class="panel">
       <h2 class="heading">Dispatch</h2>
       {clockRows.map((row) => (
-        <div class="summary-row" style="padding: 12px 0; border-bottom: 1px solid var(--line-subtle);">
+        <div class="summary-row pad-y-12 rule-bottom">
           <div>
             <p>{row.label}</p>
             <p class="caption">{row.detail}</p>
@@ -57,7 +57,7 @@ const wa = whatsappHref();
           <p class="mono">{row.value}</p>
         </div>
       ))}
-      <div class="summary-row" style="padding: 12px 0;">
+      <div class="summary-row pad-y-12">
         <div>
           <p>Packaging</p>
           <p class="caption">Antistatic bag, then a labeled parcel.</p>

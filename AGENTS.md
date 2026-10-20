@@ -1,10 +1,12 @@
 ## Storefront
 
-Lahore Silicon is a small Hall Road electronics counter. Before changing pages, styles, catalog data, cart, or checkout, read `docs/README.md` and follow the file it points to. The binding rules are in `docs/agent-rules.md`. The visual system is locked in `docs/design-system.md`. Do the earliest unfinished item in `docs/change-plan.md` before restyling.
+Lahore Silicon is a premium online counter for electronic components from Hall Road, Lahore. Before changing pages, styles, catalog data, cart, or checkout, read `docs/README.md` and follow the file it points to.
 
-## Storefront
-
-Lahore Silicon is a small Hall Road electronics counter. Before changing pages, styles, catalog data, cart, or checkout, read `docs/README.md` and follow the file it points to. The binding rules are in `docs/agent-rules.md`. The visual system is locked in `docs/design-system.md`. Do the earliest unfinished item in `docs/change-plan.md` before restyling.
+- Binding rules: `docs/agent-rules.md`
+- Next task: the earliest unfinished item in `docs/change-plan.md`
+- Visual system (locked): `docs/design-system.md`, rendered in `docs/design/specimen.html`, targets in `docs/design/screens/`
+- Definition of done: `docs/qa.md`. Verify UI changes in a browser at 390px and 1440px.
+- Never invent a phone number, address, stock count, datasheet, photo, or claim. Log the gap in `docs/decisions.md`.
 
 ## Development
 

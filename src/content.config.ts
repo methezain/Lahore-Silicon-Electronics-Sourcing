@@ -10,7 +10,8 @@ const specSchema = z.object({
 
 const componentsCollection = defineCollection({
   loader: glob({ pattern: "*.json", base: "./src/content/components" }),
-  schema: z
+  schema: ({ image }) =>
+    z
     .object({
       part_number: z.string().min(1),
       manufacturer: z
@@ -44,10 +45,16 @@ const componentsCollection = defineCollection({
           }
         }, "Datasheet must be an absolute https URL.")
         .optional(),
-      image: z
-        .string()
-        .refine((value) => !value.includes("placehold.co"), {
-          message: "Omit image until there is a photograph of the stocked part.",
+      image: image()
+        .check((ctx) => {
+          const value: unknown = ctx.value;
+          if (typeof value === "string" && value.includes("placehold.co")) {
+            ctx.issues.push({
+              code: "custom",
+              input: value,
+              message: "Omit image until there is a photograph of the stocked part.",
+            });
+          }
         })
         .optional(),
       image_note: z.string().min(1).optional(),

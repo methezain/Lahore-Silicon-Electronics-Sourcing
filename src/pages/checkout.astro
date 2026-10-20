@@ -53,7 +53,7 @@ const description = methods.length > 0
         </div>
         <details>
           <summary>Add an apartment, floor, or landmark</summary>
-          <div class="field" style="margin-top: 12px;">
+          <div class="field mt-12">
             <label for="field-address-2">Address line 2, optional</label>
             <input type="text" name="address_line_2" id="field-address-2" autocomplete="address-line2" />
           </div>
@@ -87,7 +87,7 @@ const description = methods.length > 0
             {methods.length > 1 && (
               <div class="actions">
                 {methods.map((method, i) => (
-                  <button class="payment-tab btn-quiet" data-tab={method.id} type="button" style={i === 0 ? "color:#fff;border-color:#8A4E2B;" : "color:#D5D8D4;border-color:#3C4650;"}>
+                  <button class:list={["payment-tab btn-quiet", { "is-selected": i === 0 }]} data-tab={method.id} type="button">
                     {method.label}
                   </button>
                 ))}
@@ -99,7 +99,7 @@ const description = methods.length > 0
                   <div class="pay-row">
                     <span class="caption">{row.label}</span>
                     <span class="mono">{row.value}</span>
-                    <button class="copy-btn btn-quiet" type="button" data-copy={row.value} style="color:#fff;border-color:#D5D8D4;">Copy</button>
+                    <button class="copy-btn btn-quiet" type="button" data-copy={row.value}>Copy</button>
                   </div>
                 ))}
               </div>
@@ -194,8 +194,6 @@ const description = methods.length > 0
   function setSubmitEnabled(enabled: boolean) {
     if (!submitBtn) return;
     submitBtn.disabled = !enabled;
-    submitBtn.style.opacity = enabled ? '1' : '0.5';
-    submitBtn.style.cursor = enabled ? 'pointer' : 'not-allowed';
   }
 
   const renderSummary = () => {
@@ -205,10 +203,9 @@ const description = methods.length > 0
 
     if (items.length === 0) {
       const empty = document.createElement('p');
-      empty.className = 'text-sm text-center py-4';
-      empty.style.color = '#475569';
+      empty.className = 'caption';
       empty.textContent = 'Your cart is empty.';
-      itemsContainer.append(empty);
+      itemsContainer.appendChild(empty);
       setTotals(0);
       setSubmitEnabled(false);
       return;
@@ -217,61 +214,41 @@ const description = methods.length > 0
     const priced = priceCart(catalog, items);
     for (const line of priced.lines) {
       const row = document.createElement('div');
-      row.style.display = 'flex';
-      row.style.justifyContent = 'space-between';
-      row.style.alignItems = 'flex-start';
-      row.style.gap = '0.5rem';
+      row.className = 'summary-row';
 
       const copy = document.createElement('div');
-      copy.style.flex = '1';
-      copy.style.minWidth = '0';
+      copy.className = 'summary-copy';
 
       const title = document.createElement('p');
-      title.style.fontSize = '0.8rem';
-      title.style.fontWeight = '700';
-      title.style.color = '#161A1D';
-      title.style.fontFamily = "'IBM Plex Mono',monospace";
-      title.style.whiteSpace = 'nowrap';
-      title.style.overflow = 'hidden';
-      title.style.textOverflow = 'ellipsis';
+      title.className = 'mono';
       title.textContent = `${line.quantity}× ${line.part_number}`;
 
       const name = document.createElement('p');
-      name.style.fontSize = '0.7rem';
-      name.style.color = '#475569';
-      name.style.whiteSpace = 'nowrap';
-      name.style.overflow = 'hidden';
-      name.style.textOverflow = 'ellipsis';
+      name.className = 'caption';
       name.textContent = line.name;
 
       const amount = document.createElement('span');
       amount.className = 'money';
-      amount.style.fontSize = '0.8rem';
-      amount.style.fontWeight = '700';
-      amount.style.color = '#161A1D';
-      amount.style.fontFamily = "'IBM Plex Mono',monospace";
-      amount.style.whiteSpace = 'nowrap';
-      amount.style.flexShrink = '0';
       amount.textContent = formatPkr(line.line_total);
 
-      copy.append(title, name);
-      row.append(copy, amount);
-      itemsContainer.append(row);
+      copy.appendChild(title);
+      copy.appendChild(name);
+      row.appendChild(copy);
+      row.appendChild(amount);
+      itemsContainer.appendChild(row);
     }
 
     for (const partNumber of priced.missing) {
       const note = document.createElement('p');
-      note.style.fontSize = '0.75rem';
-      note.style.color = '#BE123C';
+      note.className = 'error';
       note.textContent = `The shop does not sell ${partNumber}.`;
-      itemsContainer.append(note);
+      itemsContainer.appendChild(note);
     }
     for (const partNumber of priced.invalid) {
       const note = document.createElement('p');
-      note.style.fontSize = '0.75rem';
-      note.style.color = '#BE123C';
+      note.className = 'error';
       note.textContent = `${partNumber}: quantity must be a positive integer.`;
-      itemsContainer.append(note);
+      itemsContainer.appendChild(note);
     }
 
     setTotals(priced.total);
@@ -307,40 +284,35 @@ const description = methods.length > 0
     showFieldError(paymentInput, paymentError, paymentMessage());
   });
 
-  // ===== Payment tabs =====
-  document.querySelectorAll('.payment-tab').forEach(tab => {
+  document.querySelectorAll('.payment-tab').forEach((tab) => {
     tab.addEventListener('click', () => {
-      const targetId = (tab as HTMLElement).dataset.tab!;
-      document.querySelectorAll('.payment-tab').forEach((t: any) => {
-        t.style.color = 'rgba(255,255,255,0.5)';
-        t.style.borderBottomColor = 'transparent';
-        t.style.background = 'transparent';
+      if (!(tab instanceof HTMLElement)) return;
+      const targetId = tab.dataset.tab;
+      document.querySelectorAll('.payment-tab').forEach((other) => {
+        other.classList.toggle('is-selected', other === tab);
       });
-      document.querySelectorAll('.payment-panel').forEach((p: any) => p.classList.add('hidden'));
-      (tab as HTMLElement).style.color = '#ffffff';
-      (tab as HTMLElement).style.borderBottomColor = '#8A4E2B';
-      (tab as HTMLElement).style.background = 'rgba(0,122,173,0.15)';
-      document.getElementById(targetId)?.classList.remove('hidden');
+      document.querySelectorAll('.payment-panel').forEach((panel) => {
+        panel.classList.add('hidden');
+      });
+      if (targetId) document.getElementById(targetId)?.classList.remove('hidden');
     });
   });
 
-  // ===== Copy buttons =====
-  document.querySelectorAll('.copy-btn').forEach(btn => {
+  document.querySelectorAll('.copy-btn').forEach((btn) => {
     btn.addEventListener('click', async () => {
-      const text = (btn as HTMLElement).dataset.copy || '';
+      if (!(btn instanceof HTMLElement)) return;
+      const text = btn.dataset.copy ?? '';
       try {
         await navigator.clipboard.writeText(text);
         btn.textContent = '✓ Copied';
-        btn.classList.add('copied');
-        (btn as HTMLElement).style.background = 'rgba(5,150,105,0.4)';
-        (btn as HTMLElement).style.color = '#6EE7B7';
-        setTimeout(() => {
+        btn.classList.add('is-copied');
+        window.setTimeout(() => {
           btn.textContent = 'Copy';
-          btn.classList.remove('copied');
-          (btn as HTMLElement).style.background = 'rgba(255,255,255,0.12)';
-          (btn as HTMLElement).style.color = 'rgba(255,255,255,0.7)';
+          btn.classList.remove('is-copied');
         }, 2000);
-      } catch {}
+      } catch {
+        /* clipboard can be denied */
+      }
     });
   });
 

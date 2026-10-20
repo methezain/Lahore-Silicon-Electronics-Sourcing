@@ -1,0 +1,504 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1" />
+<title>Lahore Silicon — design specimen</title>
+<link rel="preconnect" href="https://fonts.googleapis.com" />
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+<link href="https://fonts.googleapis.com/css2?family=Geist+Mono:wght@400..600&family=Mona+Sans:wdth,wght@75..125,300..800&display=swap" rel="stylesheet" />
+<style>
+/* Reference implementation of docs/design-system.md. Port tokens, not this file. */
+:root {
+  --canvas: oklch(0.972 0.006 247);
+  --surface: oklch(1 0 0);
+  --sunken: oklch(0.948 0.009 247);
+  --line: oklch(0.905 0.012 247);
+  --control-line: oklch(0.62 0.02 250);
+  --ink: oklch(0.228 0.047 254.7);
+  --ink-muted: oklch(0.47 0.03 252);
+  --navy: oklch(0.228 0.047 254.7);
+  --navy-raised: oklch(0.27 0.045 254);
+  --navy-raised-2: oklch(0.31 0.043 253);
+  --navy-line: oklch(0.36 0.04 252);
+  --on-navy: oklch(0.97 0.008 247);
+  --on-navy-muted: oklch(0.76 0.03 248);
+  --blue-50: oklch(0.975 0.012 236.5);
+  --blue-100: oklch(0.95 0.026 236.5);
+  --blue-200: oklch(0.9 0.056 236.5);
+  --signal: oklch(0.74 0.154 236.5);
+  --action: oklch(0.549 0.118 236.5);
+  --action-hover: oklch(0.5 0.11 236.5);
+  --link: oklch(0.47 0.102 236.5);
+  --ok: oklch(0.5 0.12 155);
+  --ok-bg: oklch(0.96 0.03 155);
+  --low: oklch(0.52 0.11 65);
+  --low-bg: oklch(0.965 0.035 80);
+  --out: oklch(0.52 0.17 25);
+  --out-bg: oklch(0.965 0.02 25);
+
+  --font-sans: "Mona Sans", ui-sans-serif, system-ui, sans-serif;
+  --font-mono: "Geist Mono", ui-monospace, monospace;
+
+  --r-frame: 28px; --r-panel: 20px; --r-card: 16px; --r-control: 12px; --r-chip: 8px; --r-pill: 999px;
+  --shadow-1: 0 1px 2px oklch(0.228 0.047 254.7 / 0.06), 0 1px 1px oklch(0.228 0.047 254.7 / 0.04);
+  --shadow-2: 0 2px 4px oklch(0.228 0.047 254.7 / 0.05), 0 8px 24px -6px oklch(0.228 0.047 254.7 / 0.12);
+  --shadow-3: 0 4px 8px oklch(0.228 0.047 254.7 / 0.06), 0 24px 48px -12px oklch(0.228 0.047 254.7 / 0.28);
+  --ease-out: cubic-bezier(0.2, 0.8, 0.2, 1);
+  --dur-1: 120ms; --dur-2: 200ms; --dur-3: 320ms;
+  --gutter: 16px; --inset: 8px;
+}
+@media (min-width: 900px) { :root { --gutter: 32px; --inset: 12px; } }
+
+* { box-sizing: border-box; }
+html { -webkit-text-size-adjust: 100%; }
+p, h1, h2, h3 { text-wrap: pretty; }
+body { margin: 0; background: var(--canvas); color: var(--ink); font-family: var(--font-sans); font-size: 16px; line-height: 1.55; font-variation-settings: "wdth" 100; -webkit-font-smoothing: antialiased; }
+img { display: block; max-width: 100%; }
+a { color: var(--link); text-underline-offset: 3px; }
+button { font: inherit; color: inherit; }
+:focus-visible { outline: 2px solid var(--action); outline-offset: 2px; border-radius: 4px; }
+
+/* Type roles */
+.t-display-xl { font-size: clamp(2.5rem, 1.2rem + 4.2vw, 4.5rem); line-height: 0.98; letter-spacing: -0.035em; font-weight: 640; font-variation-settings: "wdth" 112; margin: 0; text-wrap: balance; }
+.t-display { font-size: clamp(2rem, 1.3rem + 2.2vw, 3rem); line-height: 1.04; letter-spacing: -0.03em; font-weight: 620; font-variation-settings: "wdth" 110; margin: 0; text-wrap: balance; }
+.t-title { font-size: clamp(1.625rem, 1.3rem + 1vw, 2rem); line-height: 1.1; letter-spacing: -0.02em; font-weight: 600; font-variation-settings: "wdth" 106; margin: 0; }
+.t-heading { font-size: 1.25rem; line-height: 1.3; letter-spacing: -0.01em; font-weight: 600; margin: 0; }
+.t-body-lg { font-size: 1.125rem; line-height: 1.55; margin: 0; max-width: 60ch; }
+.t-body { font-size: 1rem; line-height: 1.55; margin: 0; max-width: 65ch; }
+.t-small { font-size: 0.875rem; line-height: 1.45; margin: 0; }
+.t-caption { font-size: 0.8125rem; line-height: 1.4; color: var(--ink-muted); margin: 0; }
+.t-label { font-family: var(--font-mono); font-size: 0.6875rem; line-height: 1.2; letter-spacing: 0.06em; text-transform: uppercase; font-weight: 500; color: var(--ink-muted); margin: 0; }
+.t-part { font-family: var(--font-mono); font-weight: 500; letter-spacing: -0.01em; font-variant-numeric: tabular-nums slashed-zero; }
+.t-num { font-variant-numeric: tabular-nums; font-variation-settings: "wdth" 108; font-weight: 600; letter-spacing: -0.02em; }
+.muted { color: var(--ink-muted); }
+
+/* Layout */
+.wrap { max-width: 1280px; margin: 0 auto; padding: 0 var(--gutter); }
+.section { padding: 56px 0; }
+@media (min-width: 900px) { .section { padding: 96px 0; } }
+.section-head { display: flex; justify-content: space-between; align-items: end; gap: 24px; margin-bottom: 24px; }
+.stack-8 > * + * { margin-top: 8px; } .stack-12 > * + * { margin-top: 12px; } .stack-16 > * + * { margin-top: 16px; } .stack-24 > * + * { margin-top: 24px; }
+
+/* Header: floating pill bar */
+.header { position: sticky; top: var(--inset); z-index: 40; margin: var(--inset) var(--inset) 0; }
+.bar { display: flex; align-items: center; gap: 8px; height: 60px; padding: 0 8px 0 16px; border-radius: var(--r-pill); background: oklch(1 0 0 / 0.78); backdrop-filter: blur(20px) saturate(160%); -webkit-backdrop-filter: blur(20px) saturate(160%); box-shadow: var(--shadow-2), inset 0 0 0 1px oklch(0.905 0.012 247 / 0.7); }
+.logo { display: inline-flex; align-items: center; gap: 10px; color: var(--ink); text-decoration: none; font-weight: 650; letter-spacing: -0.02em; font-variation-settings: "wdth" 108; font-size: 1.0625rem; margin-right: 8px; white-space: nowrap; }
+.logo svg { width: 28px; height: 28px; }
+.seg { display: none; gap: 2px; padding: 4px; border-radius: var(--r-pill); background: var(--sunken); }
+.seg a { padding: 7px 14px; border-radius: var(--r-pill); font-size: 0.875rem; font-weight: 520; color: var(--ink-muted); text-decoration: none; transition: background var(--dur-1) var(--ease-out), color var(--dur-1) var(--ease-out); }
+.seg a:hover { color: var(--ink); }
+.seg a[aria-current="page"] { background: var(--surface); color: var(--ink); box-shadow: var(--shadow-1); }
+.search-trigger { flex: 1; display: flex; align-items: center; gap: 10px; height: 44px; padding: 0 8px 0 14px; border-radius: var(--r-pill); background: var(--sunken); color: var(--ink-muted); font-size: 0.9375rem; border: 0; cursor: text; min-width: 0; }
+.search-trigger span:first-of-type { flex: 1; text-align: left; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+.kbd { font-family: var(--font-mono); font-size: 0.6875rem; padding: 3px 7px; border-radius: 6px; background: var(--surface); color: var(--ink-muted); box-shadow: var(--shadow-1); }
+.icon-btn { display: inline-grid; place-items: center; width: 44px; height: 44px; border-radius: var(--r-pill); border: 0; background: transparent; cursor: pointer; color: var(--ink); position: relative; transition: background var(--dur-1) var(--ease-out); }
+.icon-btn:hover { background: var(--sunken); }
+.cart-btn { display: inline-flex; align-items: center; gap: 8px; height: 44px; padding: 0 16px 0 12px; border-radius: var(--r-pill); border: 0; background: var(--ink); color: var(--on-navy); font-weight: 560; font-size: 0.875rem; cursor: pointer; }
+.cart-btn .count { min-width: 22px; height: 22px; padding: 0 6px; border-radius: var(--r-pill); background: var(--signal); color: var(--ink); font-size: 0.75rem; font-weight: 700; display: inline-grid; place-items: center; font-variant-numeric: tabular-nums; }
+@media (max-width: 899px) {
+  .hide-m { display: none !important; }
+  .search-trigger { flex: none; width: 44px; padding: 0; justify-content: center; margin-left: auto; }
+  .search-trigger > span { display: none; }
+}
+@media (min-width: 900px) { .seg { display: inline-flex; } .search-trigger { max-width: 420px; margin-left: auto; } .bar { height: 64px; padding: 0 10px 0 20px; } }
+
+/* Hero: navy frame with docked search notch */
+.hero { position: relative; margin: 12px var(--inset) 0; border-radius: var(--r-frame); background: var(--navy); color: var(--on-navy); overflow: hidden; isolation: isolate; }
+.hero::before { content: ""; position: absolute; inset: 0; z-index: -1; background-image: linear-gradient(oklch(1 0 0 / 0.045) 1px, transparent 1px), linear-gradient(90deg, oklch(1 0 0 / 0.045) 1px, transparent 1px); background-size: 40px 40px; mask-image: radial-gradient(120% 90% at 85% 40%, #000 20%, transparent 70%); }
+.hero-grid { display: grid; gap: 40px; padding: 40px 20px 132px; }
+@media (min-width: 900px) { .hero-grid { grid-template-columns: 1.05fr 0.95fr; align-items: center; padding: 72px 56px 152px; min-height: 620px; } }
+.status { display: inline-flex; align-items: center; gap: 10px; padding: 6px 12px 6px 8px; border-radius: var(--r-pill); background: var(--navy-raised); box-shadow: inset 0 0 0 1px var(--navy-line); font-size: 0.8125rem; color: var(--on-navy); }
+.status .dot { width: 8px; height: 8px; border-radius: 50%; background: oklch(0.78 0.16 155); box-shadow: 0 0 0 3px oklch(0.78 0.16 155 / 0.18); }
+.status b { font-weight: 600; font-variant-numeric: tabular-nums; }
+.hero h1 { margin-top: 20px; }
+.hero h1 em { font-style: normal; color: var(--signal); }
+.hero .lede { margin-top: 20px; color: var(--on-navy-muted); font-size: 1.125rem; max-width: 34rem; }
+.facts { display: flex; flex-wrap: wrap; gap: 8px 24px; margin-top: 28px; }
+.facts div { display: flex; flex-direction: column; gap: 2px; }
+.facts .t-label { color: var(--on-navy-muted); }
+.facts strong { font-weight: 600; font-size: 0.9375rem; }
+
+.dock { position: absolute; left: 0; bottom: 0; z-index: 2; width: min(100%, 640px); padding: 12px 12px 0 0; background: var(--canvas); border-top-right-radius: var(--r-frame); }
+.dock::before, .dock::after { content: ""; position: absolute; width: var(--r-frame); height: var(--r-frame); background: radial-gradient(circle at 100% 0, transparent calc(var(--r-frame) - 0.5px), var(--canvas) var(--r-frame)); }
+.dock::before { left: 0; top: calc(var(--r-frame) * -1); }
+.dock::after { left: 100%; bottom: 0; }
+.dock-inner { display: flex; align-items: center; gap: 8px; height: 72px; padding: 0 8px 0 20px; background: var(--surface); border-radius: var(--r-panel); box-shadow: var(--shadow-1), inset 0 0 0 1px var(--line); }
+.dock-inner svg { flex: none; color: var(--ink-muted); }
+.dock-inner input { flex: 1; min-width: 0; border: 0; outline: 0; background: transparent; font: inherit; font-size: 1.0625rem; color: var(--ink); }
+.dock-inner input::placeholder { color: var(--ink-muted); }
+.dock-inner input:focus-visible { outline: none; }
+.dock-inner:focus-within { box-shadow: var(--shadow-1), inset 0 0 0 2px var(--action); }
+@media (max-width: 899px) {
+  .dock { position: relative; width: auto; margin: -76px 16px 0; padding: 0 0 16px; background: transparent; }
+  .dock::before, .dock::after { display: none; }
+  .dock-inner { height: 56px; padding-left: 16px; box-shadow: none; }
+  .dock-inner .btn { display: none; }
+}
+
+/* Stacked floating cards (hero) */
+.deck { position: relative; height: 380px; max-width: 460px; width: 100%; justify-self: center; }
+@media (max-width: 899px) { .deck { display: none; } .hero-grid { padding-bottom: 96px; } }
+.deck .card { position: absolute; inset: auto 0 0 0; margin: 0 auto; width: 88%; }
+.deck .card.back-2 { transform: translate(-14%, -78px) rotate(-6deg) scale(0.9); opacity: 0.55; filter: saturate(0.6); }
+.deck .card.back-1 { transform: translate(-6%, -40px) rotate(-3deg) scale(0.95); opacity: 0.8; }
+.deck .card.front { box-shadow: var(--shadow-3); }
+
+/* Product card + socket tab (signature) */
+.card { position: relative; background: var(--surface); color: var(--ink); border-radius: var(--r-card); padding: 16px; }
+.tab { position: absolute; left: 24px; bottom: 100%; height: 30px; display: inline-flex; align-items: center; gap: 8px; padding: 0 12px; background: inherit; border-radius: 10px 10px 0 0; font-size: 0.75rem; color: var(--ink); white-space: nowrap; }
+.tab::before, .tab::after { content: ""; position: absolute; bottom: 0; width: 10px; height: 10px; }
+.tab::before { right: 100%; background: radial-gradient(circle at 0 0, transparent 9.5px, var(--tab-bg, var(--surface)) 10px); }
+.tab::after { left: 100%; background: radial-gradient(circle at 100% 0, transparent 9.5px, var(--tab-bg, var(--surface)) 10px); }
+.tab .pin { width: 6px; height: 6px; border-radius: 2px; background: var(--action); }
+.card-media { aspect-ratio: 4 / 3; border-radius: var(--r-control); background: var(--sunken); overflow: hidden; }
+.card-media img { width: 100%; height: 100%; object-fit: cover; mix-blend-mode: multiply; }
+.card-row { display: flex; justify-content: space-between; align-items: baseline; gap: 12px; }
+.price { font-size: 1.375rem; }
+.price small { font-size: 0.75em; font-weight: 500; color: var(--ink-muted); margin-right: 2px; letter-spacing: 0; }
+
+.meter { display: grid; grid-template-columns: repeat(10, 1fr); gap: 3px; }
+.meter i { height: 6px; border-radius: 2px; background: var(--line); }
+.meter.ok i.on { background: var(--ok); }
+.meter.low i.on { background: var(--low); }
+.stock { display: inline-flex; align-items: center; gap: 6px; font-size: 0.8125rem; font-weight: 550; }
+.stock.ok { color: var(--ok); } .stock.low { color: var(--low); } .stock.out { color: var(--out); }
+.stock::before { content: ""; width: 6px; height: 6px; border-radius: 50%; background: currentColor; }
+
+/* Buttons */
+.btn { display: inline-flex; align-items: center; justify-content: center; gap: 8px; height: 44px; padding: 0 18px; border-radius: var(--r-pill); border: 0; font-weight: 580; font-size: 0.9375rem; cursor: pointer; text-decoration: none; white-space: nowrap; transition: background var(--dur-1) var(--ease-out), transform var(--dur-1) var(--ease-out), box-shadow var(--dur-1) var(--ease-out); }
+.btn:active { transform: scale(0.97); }
+.btn-primary { background: var(--action); color: var(--surface); box-shadow: inset 0 1px 0 oklch(1 0 0 / 0.16), 0 1px 2px oklch(0.39 0.084 236.5 / 0.35); }
+.btn-primary:hover { background: var(--action-hover); }
+.btn-signal { background: var(--signal); color: var(--ink); }
+.btn-secondary { background: var(--surface); color: var(--ink); box-shadow: inset 0 0 0 1px var(--control-line); }
+.btn-secondary:hover { background: var(--sunken); }
+.btn-ghost { background: transparent; color: var(--ink); }
+.btn-ghost:hover { background: var(--sunken); }
+.btn-lg { height: 52px; padding: 0 24px; font-size: 1rem; }
+.btn-block { width: 100%; }
+.btn[disabled] { background: var(--sunken); color: var(--ink-muted); box-shadow: none; cursor: not-allowed; }
+
+/* Category bento */
+.bento { display: grid; gap: 12px; grid-template-columns: repeat(2, 1fr); }
+@media (min-width: 900px) { .bento { grid-template-columns: repeat(4, 1fr); grid-auto-rows: 168px; } .bento .big { grid-column: span 2; grid-row: span 2; } }
+.tile { position: relative; display: flex; flex-direction: column; justify-content: space-between; gap: 16px; padding: 20px; border-radius: var(--r-panel); background: var(--surface); color: var(--ink); text-decoration: none; overflow: hidden; min-height: 140px; box-shadow: inset 0 0 0 1px var(--line); transition: box-shadow var(--dur-2) var(--ease-out); }
+.tile:hover { box-shadow: inset 0 0 0 1px var(--control-line), var(--shadow-2); }
+.tile .n { font-size: 2.25rem; line-height: 1; }
+.tile.big { background: var(--navy); color: var(--on-navy); box-shadow: none; }
+.tile.big .t-label, .tile.big .muted { color: var(--on-navy-muted); }
+.tile.big > div, .tile.big > .n { position: relative; z-index: 1; max-width: 52%; }
+.tile.big img { position: absolute; right: 16px; bottom: 16px; width: 44%; aspect-ratio: 1; object-fit: cover; border-radius: var(--r-card); }
+@media (max-width: 899px) { .tile.big { grid-column: span 2; min-height: 240px; } }
+.tile .arrow { position: absolute; top: 16px; right: 16px; width: 32px; height: 32px; border-radius: 50%; display: grid; place-items: center; background: var(--sunken); }
+.tile.big .arrow { background: var(--navy-raised-2); color: var(--on-navy); }
+
+/* Catalog */
+.toolbar { display: flex; flex-wrap: wrap; gap: 12px; justify-content: space-between; align-items: center; margin-bottom: 16px; }
+.pills { display: flex; gap: 6px; overflow-x: auto; scrollbar-width: none; padding: 4px; margin: -4px; }
+.pill { flex: none; height: 36px; padding: 0 14px; border-radius: var(--r-pill); border: 0; background: var(--surface); box-shadow: inset 0 0 0 1px var(--line); font-size: 0.875rem; font-weight: 520; color: var(--ink); cursor: pointer; display: inline-flex; align-items: center; gap: 8px; }
+.pill .c { font-family: var(--font-mono); font-size: 0.6875rem; color: var(--ink-muted); }
+.pill[aria-pressed="true"] { background: var(--ink); color: var(--on-navy); box-shadow: none; }
+.pill[aria-pressed="true"] .c { color: var(--on-navy-muted); }
+.table-panel { background: var(--surface); border-radius: var(--r-panel); box-shadow: inset 0 0 0 1px var(--line); overflow: hidden; }
+table.cat { width: 100%; border-collapse: collapse; }
+.cat th { text-align: left; padding: 14px 16px; background: var(--sunken); font-family: var(--font-mono); font-size: 0.6875rem; letter-spacing: 0.06em; text-transform: uppercase; font-weight: 500; color: var(--ink-muted); }
+.cat td { padding: 12px 16px; border-top: 1px solid var(--line); vertical-align: middle; font-size: 0.9375rem; }
+.cat .r { text-align: right; }
+.cat tbody tr { transition: background var(--dur-1) var(--ease-out); }
+.cat tbody tr:hover { background: var(--blue-50); }
+.cat .thumb { width: 52px; height: 52px; border-radius: 10px; background: var(--sunken); overflow: hidden; }
+.cat .thumb img { width: 100%; height: 100%; object-fit: cover; mix-blend-mode: multiply; }
+.cat .pn { color: var(--ink); text-decoration: none; font-size: 0.875rem; }
+.cat .add { height: 36px; padding: 0 14px; font-size: 0.8125rem; }
+.mlist { display: none; }
+@media (max-width: 899px) { table.cat { display: none; } .table-panel { background: transparent; box-shadow: none; overflow: visible; } .mlist { display: grid; gap: 40px; padding-top: 30px; } }
+.mcard { display: grid; grid-template-columns: 88px 1fr; gap: 14px; align-items: center; }
+.mcard .card-media { aspect-ratio: 1; }
+
+/* PDP */
+.pdp { display: grid; gap: 24px; }
+@media (min-width: 900px) { .pdp { grid-template-columns: 1.15fr 0.85fr; gap: 32px; align-items: start; } }
+.gallery { background: var(--surface); border-radius: var(--r-frame); padding: 12px; box-shadow: inset 0 0 0 1px var(--line); margin-top: 30px; }
+.gallery .tab { left: 32px; font-size: 0.8125rem; height: 34px; padding: 0 14px; }
+.gallery-main { aspect-ratio: 1; border-radius: calc(var(--r-frame) - 12px); background: var(--sunken); overflow: hidden; }
+.gallery-main img { width: 100%; height: 100%; object-fit: cover; mix-blend-mode: multiply; }
+.thumbs { display: flex; gap: 8px; margin-top: 8px; }
+.thumbs span { width: 64px; height: 64px; border-radius: 10px; background: var(--sunken); box-shadow: inset 0 0 0 1px var(--line); overflow: hidden; }
+.thumbs span[aria-current] { box-shadow: inset 0 0 0 2px var(--action); }
+.thumbs img { width: 100%; height: 100%; object-fit: cover; mix-blend-mode: multiply; }
+.buy { background: var(--surface); border-radius: var(--r-frame); padding: 28px; box-shadow: var(--shadow-2), inset 0 0 0 1px var(--line); position: sticky; top: 96px; }
+@media (max-width: 899px) { .buy { padding: 20px; border-radius: var(--r-panel); position: static; } }
+.buy .pn-line { display: flex; align-items: center; gap: 10px; flex-wrap: wrap; }
+.buy .pn-big { font-size: 0.9375rem; padding: 4px 10px; border-radius: var(--r-chip); background: var(--sunken); }
+.buy .price-big { font-size: 2.5rem; line-height: 1; }
+.eta { display: grid; grid-template-columns: auto 1fr; gap: 12px; align-items: start; padding: 14px; border-radius: var(--r-control); background: var(--blue-50); box-shadow: inset 0 0 0 1px var(--blue-200); }
+.eta svg { color: var(--link); margin-top: 2px; }
+.qty-row { display: grid; grid-template-columns: auto 1fr; gap: 10px; }
+.stepper { display: inline-flex; align-items: center; height: 52px; border-radius: var(--r-pill); box-shadow: inset 0 0 0 1px var(--control-line); background: var(--surface); }
+.stepper button { width: 44px; height: 44px; margin: 0 4px; border: 0; background: transparent; border-radius: 50%; cursor: pointer; font-size: 1.125rem; }
+.stepper button:hover { background: var(--sunken); }
+.stepper input { width: 40px; border: 0; text-align: center; font: inherit; font-weight: 600; font-variant-numeric: tabular-nums; background: transparent; color: var(--ink); }
+.kv { display: grid; grid-template-columns: 1fr auto; gap: 10px 16px; font-size: 0.875rem; }
+.kv dt { color: var(--ink-muted); } .kv dd { margin: 0; text-align: right; font-weight: 550; }
+hr.rule { border: 0; height: 1px; background: var(--line); margin: 0; }
+
+.spec-bento { display: grid; gap: 12px; grid-template-columns: repeat(2, 1fr); }
+@media (min-width: 900px) { .spec-bento { grid-template-columns: repeat(4, 1fr); } }
+.spec { padding: 20px; border-radius: var(--r-panel); background: var(--surface); box-shadow: inset 0 0 0 1px var(--line); }
+.spec .v { font-size: 2.5rem; line-height: 1; margin-top: 18px; }
+.spec .v small { font-size: 0.5em; font-weight: 500; color: var(--ink-muted); margin-left: 4px; letter-spacing: 0; }
+.spec.dark { background: var(--navy); color: var(--on-navy); box-shadow: none; }
+.spec.dark .t-label { color: var(--on-navy-muted); }
+.spec.dark .v { color: var(--signal); }
+
+/* Process (dark band) */
+.band { margin: 0 var(--inset); border-radius: var(--r-frame); background: var(--navy); color: var(--on-navy); padding: 48px 20px; }
+@media (min-width: 900px) { .band { padding: 80px 56px; } }
+.steps { display: grid; gap: 12px; margin-top: 40px; }
+@media (min-width: 900px) { .steps { grid-template-columns: repeat(3, 1fr); } }
+.step { padding: 24px; border-radius: var(--r-panel); background: var(--navy-raised); box-shadow: inset 0 0 0 1px var(--navy-line); }
+.step .k { font-family: var(--font-mono); font-size: 0.75rem; color: var(--signal); }
+.step p { color: var(--on-navy-muted); margin-top: 8px; font-size: 0.9375rem; }
+
+/* Drawer */
+.drawer-demo { position: relative; height: 760px; border-radius: var(--r-frame); background: oklch(0.228 0.047 254.7 / 0.42); overflow: hidden; }
+.sheet { position: absolute; top: 8px; right: 8px; bottom: 8px; width: min(calc(100% - 16px), 420px); background: var(--surface); border-radius: var(--r-panel); box-shadow: var(--shadow-3); display: flex; flex-direction: column; }
+.sheet-head { display: flex; justify-content: space-between; align-items: center; padding: 16px 16px 16px 24px; }
+.added { margin: 0 16px; padding: 12px 14px; border-radius: var(--r-control); background: var(--ok-bg); color: var(--ok); font-size: 0.875rem; font-weight: 560; display: flex; gap: 8px; align-items: center; }
+.lines { flex: 1; overflow: auto; padding: 8px 16px; }
+.line { display: grid; grid-template-columns: 64px 1fr auto; gap: 12px; padding: 14px 8px; border-bottom: 1px solid var(--line); align-items: start; }
+.line .card-media { aspect-ratio: 1; border-radius: 10px; }
+.line .stepper { height: 36px; } .line .stepper button { width: 30px; height: 30px; margin: 0 3px; font-size: 1rem; } .line .stepper input { width: 28px; font-size: 0.875rem; }
+.sheet-foot { padding: 20px 24px 24px; border-top: 1px solid var(--line); background: var(--canvas); border-radius: 0 0 var(--r-panel) var(--r-panel); }
+
+/* Tokens sheet */
+.swatches { display: grid; grid-template-columns: repeat(auto-fill, minmax(150px, 1fr)); gap: 12px; }
+.sw { border-radius: var(--r-card); overflow: hidden; background: var(--surface); box-shadow: inset 0 0 0 1px var(--line); }
+.sw i { display: block; height: 72px; }
+.sw div { padding: 10px 12px; }
+.typescale > div { display: grid; grid-template-columns: 140px 1fr; gap: 16px; align-items: baseline; padding: 16px 0; border-top: 1px solid var(--line); }
+@media (max-width: 899px) { .typescale > div { grid-template-columns: 1fr; gap: 4px; } }
+.radii { display: flex; flex-wrap: wrap; gap: 12px; }
+.radii div { width: 120px; height: 88px; background: var(--surface); box-shadow: inset 0 0 0 1px var(--control-line); display: grid; place-items: center; }
+
+footer.site { margin: 0 var(--inset) var(--inset); border-radius: var(--r-frame); background: var(--navy); color: var(--on-navy-muted); padding: 40px 20px; font-size: 0.875rem; }
+@media (min-width: 900px) { footer.site { padding: 56px; } }
+footer.site .cols { display: grid; gap: 32px; }
+@media (min-width: 900px) { footer.site .cols { grid-template-columns: 1.4fr 1fr 1fr 1.2fr; } }
+footer.site a { color: var(--on-navy); text-decoration: none; }
+footer.site ul { list-style: none; margin: 12px 0 0; padding: 0; display: grid; gap: 8px; }
+footer.site .t-label { color: var(--on-navy-muted); }
+
+@media (prefers-reduced-motion: reduce) { *, *::before, *::after { transition-duration: 1ms !important; animation: none !important; } }
+</style>
+</head>
+<body>
+
+<svg width="0" height="0" style="position:absolute" aria-hidden="true">
+  <symbol id="plug" viewBox="0 0 64 64"><path fill="currentColor" d="M20 12h6v40h-6v-6h-.5A14 14 0 0 1 6 34H3v-4h3a14 14 0 0 1 13.5-12H20zm6 10.5h-4a2.5 2.5 0 0 0 0 5h4zm0 14h-4a2.5 2.5 0 0 0 0 5h4zM38 12h6v6h.5A14 14 0 0 1 58 30h3v4h-3a14 14 0 0 1-13.5 12H44v6h-6zm-6 10.5a2.5 2.5 0 0 0 0 5h6v-5zm0 14a2.5 2.5 0 0 0 0 5h6v-5z"/></symbol>
+  <symbol id="search" viewBox="0 0 24 24"><path fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" d="M10.5 18a7.5 7.5 0 1 0 0-15 7.5 7.5 0 0 0 0 15Zm5.3-2.2L21 21"/></symbol>
+  <symbol id="arrow" viewBox="0 0 24 24"><path fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" d="M7 17 17 7M9 7h8v8"/></symbol>
+  <symbol id="truck" viewBox="0 0 24 24"><path fill="none" stroke="currentColor" stroke-width="1.7" stroke-linejoin="round" d="M3 6h11v10H3zM14 9h4l3 3v4h-7M7.5 19a1.5 1.5 0 1 0 0-3 1.5 1.5 0 0 0 0 3Zm10 0a1.5 1.5 0 1 0 0-3 1.5 1.5 0 0 0 0 3Z"/></symbol>
+  <symbol id="check" viewBox="0 0 24 24"><path fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" d="m5 12.5 4.5 4.5L19 7.5"/></symbol>
+  <symbol id="bag" viewBox="0 0 24 24"><path fill="none" stroke="currentColor" stroke-width="1.8" stroke-linejoin="round" d="M5 8h14l-1 12H6zM9 8V6.5a3 3 0 0 1 6 0V8"/></symbol>
+  <symbol id="close" viewBox="0 0 24 24"><path fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" d="M6 6l12 12M18 6 6 18"/></symbol>
+  <symbol id="doc" viewBox="0 0 24 24"><path fill="none" stroke="currentColor" stroke-width="1.7" stroke-linejoin="round" d="M6 3h8l4 4v14H6zM14 3v4h4M9 13h6M9 17h6"/></symbol>
+</svg>
+
+<header class="header" id="s-header">
+  <div class="bar">
+    <a class="logo" href="#"><svg style="color:var(--action)"><use href="#plug"/></svg>Lahore Silicon</a>
+    <nav class="seg" aria-label="Primary">
+      <a href="#" aria-current="page">Catalog</a><a href="#">How ordering works</a><a href="#">Shipping</a><a href="#">Contact</a>
+    </nav>
+    <button class="search-trigger" type="button" aria-label="Search parts"><svg width="18" height="18"><use href="#search"/></svg><span>Search part number or job</span><span class="kbd hide-m">/</span></button>
+    <button class="cart-btn" type="button" aria-label="Cart, 2 items"><svg width="18" height="18"><use href="#bag"/></svg><span class="hide-m">Cart</span><span class="count">2</span></button>
+  </div>
+</header>
+
+<section class="hero" id="s-hero" aria-labelledby="hero-title">
+  <div class="hero-grid">
+    <div>
+      <span class="status"><span class="dot"></span>Dispatching today · order within <b>3 h 12 m</b></span>
+      <h1 id="hero-title" class="t-display-xl">Parts from Hall Road, <em>counted</em> before you pay.</h1>
+      <p class="lede">Regulators, boards, sensors and relays. Every price is the price at checkout. Every stock number is a real count.</p>
+      <div class="facts">
+        <div><span class="t-label">Lahore</span><strong>Next business day</strong></div>
+        <div><span class="t-label">Nationwide</span><strong>48–72 hours</strong></div>
+        <div><span class="t-label">Defects</span><strong>Report within 3 days</strong></div>
+      </div>
+    </div>
+    <div class="deck" aria-hidden="true">
+      <div class="card back-2"><div class="card-media"><img src="../../public/parts/esp32.jpg" alt=""></div></div>
+      <div class="card back-1"><div class="card-media"><img src="../../public/parts/arduino-nano.jpg" alt=""></div></div>
+      <div class="card front stack-12">
+        <span class="tab t-part"><span class="pin"></span>LM2596S</span>
+        <div class="card-media"><img src="../../public/parts/lm2596.jpg" alt=""></div>
+        <div class="card-row"><p class="t-small" style="font-weight:560">Adjustable step-down module, 3 A</p><span class="t-num price"><small>Rs</small>280</span></div>
+        <div class="meter low"><i class="on"></i><i class="on"></i><i class="on"></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i></div>
+        <div class="card-row"><span class="stock low">16 in stock</span><span class="t-caption">4–40 V in · 1.25–35 V out</span></div>
+      </div>
+    </div>
+  </div>
+  <form class="dock" role="search" onsubmit="return false">
+    <label class="dock-inner">
+      <svg width="22" height="22"><use href="#search"/></svg>
+      <input type="search" placeholder="LM7805, ESP32, “5 V regulator”" aria-label="Search parts" />
+      <button class="btn btn-primary" type="submit">Search</button>
+    </label>
+  </form>
+</section>
+
+<section class="section" id="s-bento">
+  <div class="wrap">
+    <div class="section-head"><div class="stack-8"><p class="t-label">Shop by job</p><h2 class="t-display">What are you building?</h2></div><a class="hide-m t-small" href="#">All 10 parts</a></div>
+    <div class="bento">
+      <a class="tile big" href="#"><span class="arrow"><svg width="16" height="16"><use href="#arrow"/></svg></span><div class="stack-8"><p class="t-label">Boards</p><p class="t-title">Microcontrollers and radios</p><p class="muted t-small" style="max-width:22rem">ESP32 and Arduino Nano, with the logic level on every page.</p></div><span class="t-num n">2 <span class="t-small muted" style="font-weight:500;letter-spacing:0">parts</span></span><img src="../../public/parts/esp32.jpg" alt=""></a>
+      <a class="tile" href="#"><span class="arrow"><svg width="16" height="16"><use href="#arrow"/></svg></span><div><p class="t-label">Power</p><p class="t-heading">Regulators</p></div><span class="t-num n">3</span></a>
+      <a class="tile" href="#"><span class="arrow"><svg width="16" height="16"><use href="#arrow"/></svg></span><div><p class="t-label">Sensors</p><p class="t-heading">Distance, heat, light</p></div><span class="t-num n">3</span></a>
+      <a class="tile" href="#"><span class="arrow"><svg width="16" height="16"><use href="#arrow"/></svg></span><div><p class="t-label">ICs</p><p class="t-heading">Timers and logic</p></div><span class="t-num n">1</span></a>
+      <a class="tile" href="#"><span class="arrow"><svg width="16" height="16"><use href="#arrow"/></svg></span><div><p class="t-label">Relays</p><p class="t-heading">Switching</p></div><span class="t-num n">1</span></a>
+    </div>
+  </div>
+</section>
+
+<section class="section" id="s-catalog" style="padding-top:0">
+  <div class="wrap">
+    <div class="section-head"><div class="stack-8"><p class="t-label">Catalog</p><h2 class="t-display">On the counter today</h2></div></div>
+    <div class="toolbar">
+      <div class="pills" role="group" aria-label="Category">
+        <button class="pill" aria-pressed="true">All <span class="c">10</span></button><button class="pill" aria-pressed="false">Power <span class="c">3</span></button><button class="pill" aria-pressed="false">Boards <span class="c">2</span></button><button class="pill" aria-pressed="false">ICs <span class="c">1</span></button><button class="pill" aria-pressed="false">Sensors <span class="c">3</span></button><button class="pill" aria-pressed="false">Relays <span class="c">1</span></button>
+      </div>
+      <button class="btn btn-ghost hide-m" style="height:36px;font-size:.875rem">Sort: Catalog order</button>
+    </div>
+    <div class="table-panel">
+      <table class="cat">
+        <thead><tr><th style="width:84px"><span class="sr-only"></span></th><th>Part</th><th>What it is</th><th>Key spec</th><th class="r">Stock</th><th class="r">Price</th><th style="width:96px"></th></tr></thead>
+        <tbody>
+          <tr><td><div class="thumb"><img src="../../public/parts/ams1117.jpg" alt=""></div></td><td><a class="pn t-part" href="#">AMS1117-3.3</a></td><td>3.3 V LDO regulator, SOT-223</td><td class="muted">4.75–12 V in</td><td class="r"><span class="stock ok">80</span></td><td class="r t-num">Rs 25</td><td class="r"><button class="btn btn-secondary add">Add</button></td></tr>
+          <tr><td><div class="thumb"><img src="../../public/parts/lm2596.jpg" alt=""></div></td><td><a class="pn t-part" href="#">LM2596S</a></td><td>Adjustable step-down module, 3 A</td><td class="muted">4–40 V in</td><td class="r"><span class="stock low">16</span></td><td class="r t-num">Rs 280</td><td class="r"><button class="btn btn-secondary add">Add</button></td></tr>
+          <tr><td><div class="thumb"><img src="../../public/parts/lm7805.jpg" alt=""></div></td><td><a class="pn t-part" href="#">LM7805</a></td><td>5 V, 1 A, TO-220 linear regulator</td><td class="muted">7–35 V in</td><td class="r"><span class="stock ok">48</span></td><td class="r t-num">Rs 45</td><td class="r"><button class="btn btn-secondary add">Add</button></td></tr>
+          <tr><td><div class="thumb"><img src="../../public/parts/esp32.jpg" alt=""></div></td><td><a class="pn t-part" href="#">ESP32-WROOM-32D</a></td><td>Wi-Fi and Bluetooth module, 3.3 V</td><td class="muted">3.3 V logic</td><td class="r"><span class="stock low">9</span></td><td class="r t-num">Rs 1,250</td><td class="r"><button class="btn btn-secondary add">Add</button></td></tr>
+        </tbody>
+      </table>
+      <div class="mlist">
+        <article class="card"><span class="tab t-part"><span class="pin"></span>AMS1117-3.3</span><div class="mcard"><div class="card-media"><img src="../../public/parts/ams1117.jpg" alt=""></div><div class="stack-8"><p class="t-small" style="font-weight:560">3.3 V LDO regulator, SOT-223</p><div class="card-row"><span class="stock ok">80 in stock</span><span class="t-num price"><small>Rs</small>25</span></div></div></div></article>
+        <article class="card"><span class="tab t-part"><span class="pin"></span>LM2596S</span><div class="mcard"><div class="card-media"><img src="../../public/parts/lm2596.jpg" alt=""></div><div class="stack-8"><p class="t-small" style="font-weight:560">Adjustable step-down module, 3 A</p><div class="card-row"><span class="stock low">16 in stock</span><span class="t-num price"><small>Rs</small>280</span></div></div></div></article>
+        <article class="card"><span class="tab t-part"><span class="pin"></span>ESP32-WROOM-32D</span><div class="mcard"><div class="card-media"><img src="../../public/parts/esp32.jpg" alt=""></div><div class="stack-8"><p class="t-small" style="font-weight:560">Wi-Fi and Bluetooth module, 3.3 V</p><div class="card-row"><span class="stock low">9 in stock</span><span class="t-num price"><small>Rs</small>1,250</span></div></div></div></article>
+      </div>
+    </div>
+  </div>
+</section>
+
+<section class="section" id="s-pdp" style="padding-top:0">
+  <div class="wrap">
+    <p class="t-caption" style="margin-bottom:16px"><a href="#">Catalog</a> / <a href="#">Power</a> / LM7805</p>
+    <div class="pdp">
+      <div>
+        <div class="gallery" style="position:relative">
+          <span class="tab t-part" style="--tab-bg:var(--surface)"><span class="pin"></span>LM7805 · Texas Instruments</span>
+          <div class="gallery-main"><img src="../../public/parts/lm7805.jpg" alt="LM7805 regulator in a TO-220 package"></div>
+          <div class="thumbs"><span aria-current="true"><img src="../../public/parts/lm7805.jpg" alt=""></span><span></span><span></span></div>
+        </div>
+        <p class="t-caption" style="margin-top:10px">Representative studio photograph, not the lot in the drawer.</p>
+      </div>
+      <aside class="buy stack-16" aria-label="Buy LM7805">
+        <div class="pn-line"><span class="t-part pn-big">LM7805</span><span class="t-caption">TO-220 · Through-hole</span></div>
+        <h1 class="t-title">5 V, 1 A, TO-220 linear regulator</h1>
+        <p class="t-body muted">Turns 7–35 V into a steady 5 V for logic and sensors. Thermal shutdown and short-circuit protection built in.</p>
+        <div class="card-row" style="align-items:end"><span class="t-num price-big"><small style="font-size:.45em;font-weight:500;color:var(--ink-muted);letter-spacing:0;margin-right:4px">Rs</small>45</span><span class="stock ok">48 in stock</span></div>
+        <div class="eta"><svg width="20" height="20"><use href="#truck"/></svg><div class="stack-8"><p class="t-small"><b>Order within 3 h 12 m</b> for dispatch today.</p><p class="t-caption">Lahore: next business day. Nationwide: 48–72 hours. Delivery cost is confirmed from your city before you pay.</p></div></div>
+        <div class="qty-row"><div class="stepper"><button aria-label="Decrease">−</button><input value="1" aria-label="Quantity" inputmode="numeric"><button aria-label="Increase">+</button></div><button class="btn btn-primary btn-lg">Add to cart · Rs 45</button></div>
+        <hr class="rule" />
+        <dl class="kv"><dt>In the bag</dt><dd>Loose TO-220, antistatic bag</dd><dt>Datasheet</dt><dd><a href="#" style="display:inline-flex;gap:6px;align-items:center"><svg width="16" height="16"><use href="#doc"/></svg>PDF, 1.2 MB</a></dd><dt>Defects</dt><dd><a href="#">Report within 3 days</a></dd></dl>
+      </aside>
+    </div>
+    <div style="margin-top:48px" class="stack-16">
+      <h2 class="t-heading">Key figures</h2>
+      <div class="spec-bento">
+        <div class="spec dark"><p class="t-label">Output</p><p class="t-num v">5<small>V</small></p></div>
+        <div class="spec"><p class="t-label">Current</p><p class="t-num v">1<small>A</small></p></div>
+        <div class="spec"><p class="t-label">Input</p><p class="t-num v">7–35<small>V</small></p></div>
+        <div class="spec"><p class="t-label">Package</p><p class="t-num v" style="font-size:1.75rem;margin-top:26px">TO-220</p></div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<section class="band" id="s-band">
+  <div class="wrap" style="padding:0">
+    <p class="t-label" style="color:var(--on-navy-muted)">How ordering works</p>
+    <h2 class="t-display" style="margin-top:12px;max-width:18ch">Three steps, and the total never changes.</h2>
+    <div class="steps">
+      <div class="step"><span class="k">STEP 1</span><h3 class="t-heading" style="margin-top:12px">Add the parts</h3><p>Prices and stock come from the counter. The cart shows the same number the order will.</p></div>
+      <div class="step"><span class="k">STEP 2</span><h3 class="t-heading" style="margin-top:12px">Pay the total</h3><p>Transfer the amount shown, then paste the reference. Delivery cost is confirmed before you pay.</p></div>
+      <div class="step"><span class="k">STEP 3</span><h3 class="t-heading" style="margin-top:12px">We pack and dispatch</h3><p>Antistatic packing. Paid before 3 PM, Monday to Saturday, leaves the same day.</p></div>
+    </div>
+  </div>
+</section>
+
+<section class="section" id="s-drawer">
+  <div class="wrap">
+    <div class="section-head"><div class="stack-8"><p class="t-label">Component</p><h2 class="t-display">Cart sheet</h2></div></div>
+    <div class="drawer-demo">
+      <div class="sheet" role="dialog" aria-label="Cart">
+        <div class="sheet-head"><h2 class="t-heading">Cart <span class="muted t-small" style="font-weight:500">2 parts</span></h2><button class="icon-btn" aria-label="Close cart"><svg width="20" height="20"><use href="#close"/></svg></button></div>
+        <p class="added"><svg width="18" height="18"><use href="#check"/></svg>Added LM7805 to cart</p>
+        <div class="lines">
+          <div class="line"><div class="card-media"><img src="../../public/parts/lm7805.jpg" alt=""></div><div class="stack-8"><p class="t-part" style="font-size:.8125rem">LM7805</p><p class="t-caption">5 V, 1 A, TO-220 linear regulator</p><div class="stepper"><button>−</button><input value="1" aria-label="Quantity"><button>+</button></div></div><div class="stack-8" style="text-align:right"><p class="t-num">Rs 45</p><button class="btn btn-ghost" style="height:28px;padding:0 8px;font-size:.8125rem;color:var(--ink-muted)">Remove</button></div></div>
+          <div class="line"><div class="card-media"><img src="../../public/parts/esp32.jpg" alt=""></div><div class="stack-8"><p class="t-part" style="font-size:.8125rem">ESP32-WROOM-32D</p><p class="t-caption">Wi-Fi and Bluetooth module, 3.3 V</p><div class="stepper"><button>−</button><input value="2" aria-label="Quantity"><button>+</button></div></div><div class="stack-8" style="text-align:right"><p class="t-num">Rs 2,500</p><button class="btn btn-ghost" style="height:28px;padding:0 8px;font-size:.8125rem;color:var(--ink-muted)">Remove</button></div></div>
+        </div>
+        <div class="sheet-foot stack-12">
+          <div class="card-row"><span class="t-small muted">Subtotal</span><span class="t-num">Rs 2,545</span></div>
+          <div class="card-row"><span class="t-small muted">Delivery</span><span class="t-small">Confirmed from your city</span></div>
+          <button class="btn btn-primary btn-lg btn-block">Check out · Rs 2,545</button>
+          <p class="t-caption" style="text-align:center">Guest checkout. No account needed.</p>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<section class="section" id="s-tokens" style="padding-top:0">
+  <div class="wrap stack-24">
+    <div class="stack-8"><p class="t-label">Tokens</p><h2 class="t-display">Color, type, radius</h2></div>
+    <div class="swatches">
+      <div class="sw"><i style="background:var(--canvas)"></i><div><p class="t-small"><b>canvas</b></p><p class="t-caption">#F3F6FA</p></div></div>
+      <div class="sw"><i style="background:var(--surface)"></i><div><p class="t-small"><b>surface</b></p><p class="t-caption">#FFFFFF</p></div></div>
+      <div class="sw"><i style="background:var(--sunken)"></i><div><p class="t-small"><b>sunken</b></p><p class="t-caption">#E9EEF4</p></div></div>
+      <div class="sw"><i style="background:var(--line)"></i><div><p class="t-small"><b>line</b></p><p class="t-caption">#DAE1E7</p></div></div>
+      <div class="sw"><i style="background:var(--ink-muted)"></i><div><p class="t-small"><b>ink-muted</b></p><p class="t-caption">#4F5C6C</p></div></div>
+      <div class="sw"><i style="background:var(--ink)"></i><div><p class="t-small"><b>ink / navy</b></p><p class="t-caption">#0C1D32</p></div></div>
+      <div class="sw"><i style="background:var(--navy-raised)"></i><div><p class="t-small"><b>navy-raised</b></p><p class="t-caption">#16273C</p></div></div>
+      <div class="sw"><i style="background:var(--action)"></i><div><p class="t-small"><b>action</b></p><p class="t-caption">#047AAD</p></div></div>
+      <div class="sw"><i style="background:var(--link)"></i><div><p class="t-small"><b>link</b></p><p class="t-caption">#00628C</p></div></div>
+      <div class="sw"><i style="background:var(--signal)"></i><div><p class="t-small"><b>signal</b></p><p class="t-caption">#20B7FE</p></div></div>
+      <div class="sw"><i style="background:var(--ok)"></i><div><p class="t-small"><b>ok</b></p><p class="t-caption">#0B7643</p></div></div>
+      <div class="sw"><i style="background:var(--low)"></i><div><p class="t-small"><b>low</b></p><p class="t-caption">#935A11</p></div></div>
+    </div>
+    <div class="typescale">
+      <div><span class="t-label">display-xl</span><span class="t-display-xl">Counted.</span></div>
+      <div><span class="t-label">display</span><span class="t-display">On the counter today</span></div>
+      <div><span class="t-label">title</span><span class="t-title">5 V, 1 A linear regulator</span></div>
+      <div><span class="t-label">heading</span><span class="t-heading">Key figures</span></div>
+      <div><span class="t-label">body</span><span class="t-body">Turns 7–35 V into a steady 5 V for logic and sensors. Thermal shutdown built in.</span></div>
+      <div><span class="t-label">part</span><span class="t-part" style="font-size:1.125rem">ESP32-WROOM-32D · ATmega328P · 0O1l</span></div>
+      <div><span class="t-label">num</span><span class="t-num" style="font-size:1.75rem">Rs 1,250 · 48 · 7–35 V</span></div>
+    </div>
+    <div class="radii"><div style="border-radius:var(--r-frame)" class="t-caption">frame 28</div><div style="border-radius:var(--r-panel)" class="t-caption">panel 20</div><div style="border-radius:var(--r-card)" class="t-caption">card 16</div><div style="border-radius:var(--r-control)" class="t-caption">control 12</div><div style="border-radius:var(--r-chip)" class="t-caption">chip 8</div><div style="border-radius:var(--r-pill)" class="t-caption">pill</div></div>
+    <div style="display:flex;flex-wrap:wrap;gap:12px"><button class="btn btn-primary">Add to cart</button><button class="btn btn-secondary">Datasheet</button><button class="btn btn-ghost">Remove</button><button class="btn btn-primary" disabled>Out of stock</button><span style="background:var(--navy);padding:8px;border-radius:999px;display:inline-flex"><button class="btn btn-signal">Search</button></span></div>
+  </div>
+</section>
+
+<footer class="site" id="s-footer">
+  <div class="cols">
+    <div class="stack-12"><a class="logo" href="#" style="color:var(--on-navy)"><svg style="color:var(--signal)"><use href="#plug"/></svg>Lahore Silicon</a><p>Parts from Hall Road, Lahore. Monday to Saturday, 9 AM – 6 PM PKT.</p></div>
+    <div><p class="t-label">Catalog</p><ul><li><a href="#">All parts</a></li><li><a href="#">Power</a></li><li><a href="#">Boards</a></li><li><a href="#">Sensors</a></li></ul></div>
+    <div><p class="t-label">Counter</p><ul><li><a href="#">Shipping and payment</a></li><li><a href="#">About</a></li><li><a href="#">Contact</a></li></ul></div>
+    <div><p class="t-label">Dispatch</p><ul><li>Paid before 3 PM, Mon–Sat, ships same day.</li><li>Report a defect within 3 days.</li></ul></div>
+  </div>
+</footer>
+<style>.sr-only{position:absolute;width:1px;height:1px;overflow:hidden;clip:rect(0,0,0,0);white-space:nowrap}</style>
+</body>
+</html>

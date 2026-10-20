@@ -1,64 +1,59 @@
 # Agent rules
 
-These rules bind every change until the site is finished. They outrank a screenshot, a component library default, and a preference for “making it pop.”
+These rules bind every change, by a person or an AI agent, until the site is finished. They outrank a screenshot, a library default, and a wish to "make it pop".
 
-## Before editing
+## Before you edit
 
-1. Read [change-plan.md](change-plan.md) and do the earliest unfinished item that your task touches. Do not jump to the visual layer while items 1–4 are false.
-2. Read the one other manual your task requires. The map is in [README.md](README.md).
-3. Re-read the files you will change. The audit dates from 19 October 2026.
+1. Open [change-plan.md](change-plan.md). Do the earliest unfinished item your task touches. Do not restyle a page while an earlier item on it is still open.
+2. Read the one manual your task needs (map in [README.md](README.md)).
+3. Re-read every file you will change. Line numbers in these docs drift.
+4. Start the dev server in the background: `astro dev --background` (manage with `astro dev status`, `astro dev logs`, `astro dev stop`). Do not start a second server if one is already running on port 4321.
 
-## The product
+## Truth
 
-- This is a Hall Road sourcing desk with a short catalog. Keep that. Do not turn it into a marketplace, a flagship film, or a DigiKey clone.
-- One screen serves both readers. The job sentence and the part-number block are visible together, without a scroll, at a 1280px desktop width and at a 390px phone width.
-- Two different manufacturer part numbers are two products. Do not merge them into one card with a variant picker.
-- A new page needs a job a buyer has on this shop. Account dashboards, review systems, BOM upload, and parametric search are out of scope until [change-plan.md](change-plan.md) says otherwise.
-
-## Facts
-
-- A sentence may ship only when a content field, the shipping module, or a server check can still prove it after the cart closes.
-- If the operator has not supplied a real account number, phone, datasheet, stock count, or photograph, omit the control. Do not invent a substitute, a placeholder number, or a “100%” claim.
-- The server prices the order. Client-supplied totals are ignored.
-- Stock is a number. The add control cannot exceed it.
-- Do not cite Baymard’s 35% checkout model, Vodafone, Rakuten, or redBus as a reason this shop will make more money. Cite them only as outside evidence that speed and checkout clarity have moved sales on those sites.
+- A sentence ships only if a content field, the shipping module, or a server check can still prove it after checkout.
+- If the owner has not supplied a real phone number, address, account number, datasheet, stock count or photograph, leave the control out. Never invent a placeholder, a sample number, or a "100%" claim. Log the gap in [decisions.md](decisions.md).
+- The server prices every order. Client totals are compared and then ignored.
+- Stock is an integer. No control may add more than the stock count.
+- No fake urgency. A countdown appears only when it counts down to the real dispatch cutoff from the real clock in `Asia/Karachi`.
 
 ## Visual work
 
-- Use the tokens, type roles, and spacing scale in [design-system.md](design-system.md). A value used twice becomes a token. A value off the spacing scale does not ship.
-- The chromatic signature is the copper rule under the part number. Do not add a second accent, a gradient, or a glow.
-- Catalog motion is a response to an action, under a quarter-second, with no bounce. Honor `prefers-reduced-motion`.
-- Do not add dark mode, a theme toggle, or a new font in this pass.
-- Do not restyle a page by pasting hex into a `style` attribute. The existing pages do this. New work stops doing it, and touched pages lose it.
+- Use only the tokens, type roles, spacing scale, radii, shadows and motion values in [design-system.md](design-system.md). If a value is not there, you may not use it. If you need it twice, propose a token in the same change.
+- No hex, `rgb()`, or `oklch()` literals outside the tokens file. No inline `style` attributes for visual properties. No Tailwind arbitrary values (`p-[13px]`, `bg-[#...]`).
+- One accent hue. `action` blue is for the primary action on light surfaces. `signal` blue is the only vivid color on navy. Status colors (`ok`, `low`, `out`) appear only next to a stock count or a result, always with text.
+- The socket tab is the only signature shape. Use it only where [design-system.md](design-system.md#signature-the-socket-tab) allows.
+- Motion answers an action: 120–320 ms, ease-out, `transform` and `opacity` only. No bounce on UI that was not flicked. Honor `prefers-reduced-motion`.
+- Do not add dark mode, a theme toggle, a new font, an icon library, or a UI component library without a decision logged in [decisions.md](decisions.md).
+- When you touch a page, remove its inline styles and dead classes in the same change.
 
 ## Commerce behavior
 
-- Guest checkout stays the path.
-- Shipping cost and the return rule are visible before payment. The review step adds no fee.
-- Search that misses an exact part number means the shop does not sell it. Do not “correct” the buyer into a different part without saying so.
-- Buttons say what happens. The control that says “Add to cart” produces a confirmation that says “Added.” The same words continue through the flow.
-- Errors name the broken rule and sit on the field. They do not apologize, and they do not clear the typed value.
+- Guest checkout is the only path. Accounts, if they ever exist, are offered after the order.
+- Delivery cost (or the exact rule that sets it) and the return rule are visible before the buyer commits. The last step adds no surprise fee.
+- Exact part-number search never misses a part the shop sells. A miss means the shop does not sell it; say so and offer WhatsApp. Do not silently "correct" to a different part.
+- A button says what happens. "Add to cart" produces "Added". The same words carry through the flow.
+- Errors name the broken rule, sit on the field, keep the typed value, and do not apologize.
 
 ## Engineering
 
-- Interactive UI is a Preact island: cart, quantity, mobile navigation, and any control that must move with the pointer. Everything else stays Astro.
-- Price, shipping windows, and stock rules each live in one module. Pages render those modules. They do not retype the policy.
-- Do not trust the browser for money, stock, or the Turnstile result.
-- Do not inject a search query or any buyer string into HTML.
-- `DROP TABLE` is not a migration.
+- Astro renders everything that does not need the pointer. Preact islands only for cart, quantity, search, mobile navigation, drawers and checkout controls.
+- Price, stock rules, shipping windows, phone rules and shop details each live in exactly one module in `src/lib/`. Pages render those modules. Pages never retype policy text.
+- Never trust the browser for money, stock, or Turnstile. Never inject a buyer string or search query into HTML.
+- Migrations are forward-only. `DROP TABLE` is not a migration.
+- Keep the first-load JavaScript of a product page under the budget in [engineering.md](engineering.md#performance-budgets).
 
 ## Verification
 
-A UI, layout, copy, routing, or client-state change is unfinished until it has been exercised in a browser. A screenshot of the first paint is not that exercise.
+A UI, layout, copy, routing or client-state change is not done until [qa.md](qa.md) passes. At minimum:
 
-- Walk the flow a buyer walks: search, open, add, change quantity, open the drawer, check out.
-- Check the other surface that reads the same state. The cart drawer, the checkout summary, and the product page must show one price.
-- Check a 390px viewport and a desktop viewport when layout moved.
-- Check the empty state when a filter, a search, or a cart can be empty.
-- Check the keyboard path when a drawer, a dialog, or a form changed: Tab, Shift-Tab, Escape, and visible focus.
+- Exercise the real flow in a browser: search, open a part, add, change quantity, open the cart, reach checkout.
+- Screenshot at 390px and 1440px and compare against `docs/design/screens/`.
+- Check the empty state, the keyboard path (Tab, Shift+Tab, Escape, visible focus) and reduced motion when relevant.
+- Run `npx astro check` and the test suite once they exist.
 
-If no browser is available, say what you could not verify. Do not describe an unrun checkout as working.
+If you could not run a browser, say exactly what you did not verify. Never describe an unrun checkout as working.
 
 ## When you are unsure
 
-Prefer the quieter, more specific, more provable version. Leave a short note in the pull request or the session summary naming the file you followed and the claim you refused to invent.
+Choose the quieter, more specific, more provable version. In your summary, name the doc you followed and any claim you refused to invent.

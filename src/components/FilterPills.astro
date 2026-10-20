@@ -1,0 +1,106 @@
+---
+/**
+ * Category pills. docs/design-system.md section 9 (Segmented control and filter pills).
+ * Selection lives in the URL. Counts are passed in; this file does not count parts.
+ */
+interface Pill {
+  label: string;
+  href: string;
+  count: number;
+  current: boolean;
+}
+
+interface Props {
+  label?: string;
+  items: Pill[];
+}
+
+const { label = "Category", items } = Astro.props;
+---
+
+<nav class="pills" aria-label={label}>
+  {items.map((item) => (
+    <a href={item.href} aria-current={item.current ? "page" : undefined}>
+      {item.label}
+      <span class="count">{item.count}</span>
+    </a>
+  ))}
+</nav>
+
+<style>
+  .pills {
+    display: flex;
+    gap: var(--space-8);
+    max-width: 100%;
+    margin: 0;
+    padding: var(--space-4);
+    overflow-x: auto;
+    scrollbar-width: none;
+  }
+
+  .pills::-webkit-scrollbar {
+    display: none;
+  }
+
+  .pills a {
+    display: inline-flex;
+    flex: none;
+    align-items: center;
+    gap: var(--space-8);
+    height: 36px;
+    padding: 0 var(--space-16);
+    border-radius: var(--radius-pill);
+    background: var(--color-surface);
+    color: var(--color-ink);
+    box-shadow: inset 0 0 0 1px var(--color-line);
+    font-size: var(--text-small);
+    font-weight: var(--font-weight-strong);
+    line-height: 1;
+    text-decoration: none;
+    transition-property: background-color, color, transform, box-shadow;
+    transition-duration: var(--dur-1);
+    transition-timing-function: var(--ease-out);
+  }
+
+  .pills a:hover {
+    background: var(--color-sunken);
+  }
+
+  .pills a:active {
+    transform: scale(0.97);
+  }
+
+  .pills a[aria-current="page"] {
+    background: var(--color-navy);
+    color: var(--color-on-navy);
+    box-shadow: none;
+  }
+
+  .pills a[aria-current="page"]:hover {
+    background: var(--color-navy-raised);
+  }
+
+  .count {
+    color: var(--color-ink-muted);
+    font-family: var(--font-label);
+    font-size: var(--text-label);
+    font-weight: var(--text-label--font-weight);
+    font-variation-settings: normal;
+    letter-spacing: var(--text-label--letter-spacing);
+    line-height: var(--text-label--line-height);
+  }
+
+  .pills a[aria-current="page"] .count {
+    color: var(--color-on-navy-muted);
+  }
+
+  @media (prefers-reduced-motion: reduce) {
+    .pills a {
+      transition-property: background-color, color, box-shadow;
+    }
+
+    .pills a:active {
+      transform: none;
+    }
+  }
+</style>

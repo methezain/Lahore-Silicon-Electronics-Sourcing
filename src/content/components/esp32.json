@@ -38,6 +38,6 @@
   "min_qty": 1,
   "qty_multiple": 1,
   "description": "ESP32-WROOM-32D Wi-Fi and Bluetooth module. Dual-core 32-bit MCU, 3.3 V supply. Sourced from Hall Road, Lahore.",
-  "image": "/parts/esp32.jpg",
+  "image": "../../assets/parts/esp32.jpg",
   "image_note": "Representative studio photograph, not a photo of the lot in the drawer."
 }

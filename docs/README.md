@@ -1,31 +1,46 @@
-# Lahore Silicon — agent manual
+# Lahore Silicon: agent manual
 
-These files are the operating manual for every agent that changes this storefront. Read them before editing pages, styles, content, cart, or checkout.
+This folder is the operating manual for every person and AI agent who changes this storefront. Read it before you edit pages, styles, catalog data, cart, or checkout.
 
-The long evidence writeup is [`reports/Premium electronics store standard.md`](../reports/Premium%20electronics%20store%20standard.md). The notes behind it are in `research_notes/Premium electronics store standard/`. This manual is the decision. When a research note leaves a choice open, the decision in these files wins.
+Lahore Silicon is a small electronics-components counter on Hall Road, Lahore. It sells a short, real catalog of regulators, boards, sensors, ICs and relays, and ships across Pakistan. The aim is a store that feels like a premium brand and works like a careful distributor.
 
 ## Reading order
 
-| When you are about to… | Read |
+| Before you… | Read |
 | --- | --- |
 | Change anything | [agent-rules.md](agent-rules.md) |
-| Decide what to do next | [change-plan.md](change-plan.md) |
-| Touch layout, type, color, or motion | [design-system.md](design-system.md) |
-| Touch a part, the catalog, cart, or checkout | [commerce.md](commerce.md) |
-| Write a sentence a buyer will read | [copy.md](copy.md) |
-| Touch architecture, accessibility, or speed | [engineering.md](engineering.md) |
-| Need the reason for a rule | [north-star.md](north-star.md) |
+| Pick the next task | [change-plan.md](change-plan.md) (session prompts in [prompts.md](prompts.md)) |
+| Touch color, type, spacing, layout, motion, or a component | [design-system.md](design-system.md), then open [design/specimen.html](design/specimen.html) |
+| Build or change a page | [pages.md](pages.md) |
+| Touch catalog data, search, cart, checkout, payment, or delivery | [commerce.md](commerce.md) |
+| Write any sentence a buyer will read | [copy.md](copy.md) |
+| Touch architecture, performance, security, or tests | [engineering.md](engineering.md) |
+| Say a task is done | [qa.md](qa.md) |
+| Need the reason behind a rule | [north-star.md](north-star.md) |
+| Hit a business question the code cannot answer | [decisions.md](decisions.md) |
 
 ## Precedence
 
-1. A fact the catalog, the policy, or the server cannot prove does not ship. [copy.md](copy.md) and [agent-rules.md](agent-rules.md).
-2. [design-system.md](design-system.md) wins over a one-off class, an inline hex, or a Tailwind arbitrary value.
-3. [commerce.md](commerce.md) wins over a field that exists only on one page.
-4. [change-plan.md](change-plan.md) wins over visual ideas. Trust fixes come before a reskin.
-5. Taste, a reference screenshot, and a generic component library lose to the files above.
+When two sources disagree, the higher one wins.
 
-## What this shop is
+1. **Truth.** A claim that the catalog, the shipping module, or the server cannot prove does not ship ([copy.md](copy.md)).
+2. **[agent-rules.md](agent-rules.md).**
+3. **[design-system.md](design-system.md)** over any one-off class, inline style, hex value, or Tailwind arbitrary value.
+4. **[commerce.md](commerce.md)** over a field or behavior that exists on only one page.
+5. **[change-plan.md](change-plan.md)** order over visual ideas. Broken and untrue things are fixed before polish.
+6. Taste, a screenshot from `design_language/`, and component-library defaults come last.
 
-Lahore Silicon is a small Hall Road sourcing desk. It sells a short catalog of components and modules, takes advance payment, and ships from Lahore. The buyer is a maker, a student, or a technician. Some of them arrive with a part number. Some of them need one sentence that says what the object does. Both of them use the same screen.
+## What is in this folder
 
-Premium here means the part, the price, the stock, and the arrival window agree, and the page looks as careful as that agreement.
+| Path | What it is |
+| --- | --- |
+| `design/specimen.html` | The reference rendering of the design system. Open it in a browser. Port its tokens and patterns, not its file. |
+| `design/screens/` | Verified screenshots of the specimen at 1440px and 390px. These are the visual targets. |
+| `reports/Premium electronics ecommerce standard.md` | The synthesized research report behind this manual. |
+| `research_notes/Premium electronics ecommerce standard/` | Six sourced research notes: premium brand stores, component distributors and maker shops, e-commerce UX evidence, premium web craft, Pakistan market, engineering and agent practice. |
+
+`documents/` at the repo root holds the client's original MVP briefs. They are history. Where they disagree with this folder, this folder wins.
+
+## The one-sentence brief
+
+Every part page should feel as composed as an Apple buy page and be as complete as a DigiKey listing, and every number on it should still be true after checkout.

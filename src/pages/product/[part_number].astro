@@ -1,8 +1,12 @@
 ---
+import { getImage } from "astro:assets";
 import Layout from "../../layouts/Layout.astro";
 import { getCollection } from "astro:content";
+import PartPicture from "../../components/PartPicture.astro";
 import ProductPurchase from "../../components/ProductPurchase.tsx";
+import { partThumbSrc } from "../../lib/catalog";
 import { formatPkr, unitPrice } from "../../lib/money";
+import { productPhoto } from "../../lib/part-image";
 import { deliveryCost, returnRule, shippingWindows } from "../../lib/shipping";
 
 export const prerender = true;
@@ -18,7 +22,7 @@ export async function getStaticPaths() {
 const { component } = Astro.props;
 const { data } = component;
 const unit = unitPrice({ price: data.price, breaks: data.breaks }, 1);
-const hasPhotograph = Boolean(data.image);
+const thumb = data.image ? await partThumbSrc(data.image) : undefined;
 const stockLabel = data.stock_qty > 0 ? `${data.stock_qty} in stock` : data.restock_on ? `Back on ${data.restock_on}` : "Out of stock";
 
 const schemaLD: Record<string, unknown> = {
@@ -38,22 +42,40 @@ const schemaLD: Record<string, unknown> = {
     seller: { "@type": "Organization", name: "Lahore Silicon" },
   },
 };
-if (hasPhotograph && data.image) schemaLD.image = [data.image];
+if (data.image) {
+  const photo = await getImage({
+    src: data.image,
+    width: productPhoto.width,
+    height: productPhoto.height,
+    format: "webp",
+  });
+  schemaLD.image = [new URL(photo.src, Astro.site ?? Astro.url).href];
+}
 ---
 
 <Layout title={`${data.part_number} — ${data.name}`} description={data.description}>
   <Fragment slot="head">
-    <script type="application/ld+json" set:html={JSON.stringify(schemaLD)} />
+    <script type="application/ld+json" is:inline set:html={JSON.stringify(schemaLD)} />
   </Fragment>
 
   <article class="product-screen" data-pagefind-body>
     <p class="sr-only">{data.mpn}</p>
     <div>
       <div class="image-well">
-        {hasPhotograph && data.image ? (
-          <img src={data.image} alt={`${data.part_number}, ${data.package_type}`} width="640" height="640" fetchpriority="high" />
+        {data.image ? (
+          <PartPicture
+            src={data.image}
+            partNumber={data.part_number}
+            alt={`${data.part_number}, ${data.package_type}`}
+            width={productPhoto.width}
+            height={productPhoto.height}
+            sizes={productPhoto.sizes}
+            widths={[...productPhoto.widths]}
+            priority
+            frameClass="image-frame"
+          />
         ) : (
-          <p>{data.package_type}</p>
+          <p class="mono">{data.package_type}</p>
         )}
       </div>
       {data.image_note && <p class="image-note caption">{data.image_note}</p>}
@@ -71,7 +93,7 @@ if (hasPhotograph && data.image) schemaLD.image = [data.image];
         client:load
         part_number={data.part_number}
         name={data.name}
-        image={data.image}
+        image={thumb}
         min_qty={data.min_qty}
         qty_multiple={data.qty_multiple}
         stock_qty={data.stock_qty}

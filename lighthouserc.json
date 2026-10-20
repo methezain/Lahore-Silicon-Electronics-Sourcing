@@ -1,0 +1,22 @@
+{
+  "ci": {
+    "collect": {
+      "startServerCommand": "npm run build && npm run preview -- --host 127.0.0.1 --port 4322",
+      "startServerReadyPattern": "4322",
+      "url": ["http://127.0.0.1:4322/"],
+      "numberOfRuns": 1
+    },
+    "upload": {
+      "target": "filesystem",
+      "outputDir": ".lighthouseci"
+    },
+    "assert": {
+      "assertions": {
+        "categories:performance": "off",
+        "categories:accessibility": "off",
+        "categories:best-practices": "off",
+        "categories:seo": "off"
+      }
+    }
+  }
+}

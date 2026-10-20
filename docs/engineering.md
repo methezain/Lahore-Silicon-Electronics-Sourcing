@@ -1,118 +1,139 @@
 # Engineering
 
-How the shop is built, how fast it has to be, and what “accessible” means on this catalog. Stack facts below match `package.json` as of 19 October 2026.
+Stack: Astro 7 (`output: 'server'`, product pages prerendered), Preact islands, nanostores, Tailwind CSS v4, Zod 4, Cloudflare Workers via `@astrojs/cloudflare`, D1 for orders, Pagefind at build. Node ≥ 22.12.
 
-## Stack
+## Architecture
 
-- Astro 7, server output, `@astrojs/cloudflare`.
-- Preact islands for the cart, the quantity control, and mobile navigation. New interaction uses an island. New documents use `.astro`.
-- Tailwind CSS v4, configured through `@theme` in `src/styles/global.css`. Tokens from [design-system.md](design-system.md) live there. Utilities may apply those tokens. Arbitrary values (`text-[9px]`, `p-[13px]`, hex in a class) are not allowed in new code.
-- Content collection `components`, JSON files in `src/content/components/`, schema in `src/content.config.ts`.
-- Cart state: nanostores, persisted. The store holds ids and quantities. Prices are derived.
-- Search: Pagefind at build time (`astro build && pagefind --site dist`), with a dev fallback defined in [commerce.md](commerce.md).
-- Orders: `POST /api/order`, D1, Zod. Zod parses the buyer’s text. Zod does not trust the buyer’s money.
+```
+src/
+  styles/tokens.css        the only file with color, radius, shadow, font, motion values
+  styles/global.css        base element styles and component classes built from tokens
+  layouts/Layout.astro     head, fonts, icon sprite, header, footer, cart sheet
+  components/              Astro components; *.tsx only for islands
+  lib/                     one module per policy: money, shipping, shop, phone, quantity, catalog, catalog-search, order, categories, clock
+  store/cartStore.ts       cart state (part_number + quantity only)
+  actions/index.ts         server actions (checkout) — to add
+  content/components/      one JSON per part
+  pages/                   routes
+db/                        forward-only SQL
+tests/                     vitest (unit) and playwright (e2e, visual, a11y) — to add
+```
 
-## Modules
+- Astro renders by default. A component becomes an island only if it needs the pointer or local state: cart sheet, cart button, quantity stepper, add button, search dialog, checkout form enhancements, mobile sheet.
+- Hydration: `client:load` only for the cart button and cart sheet; `client:visible` for below-the-fold islands; `client:idle` for search.
+- Shared data passes to islands as minimal props (part number, price, stock), never the whole catalog when one part is needed.
+- New policy text or number goes into `src/lib/`, then pages import it.
 
-Put shared rules in one place and import them. Do not copy a string into a second page.
+## Astro 7 specifics
 
-| Concern | Single home | Consumers |
+- Astro 7 (June 2026) uses Vite 8 and a stricter Rust compiler: unclosed tags are errors. `compressHTML` defaults to `'jsx'`, which strips whitespace between inline elements; write `{" "}` where a space matters.
+- Content collections use loaders and `astro/zod`. Keep `glob()` for parts.
+- Use `import { env } from 'cloudflare:workers'` for bindings (already done). `Astro.locals.runtime` is gone.
+- Prefer native cross-document view transitions (`@view-transition { navigation: auto; }`) over `<ClientRouter />`. They need no JavaScript and are compatible with Astro's hash-based CSP, which does not support `<ClientRouter />`.
+- Prefetch product links on hover/viewport with Astro's `prefetch` config.
+
+## Design tokens in code
+
+1. Create `src/styles/tokens.css` with one Tailwind v4 `@theme` block holding every token in [design-system.md](design-system.md), in OKLCH.
+2. Start the color namespace with `--color-*: initial;` so default Tailwind colors stop existing and off-palette classes fail to generate.
+3. Map fonts with `@theme inline { --font-sans: var(--font-mona); --font-mono: var(--font-geist-mono); }` when using the Astro Fonts API variables.
+4. Delete both competing token sets now in `global.css` (the "Palette 2" block and the grey/copper `:root` block) and the unused keyframes.
+5. Port component classes from `docs/design/specimen.html` into `global.css` (or Astro component `<style>` blocks) using only token variables.
+
+Enforcement (add in the foundation step):
+
+- Stylelint with `color-no-hex` and `color-named: never` on everything except `tokens.css`, plus a rule or grep check that rejects `oklch(`/`rgb(` outside it.
+- A CI grep that fails on Tailwind arbitrary values (`-\[[^\]]+\]` in `class` attributes) and on visual `style="` attributes in `src/`.
+- `npx astro check` with zero errors.
+
+## Fonts
+
+- Use the Astro Fonts API (top-level `fonts` config and `<Font />` from `astro:assets`) with the Fontsource provider or local files: Mona Sans (variable, `wght` and `wdth` axes) and Geist Mono (variable `wght`). Confirm the Mona Sans source includes the `wdth` axis; if the Fontsource variable package ships `wght` only, self-host the full variable woff2 from the official Mona Sans release with `fontProviders.local()`.
+- Subset to Latin plus the symbols the site uses: `–`, `·`, `×`, `µ`, `Ω`, `°`, curly quotes.
+- Preload only the Mona Sans file used above the fold. The API generates metric-matched fallbacks; keep them to avoid layout shift.
+- Remove `@fontsource/ibm-plex-*` and the `public/fonts/ibm-plex-*` files.
+
+## Images
+
+- Move part photos from `public/parts/` to `src/assets/parts/` so `astro:assets` can optimize them. Use `<Image>`/`<Picture>` with `layout="constrained"`, explicit sizes, AVIF and WebP.
+- The adapter's Cloudflare Images binding is enabled for production; keep it.
+- Product page main image: `fetchpriority="high"`, no lazy loading. Everything below the fold: `loading="lazy"`, `decoding="async"`.
+- Share `view-transition-name: part-<slug>` between the catalog thumbnail and the product gallery image.
+
+## Performance budgets
+
+Measured on Lighthouse mobile (simulated slow 4G, mid-tier Android) against a production build. Pakistani 4G has 70–130 ms latency and 11–24 Mbps typical speed, so request count matters as much as bytes.
+
+| Metric (p75 field / lab) | Budget |
+| --- | --- |
+| LCP | ≤ 2.0 s (Google "good" is 2.5 s) |
+| INP (field) / TBT (lab) | ≤ 200 ms / ≤ 150 ms |
+| CLS | ≤ 0.05 |
+| HTML document | ≤ 30 KB compressed |
+| CSS total | ≤ 35 KB compressed |
+| JS on product page | ≤ 45 KB compressed (Preact + nanostores + islands) |
+| Fonts | ≤ 2 files on first load, ≤ 120 KB total |
+| Above-the-fold images | ≤ 120 KB |
+| Third-party requests | 0 on catalog and product pages; Turnstile only on checkout |
+
+Enforce with Lighthouse CI (`resource-summary:*` assertions are in bytes) and report field data with the `web-vitals` library to a small D1 or Analytics Engine endpoint.
+
+## Orders, stock and D1
+
+D1 has no interactive transactions. `batch()` is atomic and ordered. The order write becomes:
+
+1. Validate input with Zod (in the Action).
+2. Verify Turnstile server-side with `remoteip` from `cf-connecting-ip`. Tokens are single-use and expire after 300 s.
+3. Rate-limit with the Workers rate-limit binding, keyed by route plus a session or cart key (the binding is approximate and per location).
+4. Re-price with `quoteOrder()`.
+5. Idempotency: the client sends a UUID; `Orders.idempotency_key` is `UNIQUE`. A duplicate returns the existing order ID.
+6. One `batch()`: a decrement per line on a `stock` table guarded by `CHECK (qty >= 0)` (so an oversell throws and rolls back the batch), then the order insert. Verify `meta.changes` afterwards. Test the rollback behavior against local D1 before relying on it.
+
+Schema changes are new numbered files in `db/migrations/`, applied with `wrangler d1 migrations apply`. Never edit an applied migration.
+
+## Checkout as an Action
+
+Move `POST /api/order` into `src/actions/index.ts` with `accept: 'form'`, so checkout works as a plain form and is enhanced by the island. Keep `security.checkOrigin` on (default). Use `isInputError()` to map Zod errors to fields.
+
+## Security
+
+- Security headers from middleware: `Content-Security-Policy` (Astro `security.csp` hashes, plus Turnstile's origin on checkout), `Strict-Transport-Security`, `X-Content-Type-Options: nosniff`, `Referrer-Policy: strict-origin-when-cross-origin`, `Permissions-Policy` minimal, `frame-ancestors 'none'`.
+- No buyer string is rendered with `set:html`. JSON for islands goes through `JSON.stringify` in a `type="application/json"` script.
+- Secrets in Wrangler secrets. Only `PUBLIC_*` shop details are inlined at build.
+- Log error names, never buyer data.
+
+## Accessibility (WCAG 2.2 AA)
+
+- Semantic landmarks, one `h1` per page, headings in order, skip link.
+- Visible focus on everything (2px `action` ring, 2px offset). Sticky header and bottom bar never cover the focused element (2.4.11).
+- Targets ≥ 44×44px for primary controls, never below 24×24px (2.5.8).
+- Dialogs (search, cart): `role="dialog"`, `aria-modal`, labelled, focus trapped, Escape closes, focus returns to the opener.
+- Do not ask for the same information twice in checkout (3.3.7). Help (WhatsApp, contact) stays in the same place on every page (3.2.6).
+- Status changes (added to cart, quantity corrected, copied) announced through one `aria-live="polite"` region.
+- Respect `prefers-reduced-motion`, `prefers-reduced-transparency` and `prefers-contrast: more`.
+
+## Testing
+
+| Layer | Tool | Covers |
 | --- | --- | --- |
-| Price and PKR formatting | `src/lib/money.ts` | Product page, cart, checkout, order API |
-| Dispatch windows, cutoff, shipping amount | `src/lib/shipping.ts` | Home, product, cart, checkout, shipping page |
-| Stock cap and catalog lookup by part number | `src/lib/catalog.ts` | Pages and the order API |
-| Buyer-facing sentences that must match | next to the module that proves them | See [copy.md](copy.md) |
+| Unit | Vitest | `money`, `quantity`, `phone`, `shipping` clock math, `catalog-search` ranking, Zod schemas |
+| Data | Vitest + Miniflare/local D1 | Order insert, idempotency, stock decrement and rollback |
+| E2E | Playwright | Search → product → add → change quantity → cart → checkout → success; empty cart; out-of-stock; invalid phone |
+| Visual | Playwright `toHaveScreenshot` | Home, product, cart open, checkout at 390 and 1440. Baselines generated on the CI OS only; hide the clock-driven status chip with `stylePath` |
+| Accessibility | `@axe-core/playwright` | WCAG 2.0/2.1/2.2 A and AA tags on every route in the E2E suite |
+| Performance | Lighthouse CI | Budgets above, mobile, 5 runs |
 
-A page may format a module’s output. It may not restate a different delivery window.
-
-## Order API
-
-- Validate the body with Zod. Unknown keys do not have to be stored. `destination` is either in the schema or it is not on the form.
-- Recompute lines from the catalog inside the handler. Persist those numbers.
-- Verify Turnstile with the siteverify API when the widget is real. Until the widget exists, do not pretend: remove the dummy token.
-- Insert into D1. If the binding is missing, return a 500 and log it. Do not return a success id.
-- Generate an id that will not collide. A random four-digit suffix is not enough. Use a longer random id or a database sequence, still prefixed `LHR-` so the shop’s existing language survives.
-- Rate-limit and reject oversized carts. This catalog’s largest honest cart is small. Cap line quantity at `stock_qty`.
-- Do not log the full address and phone in a client-visible response.
-
-## Schema migrations
-
-`db/schema.sql` must not drop the orders table as its first statement. Write a forward migration that creates the table if it is missing and adds columns without destroying rows. Document the command in the README when the command exists.
-
-## Security and trust boundaries
-
-- The catalog JSON is public. Secrets are not. Bank account numbers, if they are real, come from the Cloudflare environment and are rendered on the server. They are not committed as a second fake.
-- Buyer HTML is escaped. Search, address, and the order id in a heading are text nodes.
-- The success page does not treat the URL as proof of purchase. The database row is the proof.
-- Do not add a client-side price override “for testing” and leave it in the handler.
-
-## Accessibility
-
-Target WCAG 2.2 AA on the catalog, the product page, the drawer, and checkout. The failures that matter here, because this UI has a sticky bar, a drawer, steppers, and a form:
-
-| Criterion | What it requires on this shop |
-| --- | --- |
-| 1.4.3 Contrast | 4.5:1 for text. The pairs in the design system already clear this. Do not introduce a new gray |
-| 1.4.11 Non-text contrast | 3:1 for input borders and for the focus ring. Use `--line` and the ink outline |
-| 1.4.1 Use of color | Stock, errors, and filters have a word or an icon |
-| 1.4.4 Resize text | At 200% zoom the price stacks. No horizontal scroll on the checkout form |
-| 2.4.7 Focus visible | The 2px ink outline stays |
-| 2.4.11 Focus not obscured | The sticky bar and the open drawer do not cover the focused control |
-| 2.5.8 Target size | At least 24px, with 44px on the primary button and the stepper |
-| 3.3.1, 3.3.2 Errors and labels | Visible labels. Errors identify the field and the rule |
-| 3.3.7 Redundant entry | A value already typed in this checkout is not demanded again |
-| 3.3.8 Accessible authentication | There is no password. If one is ever added, paste and password managers must work |
-| 3.2.6 Consistent help | The contact link stays in the same footer position |
-| 4.1.3 Status messages | “Added” is announced. Focus does not jump to the drawer unless the buyer opened it |
-| 2.1.2, drawer pattern | Focus moves into the drawer, Tab is trapped, Escape closes, focus returns |
-
-Also:
-
-- One `h1` per page. The product `h1` is the job sentence. The part number is text in that block, not a second `h1`.
-- Heading levels do not skip.
-- Images have alt that names the part and the package. Decorative rules are empty alt or CSS.
-- The page has a skip link to the catalog or the main content.
-- `lang="en"` stays on the document until a real Urdu locale exists. Do not add a language toggle as decoration.
-- Do not use ARIA to recreate a native control. Use `button`, `a`, `label`, and `input`. Add ARIA when the drawer and the live region need it.
-
-## Performance
-
-Budgets, at the 75th percentile of real visits, mobile and desktop separately:
-
-| Metric | Good |
-| --- | --- |
-| LCP | ≤ 2.5 s |
-| INP | ≤ 200 ms |
-| CLS | ≤ 0.1 |
-
-These are the pass lines from current Web Vitals guidance. They are not a revenue forecast.
-
-How this catalog stays inside them:
-
-- The LCP image on a product page has width and height, a modern format, a `srcset` matched to the 1:1 well, and `fetchpriority="high"`. It is not lazy-loaded. Other images may be.
-- Fonts are self-hosted, subset to the weights in the design system, and preloaded for the body weight only.
-- No render-blocking Google Fonts stylesheet.
-- Islands are small. Do not hydrate the catalog table if it is static HTML with links.
-- Do not animate layout properties.
-- Third-party scripts: Turnstile, when it is real, and nothing else on the critical path. No chat widget, no tag manager, no extra font CDN.
+Scripts to add to `package.json`: `check` (astro check), `test` (vitest), `test:e2e`, `test:visual`, `lint:css`, `lhci`.
 
 ## Developer experience
 
-- `npm run dev` uses `astro dev`. The project rules say to start it in the background with `astro dev --background` and to stop it with `astro dev stop`.
-- Typecheck with `astro check` when a schema, an API, or a content field changes.
-- A content file that fails the Zod schema fails the build. That is the point of the required fields.
-- README is still the Astro starter. When the order flow becomes real, replace the starter text with how to run the app, where catalog JSON lives, and how D1 is migrated. Do not leave two sources of setup truth.
-- `AGENTS.md` points here. When a rule in this folder changes, do not also paste the rule into a third file. Update the one file that owns it.
-- Comments explain a constraint a reader cannot see, such as why the price is recomputed. They do not narrate the JSX.
+- `astro dev --background` for the dev server; check `astro dev status` before starting one.
+- Keep the specimen (`docs/design/specimen.html`) in sync when a token changes, and regenerate `docs/design/screens/`.
+- A short `CONTRIBUTING` section in the root README: install, env vars from `.env.example`, D1 local setup (`wrangler d1 execute --local --file db/schema.sql`), how to run tests.
+- Remove `scratch/` from the repo or move its script into `tests/`.
 
-## Verification
+## AI agent setup
 
-Before calling a buyer-facing change done:
-
-1. Desktop and a 390px viewport.
-2. The path in [change-plan.md](change-plan.md)’s “Done” section that your change touches.
-3. Keyboard only, for any new control.
-4. An empty cart, an empty search, and a category with no parts, if those states exist on the page you touched.
-5. A forced error: a bad phone, a quantity above stock, an unknown order id.
-
-Record what you ran and what you could not run.
+- `AGENTS.md` (and `CLAUDE.md`, which mirrors it) stay short: what the shop is, where the manual is, how to run the server. They point here instead of repeating rules.
+- Rules that matter are enforced by tools (stylelint, CI greps, astro check, tests), not only by prose.
+- Optional: a Cursor or Claude Code hook that blocks edits to `docs/design-system.md` and `src/styles/tokens.css` unless the task is a design-system change.

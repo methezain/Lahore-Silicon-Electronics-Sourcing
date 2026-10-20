@@ -39,6 +39,6 @@
   "min_qty": 1,
   "qty_multiple": 1,
   "description": "LM2596S step-down module. Input 4–40 V, adjustable output 1.25–35 V, rated 3 A. Sourced from Hall Road, Lahore.",
-  "image": "/parts/lm2596.jpg",
+  "image": "../../assets/parts/lm2596.jpg",
   "image_note": "Representative studio photograph, not a photo of the lot in the drawer."
 }

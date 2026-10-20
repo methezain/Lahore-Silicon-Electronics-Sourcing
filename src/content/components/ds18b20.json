@@ -42,6 +42,6 @@
   "min_qty": 1,
   "qty_multiple": 1,
   "description": "DS18B20 1-Wire thermometer in TO-92. −55 °C to +125 °C, ±0.5 °C from −10 °C to +85 °C. Each sensor has a 64-bit address, so more than one can share a bus. A waterproof probe is a different part, available on request. Sourced from Hall Road, Lahore.",
-  "image": "/parts/ds18b20.jpg",
+  "image": "../../assets/parts/ds18b20.jpg",
   "image_note": "Representative studio photograph, not a photo of the lot in the drawer."
 }

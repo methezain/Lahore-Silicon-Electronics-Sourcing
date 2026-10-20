@@ -2,80 +2,71 @@
 
 ## The feeling
 
-A buyer should feel they are standing at a careful counter. The person on the other side already knows the part, has counted the drawer, and will not change the number at the end.
+A buyer should feel they walked into the best counter on Hall Road. The space is calm and bright. The person behind the glass already knows the part, has counted the drawer, quotes one price, and does not change it at the till.
 
-That feeling comes from three things on one screen:
+Premium on this site means three things at once:
 
-- A job sentence a non-technical buyer can use. Example: “5 V, 1 A, TO-220 linear regulator.”
-- The part number, the price, the stock count, and the datasheet, in the same block, for the person who arrived with a number.
-- A shipping assumption and a return rule that are still true after the server prices the order.
+1. **Composure.** Generous space, one typeface family, one accent, precise alignment, motion that answers the hand. Nothing shouts.
+2. **Completeness.** The part number, the job it does, the price, the exact stock, the datasheet and the arrival window are all on the first screen.
+3. **Truth.** Every number survives checkout. No fake urgency, no strike-through "sale", no invented stock, no placeholder phone number.
 
-Apple’s product pages, Aesop’s “what the associate would say,” Framework’s one-accent buy flow, and Braun’s habit of naming an object by its job set the ceiling for restraint. Baymard’s 2024 study of electronic-component sites (168 moderated sessions with engineers and buyers) sets the ceiling for facts: people left when the datasheet, a matching drawing, or a stock count was missing. DigiKey, Mouser, RS, Arrow, and LCSC show how those facts look at distributor scale. Adafruit and SparkFun show the module version: logic level, what is in the bag, and a datasheet above the essay.
+If a change makes the site prettier but less true or less complete, it is not premium.
 
 ## Who it is for
 
-One catalog, two reading orders.
+One catalog, two reading orders. Do not build two sites or a "simple mode".
 
-| Reader | What they need first | What fails them |
+| Reader | Needs first | What fails them |
 | --- | --- | --- |
-| Working engineer or technician | Manufacturer part number, package, stock integer, price at the quantity they need, datasheet | A lifestyle paragraph, a card grid with no columns, a stock badge that only says “in stock” |
-| Maker or student | What it does, the voltage, what else is in the bag, when it arrives in Lahore | A parametric wall, a reel fee, a page that assumes they already know the package code |
+| Engineer or technician, arrives with a part number | Exact part number, maker, package, stock count, price at their quantity, datasheet | Lifestyle copy, a card grid with no columns, "In stock" without a number |
+| Student or maker, arrives with a job | What it does in one plain sentence, voltage and logic level, what is in the bag, when it reaches them | A parametric wall, package codes with no explanation |
 
-Do not build two sites, two heroes, or a “simple mode.”
+Typical device: a mid-range Android phone (Infinix, Tecno, Xiaomi, Vivo) on 4G with 70–130 ms latency, arriving from a WhatsApp, TikTok or Facebook link. Design for that phone first, then reward the desktop.
 
-## Copy this
+## The ceilings we borrow
 
-- Manufacturer part number and the shop’s part number, as selectable text.
-- A one-line job, then HTML specs, then the PDF. The PDF is not a substitute for the voltage.
-- A numeric stock count, or a date when the count is zero. “In stock” alone is not a count.
-- Minimum and multiple, if they are not 1.
-- A quantity-break table only when the cart and the order use the same breaks.
-- A photo of the item the shop actually ships, or an explicit line that the picture is representative.
-- One sentence on packaging. Example: “Loose TO-220 in an antistatic bag.”
-- Pinout and electrical limits in the first screen for modules.
-- Shipping cost, or the free-over rule, next to the price, with the assumption in the label.
-- A delivery date or a dispatch window in calendar language.
-- Guest checkout as the primary path. An account, if it ever exists, comes after the order.
-- One accent, used for the action. In this system the action is ink, and the only chromatic mark is the copper rule under the part number. See [design-system.md](design-system.md).
-- A footnote under any number the shop did not measure itself.
+Each reference sets the bar for one thing. We take that thing, not the whole costume.
 
-## Adapt this
+| Reference | What we take | What we leave |
+| --- | --- | --- |
+| Apple Store buy pages | Off-black ink on near-white, one accent for action, every option priced, a calm sticky buy panel, FAQ at the end | Cinematic scroll video, custom fonts we cannot license |
+| Teenage Engineering, Nothing, Analogue, Playdate | One distinctive typographic idea, a flat honest product grid, plain shipping lines ("ships in 24–48 hours") | Novelty fonts that hurt reading |
+| Framework, Bang & Olufsen | Restraint, near-black that is warm or tinted, slow and quiet motion on large surfaces | Luxury habit of hiding prices |
+| DigiKey, LCSC, Mouser | Exact stock, datasheet near the top, quantity price table, filters above the list, exact part-number search | Machinery for 500,000 SKUs: BOM upload, reel fees, regional price stacks |
+| Adafruit, SparkFun, Pololu | Explain the module: who it is for, logic level, what is included and what is not, pinout, "you will also need" | Long essays above the facts |
+| Linear, Vercel, Stripe | Tokens generated in OKLCH, concentric radii, layered tinted shadows, 120–320 ms ease-out motion | Gradient heroes, dark bento walls with glowing borders |
+| PriceOye (Pakistan) | Local trust: real address, warranty and condition stated plainly, check-before-you-pay options, dated reviews | Discount banners and countdowns |
+| Baymard Institute, NN/g | Guest checkout, 7–8 form fields, total cost visible before checkout, persistent add-to-cart feedback, +/− quantity controls | — |
 
-- Distributor product tables become a short desktop table of the columns that actually differ, and a mobile list of the same facts. This catalog has about ten parts, not half a million.
-- Filters are a single row of real categories above the table. A left sidebar is for a catalog that needs the columns back.
-- Search hits the manufacturer part number, the shop part number, and the plain name. Exact part-number search must not miss.
-- “Similar parts” is a short list a person wrote, of parts this shop sells.
-- Apple’s sequence of feeling, then proof, then specification becomes one job sentence above a spec block that is already on the first screen.
+## The client's visual references
 
-## Refuse this
+The images in `design_language/` share one vocabulary, and the design system adopts it deliberately:
 
-- Parametric filters for attributes that do not vary in this catalog.
-- Separate part numbers for cut tape, reel, and Digi-Reel, and any reel fee.
-- Regional price stacks, contract-price icons, and quote-only as the default for a part on the shelf.
-- A replenishment date that appears only after add to cart.
-- Merging two different parts into one card because a marketplace template does that with shirt sizes.
-- A BOM tool, ECAD models, and manufacturer lead times the shop cannot honor.
-- A cinematic marketing URL that is separate from the shop.
-- Horizontal scroll voyages, WebGL product stages, parallax, and autoplaying carousels.
-- Award-site decoration. Aesop’s candles microsite scored higher on design than on usability and accessibility. That split is the failure mode.
-- Hidden prices, hidden stock, and a delivery promise with no date.
-- Lifestyle copy that omits voltage and logic level.
-- A second visual theme, a gradient mesh, a cream-and-terracotta palette, a near-black page with one acid accent, or a newspaper layout. Those are generic costumes. This shop’s costume is specified in [design-system.md](design-system.md).
-- DigiKey’s chrome. The facts transfer. The machinery for hundreds of thousands of SKUs does not.
+- Big rounded panels nested inside a frame, with concentric radii.
+- A tab that rises out of a panel's edge with concave corners (the "Cardiology" tab, the landing page's search notch).
+- Pill segmented controls for navigation and filters.
+- Dark navy panels with one vivid accent, set inside a light page.
+- Stacked floating cards with real depth.
+- Large numerals with small unit labels, dashboard style.
+- The plug logo in `#007AAD` and the palette `#007AAD / #D9E2E9 / #FFFBFC / #0C1D32`.
+
+The lime and coral accents in the references are not adopted. The brand blue already has a vivid light step (`signal`, `#20B7FE`) that does that job on navy without adding a second hue.
+
+## The signature
+
+**The socket tab.** The logo is a plug and a socket about to connect. The UI echoes it: a part number sits in a small tab that rises from the top edge of its card with concave corners, like a connector seated in a socket. It appears on product cards, the product gallery and the hero card. The desktop hero repeats the shape in reverse: the search bar docks into a notch cut into the navy panel.
+
+That is the one memorable idea. Nothing else competes with it. See [design-system.md](design-system.md#signature-the-socket-tab).
+
+## Refuse
+
+- Discount banners, strike-through prices, countdown timers, "only 2 left!" urgency, popups, newsletter modals, autoplay carousels, chat bubbles that cover the cart.
+- Parallax, scroll-jacking, WebGL product stages, horizontal scroll voyages, marquee text, confetti.
+- A purple or multi-stop gradient hero, glowing borders, glassmorphism stacked on glassmorphism, pure `#000` dark mode with one neon accent.
+- Copy that sells instead of informing ("Unleash your creativity"). Lifestyle text that omits voltage.
+- Two parts merged into one card with a variant picker. Two different part numbers are two products.
+- Any claim the shop cannot prove: invented review counts, "100% genuine", "500+ parts", a placeholder phone number, a datasheet link that goes nowhere.
 
 ## What already belongs to this shop
 
-Keep these, and make them true:
-
-- Hall Road procurement as the story of the business.
-- Advance payment, with the reason written on the shipping page.
-- WhatsApp as the operations channel, using the operator’s real number.
-- Part-number URLs and the content collection.
-- A persistent cart with a drawer and a remove control.
-- The shipping page’s real distinctions: Lahore versus nationwide, a cutoff, antistatic packaging, a defect-report window.
-
-The differentiated copy already in the JSON (the LM7805 text names the package, the current, and thermal shutdown) is worth more than a generic marketplace voice. Extend it. Do not replace it with slogans.
-
-## Evidence boundaries
-
-Do not quote these as this shop’s expected lift: Baymard’s modeled 35.26% checkout gain, Vodafone’s 8% sales lift, Rakuten’s 33% conversion lift, or a redBus 7% figure whose case-study URL 404’d. Do not treat the 2017 shipping-cost study, or the 2018 spec-sheet rates, as 2026 retests. Baymard’s guideline scores are paywalled. DigiKey’s US pages were bot-walled during the 19 October 2026 pass. The full source notes record every conflict.
+Keep these and make them excellent: Hall Road sourcing as the story, part-number URLs, the content collection, server-side pricing, the persistent cart drawer, WhatsApp as the operations channel, the Lahore-versus-nationwide delivery split, the 3 PM dispatch cutoff, antistatic packing, and the defect-report window.

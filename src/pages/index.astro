@@ -1,8 +1,10 @@
 ---
 import Layout from "../layouts/Layout.astro";
 import { getCollection } from "astro:content";
+import PartPicture from "../components/PartPicture.astro";
 import { CATEGORIES } from "../lib/categories";
 import { formatPkr, unitPrice } from "../lib/money";
+import { thumb56 } from "../lib/part-image";
 
 const components = await getCollection("components");
 const requested = Astro.url.searchParams.get("category");
@@ -77,8 +79,8 @@ function toggleSort(key: "price" | "stock") {
               <th>Part</th>
               <th>What it is</th>
               <th>Spec</th>
-              <th>Stock</th>
-              <th>Price</th>
+              <th class="num">Stock</th>
+              <th class="num">Price</th>
             </tr>
           </thead>
           <tbody>
@@ -87,7 +89,16 @@ function toggleSort(key: "price" | "stock") {
                 <td>
                   <a href={`/product/${part.data.part_number.toLowerCase()}`}>
                     {part.data.image && (
-                      <img class="thumb" src={part.data.image} alt="" width="56" height="56" />
+                      <PartPicture
+                        src={part.data.image}
+                        partNumber={part.data.part_number}
+                        alt=""
+                        width={thumb56.width}
+                        height={thumb56.height}
+                        sizes={thumb56.sizes}
+                        class="thumb"
+                        frameClass="thumb-frame"
+                      />
                     )}
                   </a>
                 </td>
@@ -106,7 +117,16 @@ function toggleSort(key: "price" | "stock") {
             <li>
               <a href={`/product/${part.data.part_number.toLowerCase()}`}>
                 {part.data.image && (
-                  <img class="thumb" src={part.data.image} alt="" width="72" height="72" />
+                  <PartPicture
+                    src={part.data.image}
+                    partNumber={part.data.part_number}
+                    alt=""
+                    width={thumb56.width}
+                    height={thumb56.height}
+                    sizes={thumb56.sizes}
+                    class="thumb"
+                    frameClass="thumb-frame"
+                  />
                 )}
                 <span class="mono">{part.data.part_number}</span>
                 <span class="job">{part.data.name}</span>

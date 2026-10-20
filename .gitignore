@@ -24,6 +24,12 @@ pnpm-debug.log*
 # jetbrains setting folder
 .idea/
 
+# tests and audits
+test-results/
+playwright-report/
+blob-report/
+.lighthouseci/
+
 documents/
 design_language/
 
