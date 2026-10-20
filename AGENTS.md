@@ -1,3 +1,11 @@
+## Storefront
+
+Lahore Silicon is a small Hall Road electronics counter. Before changing pages, styles, catalog data, cart, or checkout, read `docs/README.md` and follow the file it points to. The binding rules are in `docs/agent-rules.md`. The visual system is locked in `docs/design-system.md`. Do the earliest unfinished item in `docs/change-plan.md` before restyling.
+
+## Storefront
+
+Lahore Silicon is a small Hall Road electronics counter. Before changing pages, styles, catalog data, cart, or checkout, read `docs/README.md` and follow the file it points to. The binding rules are in `docs/agent-rules.md`. The visual system is locked in `docs/design-system.md`. Do the earliest unfinished item in `docs/change-plan.md` before restyling.
+
 ## Development
 
 When starting the dev server, use background mode:

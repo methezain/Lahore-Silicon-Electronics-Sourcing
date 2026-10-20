@@ -1,43 +1,46 @@
 ---
+import { CATEGORIES } from '../lib/categories';
+import { deskHours } from '../lib/desk';
+import { cutoffValue, sameDayDispatch } from '../lib/shipping';
+import { shopPhone, whatsappHref } from '../lib/shop';
+
+const phone = shopPhone();
+const wa = whatsappHref();
+const catalogLinks = [
+  { label: 'All', href: '/#catalog' },
+  ...CATEGORIES.map((label) => ({ label, href: `/?category=${encodeURIComponent(label)}#catalog` })),
+];
 ---
-<footer class="bg-brand-900 text-brand-50 mt-24 pt-16 pb-8 border-t border-brand-200">
-  <div class="max-w-5xl mx-auto px-4">
-    <div class="grid grid-cols-1 md:grid-cols-4 gap-8 mb-12">
-      <div>
-        <h3 class="font-bold text-lg mb-4 tracking-tight uppercase text-accent-amber">Lahore Silicon</h3>
-        <p class="text-sm opacity-80 leading-relaxed">
-          Ultra-fast, on-demand electronic component sourcing directly from Hall Road, Lahore. Built for engineers and R&D labs.
-        </p>
-      </div>
-      <div>
-        <h4 class="font-semibold mb-4 text-brand-50 uppercase tracking-tight">Catalog</h4>
-        <ul class="space-y-3 text-sm opacity-80">
-          <li><a href="#" class="hover:text-accent-emerald transition-colors">Microcontrollers</a></li>
-          <li><a href="#" class="hover:text-accent-emerald transition-colors">Sensors & Modules</a></li>
-          <li><a href="#" class="hover:text-accent-emerald transition-colors">Power Supply</a></li>
-          <li><a href="#" class="hover:text-accent-emerald transition-colors">Passive Components</a></li>
-        </ul>
-      </div>
-      <div>
-        <h4 class="font-semibold mb-4 text-brand-50 uppercase tracking-tight">Support</h4>
-        <ul class="space-y-3 text-sm opacity-80">
-          <li><a href="#" class="hover:text-accent-emerald transition-colors">Track Order</a></li>
-          <li><a href="#" class="hover:text-accent-emerald transition-colors">Payment Methods</a></li>
-          <li><a href="#" class="hover:text-accent-emerald transition-colors">Shipping & Returns</a></li>
-          <li><a href="#" class="hover:text-accent-emerald transition-colors">Contact WhatsApp</a></li>
-        </ul>
-      </div>
-      <!-- Operations Box -->
-      <div>
-        <h3 class="font-bold text-lg mb-4 tracking-tight uppercase">Operations</h3>
-        <div class="bg-brand-50 border border-brand-200 text-brand-900 rounded-2xl p-4 text-sm shadow-sm">
-          <p class="font-bold mb-2">Dispatch Cutoff: 3:00 PM (PKT)</p>
-          <p class="opacity-80 leading-relaxed">Orders placed before cutoff are dispatched the same day via Leopards/TCS.</p>
-        </div>
-      </div>
+
+<footer class="site-footer">
+  <div class="site-footer-grid">
+    <div>
+      <p class="wordmark">Lahore Silicon</p>
+      <p class="caption">Parts from Hall Road, Lahore.</p>
+      <p class="caption">{deskHours}</p>
     </div>
-    <div class="border-t border-brand-200 pt-8 text-center text-xs opacity-50">
-      &copy; {new Date().getFullYear()} Lahore Silicon On-Demand Sourcing. Designed for speed.
+    <div>
+      <h2 class="label">Catalog</h2>
+      <ul>
+        {catalogLinks.map((link) => (
+          <li><a href={link.href}>{link.label}</a></li>
+        ))}
+      </ul>
+    </div>
+    <div>
+      <h2 class="label">Desk</h2>
+      <ul>
+        <li><a href="/shipping-and-payments">Shipping and payment</a></li>
+        <li><a href="/about">About</a></li>
+        <li><a href="/contact">Contact</a></li>
+        {wa && phone && <li><a href={wa}>WhatsApp {phone.display}</a></li>}
+      </ul>
+    </div>
+    <div>
+      <h2 class="label">Dispatch</h2>
+      <p class="caption">Dispatch cutoff: {cutoffValue}</p>
+      <p class="caption">{sameDayDispatch}</p>
     </div>
   </div>
+  <p class="caption site-footer-note">&copy; {new Date().getFullYear()} Lahore Silicon. Hall Road, Lahore.</p>
 </footer>

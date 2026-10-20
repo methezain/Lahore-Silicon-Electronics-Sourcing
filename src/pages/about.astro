@@ -1,0 +1,45 @@
+---
+import Layout from '../layouts/Layout.astro';
+import { getCollection } from 'astro:content';
+import { shippingWindows } from '../lib/shipping';
+
+const publishedParts = (await getCollection('components')).length;
+---
+
+<Layout
+  title="About — Lahore Silicon"
+  description="Lahore Silicon is a Hall Road sourcing desk for a short catalog of electronic parts."
+>
+  <article class="page">
+    <p class="label">The desk</p>
+    <h1 class="display">A counter on Hall Road, open to the rest of the country.</h1>
+    <p class="lede">
+      Hall Road is where Lahore buys parts. Lahore Silicon is that counter for someone who cannot stand in the lane:
+      a short list, a counted drawer, and a price that does not change at checkout.
+    </p>
+
+    <div class="split" style="margin-top: 32px;">
+      <div class="panel prose">
+        <h2 class="heading">What this shop is</h2>
+        <p>
+          The catalog has {publishedParts} parts. Each row shows the part number, what it does, how many are in the drawer, and the price in rupees.
+        </p>
+        <p>
+          An order is procured from Hall Road after you pay. {shippingWindows}
+        </p>
+        <p>
+          If a part is out of stock, the page says so. The add button only appears when the drawer has a count.
+        </p>
+      </div>
+      <div class="panel ink-panel">
+        <p class="label">In the catalog</p>
+        <p class="display">{publishedParts}</p>
+        <p>Published parts. Not a promise of a warehouse.</p>
+        <div class="actions" style="margin-top: 24px;">
+          <a class="btn-ink" href="/">Browse the parts</a>
+          <a class="btn-quiet" href="/contact" style="color:#fff;border-color:#D5D8D4;">Ask the desk</a>
+        </div>
+      </div>
+    </div>
+  </article>
+</Layout>

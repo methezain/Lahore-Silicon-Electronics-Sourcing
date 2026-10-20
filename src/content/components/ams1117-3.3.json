@@ -1,0 +1,49 @@
+{
+  "part_number": "AMS1117-3.3",
+  "manufacturer": "Advanced Monolithic Systems",
+  "mpn": "AMS1117-3.3",
+  "name": "3.3 V LDO regulator, SOT-223",
+  "category": "Power",
+  "price": 25,
+  "currency": "PKR",
+  "stock_qty": 80,
+  "package_type": "SOT-223",
+  "mounting_type": "SMD",
+  "voltage": "4.75–12 V in, 3.3 V out",
+  "specs": [
+    {
+      "label": "Output voltage",
+      "value": "3.3",
+      "unit": "V"
+    },
+    {
+      "label": "Output current",
+      "value": "800",
+      "unit": "mA"
+    },
+    {
+      "label": "Dropout",
+      "value": "1.3",
+      "unit": "V typical"
+    },
+    {
+      "label": "Input voltage",
+      "value": "4.75–12",
+      "unit": "V"
+    },
+    {
+      "label": "Package",
+      "value": "SOT-223"
+    },
+    {
+      "label": "Mounting",
+      "value": "SMD"
+    }
+  ],
+  "in_the_bag": "Loose SOT-223 in an antistatic bag.",
+  "min_qty": 1,
+  "qty_multiple": 1,
+  "description": "AMS1117-3.3 low-dropout linear regulator in SOT-223. 800 mA output, 1.3 V typical dropout. Used to feed 3.3 V logic such as an ESP32. Sourced from Hall Road, Lahore.",
+  "image": "/parts/ams1117.jpg",
+  "image_note": "Representative studio photograph, not a photo of the lot in the drawer."
+}

@@ -1,0 +1,47 @@
+{
+  "part_number": "DS18B20",
+  "manufacturer": "Analog Devices",
+  "mpn": "DS18B20",
+  "name": "1-Wire temperature sensor, TO-92",
+  "category": "Sensors",
+  "price": 220,
+  "currency": "PKR",
+  "stock_qty": 24,
+  "package_type": "TO-92",
+  "mounting_type": "Through-hole",
+  "voltage": "3.0–5.5 V",
+  "specs": [
+    {
+      "label": "Interface",
+      "value": "1-Wire"
+    },
+    {
+      "label": "Supply",
+      "value": "3.0–5.5",
+      "unit": "V"
+    },
+    {
+      "label": "Range",
+      "value": "−55 to +125",
+      "unit": "°C"
+    },
+    {
+      "label": "Accuracy",
+      "value": "±0.5 °C from −10 °C to +85 °C"
+    },
+    {
+      "label": "Address",
+      "value": "64-bit"
+    },
+    {
+      "label": "Package",
+      "value": "TO-92"
+    }
+  ],
+  "in_the_bag": "Loose TO-92 in an antistatic bag.",
+  "min_qty": 1,
+  "qty_multiple": 1,
+  "description": "DS18B20 1-Wire thermometer in TO-92. −55 °C to +125 °C, ±0.5 °C from −10 °C to +85 °C. Each sensor has a 64-bit address, so more than one can share a bus. A waterproof probe is a different part, available on request. Sourced from Hall Road, Lahore.",
+  "image": "/parts/ds18b20.jpg",
+  "image_note": "Representative studio photograph, not a photo of the lot in the drawer."
+}

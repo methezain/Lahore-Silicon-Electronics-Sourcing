@@ -1,0 +1,89 @@
+---
+import Layout from '../layouts/Layout.astro';
+import { cutoffValue } from '../lib/shipping';
+import { deskHours } from '../lib/desk';
+import { shopPhone, whatsappHref } from '../lib/shop';
+
+const phone = shopPhone();
+const quoteWa = whatsappHref('Hi, I need a custom sourcing quote for the following parts:');
+---
+
+<Layout
+  title="Contact — Lahore Silicon"
+  description="Contact the Lahore Silicon desk for a part that is not in the catalog."
+>
+  <div class="page">
+    <p class="label">Desk</p>
+    <h1 class="display">Contact</h1>
+    <p class="lede">
+      {phone
+        ? 'The form opens WhatsApp with your part list already written.'
+        : 'The form opens an email with your part list already written.'}
+    </p>
+
+    <div class="split" style="margin-top: 32px;">
+      <div class="panel stack">
+        <h2 class="heading">Hours</h2>
+        <p>{deskHours}</p>
+        <p class="caption">Dispatch cutoff: {cutoffValue}</p>
+        <p class="caption">Hall Road, Lahore.</p>
+        {phone && <p class="mono">{phone.display}</p>}
+      </div>
+
+      <form id="sourcing-form" class="panel stack">
+        <h2 class="heading">A part that is not listed</h2>
+        <div class="field">
+          <label for="quote-name">Name, required</label>
+          <input id="quote-name" name="name" type="text" required autocomplete="name" />
+        </div>
+        <div class="field">
+          <label for="quote-phone">Phone, required</label>
+          <input id="quote-phone" name="phone" type="tel" required autocomplete="tel" placeholder="03XX XXXXXXX" />
+        </div>
+        <div class="field">
+          <label for="quote-parts">Part numbers, required</label>
+          <textarea id="quote-parts" name="parts" required rows="5" placeholder="LM7805 × 10"></textarea>
+        </div>
+        <div class="field">
+          <label for="quote-notes">Notes, optional</label>
+          <textarea id="quote-notes" name="notes" rows="2"></textarea>
+        </div>
+        <a
+          id="quote-send"
+          class="btn-ink"
+          href={quoteWa ?? 'mailto:support@lahoresilicon.com?subject=Custom%20sourcing%20quote'}
+          data-wa={phone?.waDigits}
+          target={quoteWa ? '_blank' : undefined}
+          rel={quoteWa ? 'noopener noreferrer' : undefined}
+        >
+          {quoteWa ? 'Send on WhatsApp' : 'Email the part list'}
+        </a>
+      </form>
+    </div>
+  </div>
+</Layout>
+
+<script>
+  const send = document.getElementById('quote-send');
+  const form = document.getElementById('sourcing-form');
+  send?.addEventListener('click', (event) => {
+    if (!(form instanceof HTMLFormElement) || !(send instanceof HTMLAnchorElement)) return;
+    if (!form.reportValidity()) {
+      event.preventDefault();
+      return;
+    }
+    const data = new FormData(form);
+    const body = [
+      `Name: ${data.get('name') ?? ''}`,
+      `Phone: ${data.get('phone') ?? ''}`,
+      '',
+      String(data.get('parts') ?? ''),
+      '',
+      String(data.get('notes') ?? ''),
+    ].join('\n').trim();
+    const waDigits = send.dataset.wa;
+    send.href = waDigits
+      ? `https://wa.me/${waDigits}?text=${encodeURIComponent(body)}`
+      : `mailto:support@lahoresilicon.com?subject=${encodeURIComponent('Custom sourcing quote')}&body=${encodeURIComponent(body)}`;
+  });
+</script>

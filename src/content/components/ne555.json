@@ -1,0 +1,42 @@
+{
+  "part_number": "NE555",
+  "manufacturer": "Texas Instruments",
+  "mpn": "NE555",
+  "name": "Timer IC, 8-pin",
+  "category": "ICs",
+  "price": 35,
+  "currency": "PKR",
+  "stock_qty": 60,
+  "package_type": "DIP-8",
+  "mounting_type": "Through-hole",
+  "voltage": "4.5–16 V",
+  "specs": [
+    {
+      "label": "Function",
+      "value": "Timer"
+    },
+    {
+      "label": "Pins",
+      "value": "8"
+    },
+    {
+      "label": "Supply",
+      "value": "4.5–16",
+      "unit": "V"
+    },
+    {
+      "label": "Package",
+      "value": "DIP-8"
+    },
+    {
+      "label": "Modes",
+      "value": "Monostable, astable, bistable"
+    }
+  ],
+  "in_the_bag": "Loose DIP-8 in an antistatic bag.",
+  "min_qty": 1,
+  "qty_multiple": 1,
+  "description": "NE555 timer in DIP-8. Supply 4.5–16 V. Used for monostable, astable, and bistable timing. Sourced from Hall Road, Lahore.",
+  "image": "/parts/ne555.jpg",
+  "image_note": "Representative studio photograph, not a photo of the lot in the drawer."
+}

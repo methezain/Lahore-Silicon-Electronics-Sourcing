@@ -1,193 +1,423 @@
 ---
 import Layout from '../layouts/Layout.astro';
+import { catalogScriptJson, loadCatalog } from '../lib/catalog';
+import { formatPkr } from '../lib/money';
+import { paymentMethods, shopPhone, whatsappHref } from '../lib/shop';
+import { deliveryCost, shippingWindows } from '../lib/shipping';
+
+const methods = paymentMethods();
+const catalogJson = catalogScriptJson(await loadCatalog());
+const phone = shopPhone();
+const wa = whatsappHref('Hi, I need help with my order');
+const description = methods.length > 0
+  ? `Complete your sourcing order. Advance payment via ${methods.map((method) => method.label).join(', ')}.`
+  : 'Complete your sourcing order. Advance payment is required before parts are procured.';
 ---
 
-<Layout title="Checkout | Lahore Silicon">
-  <div class="max-w-4xl mx-auto" id="checkout-container">
-    <h1 class="text-3xl font-black uppercase tracking-tight text-brand-900 mb-8">Checkout</h1>
-    
-    <div class="grid grid-cols-1 md:grid-cols-2 gap-12">
-      <!-- Left: Form -->
-      <div>
-        <div class="bg-white border border-brand-200 rounded-2xl p-6 shadow-sm mb-6">
-          <h2 class="text-xl font-bold uppercase tracking-tight text-brand-900 mb-4 border-b border-brand-200 pb-2">Customer Details</h2>
-          <form id="checkout-form" class="space-y-4">
-            <div>
-              <label class="block text-sm font-bold text-brand-900/70 mb-1">Full Name *</label>
-              <input type="text" name="name" required class="w-full border border-brand-200 rounded-xl px-4 py-2.5 focus:outline-none focus:border-brand-500 focus:ring-1 focus:ring-brand-500 transition-colors" />
-            </div>
-            
-            <div>
-              <label class="block text-sm font-bold text-brand-900/70 mb-1">Phone (WhatsApp) *</label>
-              <input type="tel" name="phone" required placeholder="03XXXXXXXXX" pattern="[0-9]{11}" class="w-full border border-brand-200 rounded-xl px-4 py-2.5 focus:outline-none focus:border-brand-500 focus:ring-1 focus:ring-brand-500 transition-colors" />
-            </div>
-            
-            <div>
-              <label class="block text-sm font-bold text-brand-900/70 mb-1">Shipping Address *</label>
-              <textarea name="address" required rows="3" class="w-full border border-brand-200 rounded-xl px-4 py-2.5 focus:outline-none focus:border-brand-500 focus:ring-1 focus:ring-brand-500 transition-colors"></textarea>
-            </div>
-            
-            <!-- Stubbed Payment Selection -->
-            <div class="pt-4 border-t border-brand-200">
-              <h3 class="font-bold text-brand-900 mb-3">Payment Protocol</h3>
-              <div class="space-y-3">
-                <label class="flex items-center gap-3 p-3 border border-brand-200 rounded-xl cursor-pointer hover:bg-brand-50 transition-colors">
-                  <input type="radio" name="payment_method" value="raast" checked class="text-brand-500 focus:ring-brand-500 w-4 h-4" />
-                  <span class="font-bold text-sm">Raast / Nayapay / Sadapay</span>
-                </label>
-                <label class="flex items-center gap-3 p-3 border border-brand-200 rounded-xl cursor-pointer hover:bg-brand-50 transition-colors">
-                  <input type="radio" name="payment_method" value="bank" class="text-brand-500 focus:ring-brand-500 w-4 h-4" />
-                  <span class="font-bold text-sm">Bank Transfer (IBFT)</span>
-                </label>
+<Layout title="Checkout — Lahore Silicon" description={description}>
+  <div class="page" id="checkout-container">
+    <p class="label">Guest checkout</p>
+    <h1 class="display">Checkout</h1>
+    <p class="lede">
+      {methods.length > 0
+        ? 'Pay the total shown here, then paste the transaction id. Nothing new is added on this page.'
+        : 'Paste the payment reference. Account details are not published on this page, and the total does not change here.'}
+    </p>
+
+    <div class="checkout-grid">
+      <form id="checkout-form" class="panel stack">
+        <h2 class="heading">Where it ships</h2>
+        <div class="field">
+          <label for="field-name">Name, required</label>
+          <input type="text" name="name" id="field-name" aria-required="true" autocomplete="name" />
+          <p id="field-name-error" class="error hidden" role="alert"></p>
+        </div>
+        <div class="field">
+          <label for="field-phone">Phone, required</label>
+          <div class="phone-field">
+            <span>+92</span>
+            <input type="tel" name="phone" id="field-phone" inputmode="numeric" autocomplete="tel" aria-required="true" placeholder="3XX XXXXXXX" aria-describedby="field-phone-help field-phone-error" />
+          </div>
+          <p id="field-phone-help" class="caption">We use this if the courier cannot find the address.</p>
+          <p id="field-phone-error" class="error hidden" role="alert"></p>
+        </div>
+        <div class="field">
+          <label for="field-destination">City or area, required</label>
+          <input type="text" name="destination" id="field-destination" aria-required="true" autocomplete="address-level2" aria-describedby="field-destination-error" />
+          <p id="field-destination-error" class="error hidden" role="alert"></p>
+        </div>
+        <div class="field">
+          <label for="field-address">Address, required</label>
+          <textarea name="address" id="field-address" aria-required="true" rows="3"></textarea>
+          <p id="field-address-error" class="error hidden" role="alert"></p>
+        </div>
+        <details>
+          <summary>Add an apartment, floor, or landmark</summary>
+          <div class="field" style="margin-top: 12px;">
+            <label for="field-address-2">Address line 2, optional</label>
+            <input type="text" name="address_line_2" id="field-address-2" autocomplete="address-line2" />
+          </div>
+        </details>
+        <div class="field">
+          <label for="field-payment-ref">Payment reference, required</label>
+          <input type="text" name="payment_ref" id="field-payment-ref" aria-required="true" class="mono" />
+          <p id="field-payment-error" class="error hidden" role="alert"></p>
+          <p class="caption">{methods.length > 0 ? "Pay the total on this page, then paste the transaction id." : "Advance payment is required before the part is bought. Account details are not published on this page."}</p>
+        </div>
+        <button type="submit" id="submit-btn" class="btn-ink">Place order</button>
+        <p id="error-msg" class="error hidden" role="alert"></p>
+      </form>
+
+      <aside class="stack summary">
+        <div class="panel stack">
+          <h2 class="heading">Order</h2>
+          <div id="summary-items" class="stack"></div>
+          <div class="summary-row"><span>Merchandise</span><span id="summary-merchandise" class="money mono">{formatPkr(0)}</span></div>
+          <div>
+            <p>Shipping</p>
+            <p class="caption">{deliveryCost}</p>
+            <p class="caption">{shippingWindows}</p>
+          </div>
+          <div class="summary-row"><span>Total</span><span id="summary-total" class="price money">{formatPkr(0)}</span></div>
+        </div>
+        {methods.length > 0 && (
+          <div class="panel ink-panel stack">
+            <h2 class="heading">Pay this total</h2>
+            <p class="caption">Transfer the amount above, then paste the transaction id.</p>
+            {methods.length > 1 && (
+              <div class="actions">
+                {methods.map((method, i) => (
+                  <button class="payment-tab btn-quiet" data-tab={method.id} type="button" style={i === 0 ? "color:#fff;border-color:#8A4E2B;" : "color:#D5D8D4;border-color:#3C4650;"}>
+                    {method.label}
+                  </button>
+                ))}
               </div>
-            </div>
-
-            <!-- Transaction Reference -->
-            <div class="pt-2">
-              <label class="block text-sm font-bold text-brand-900/70 mb-1">Transaction Reference / TID *</label>
-              <input type="text" name="payment_ref" required placeholder="e.g. 123456789012" class="w-full border border-brand-200 rounded-xl px-4 py-2.5 focus:outline-none focus:border-brand-500 focus:ring-1 focus:ring-brand-500 transition-colors" />
-              <p class="text-xs text-brand-900/50 mt-1">Please transfer the total amount first and enter the TID here to process the order.</p>
-            </div>
-
-            <button type="submit" id="submit-btn" class="w-full bg-brand-500 text-brand-50 py-4 rounded-xl font-bold uppercase tracking-widest hover:bg-brand-900 transition-colors shadow-sm mt-4">
-              Place Order
-            </button>
-            <div id="error-msg" class="text-red-500 text-sm font-bold text-center mt-2 hidden"></div>
-          </form>
-        </div>
-      </div>
-
-      <!-- Right: Order Summary & Instructions -->
-      <div class="space-y-6">
-        <!-- Bank Details -->
-        <div class="bg-brand-900 text-brand-50 rounded-2xl p-6 shadow-sm">
-          <h2 class="text-xl font-bold uppercase tracking-tight text-accent-amber mb-4">Payment Instructions</h2>
-          <p class="text-sm opacity-80 mb-4 leading-relaxed">
-            Please transfer the exact order total to the following account to secure dispatch. Orders are verified and dispatched immediately upon receipt.
-          </p>
-          <div class="bg-white/10 rounded-xl p-4 space-y-2 font-mono text-sm border border-white/20">
-            <div class="flex justify-between">
-              <span class="opacity-60">Bank:</span>
-              <span class="font-bold">Meezan Bank</span>
-            </div>
-            <div class="flex justify-between">
-              <span class="opacity-60">Title:</span>
-              <span class="font-bold">Lahore Silicon ODS</span>
-            </div>
-            <div class="flex justify-between">
-              <span class="opacity-60">IBAN:</span>
-              <span class="font-bold text-accent-emerald">PK45 MEZN 0001 2345 6789</span>
-            </div>
-            <div class="flex justify-between pt-2 border-t border-white/10 mt-2">
-              <span class="opacity-60">Raast ID:</span>
-              <span class="font-bold text-accent-emerald">03001234567</span>
-            </div>
+            )}
+            {methods.map((method, i) => (
+              <div id={method.id} class:list={["payment-panel stack", { hidden: i > 0 }]}>
+                {method.lines.map((row) => (
+                  <div class="pay-row">
+                    <span class="caption">{row.label}</span>
+                    <span class="mono">{row.value}</span>
+                    <button class="copy-btn btn-quiet" type="button" data-copy={row.value} style="color:#fff;border-color:#D5D8D4;">Copy</button>
+                  </div>
+                ))}
+              </div>
+            ))}
           </div>
-        </div>
-
-        <!-- Summary island -->
-        <div class="bg-white border border-brand-200 rounded-2xl p-6 shadow-sm" id="summary-block">
-          <h2 class="text-xl font-bold uppercase tracking-tight text-brand-900 mb-4 border-b border-brand-200 pb-2">Order Summary</h2>
-          <div id="summary-items" class="space-y-3 mb-4 max-h-64 overflow-y-auto">
-            <!-- Populated via JS -->
-          </div>
-          <div class="border-t border-brand-200 pt-4 flex justify-between items-center text-lg">
-            <span class="font-bold text-brand-900/70">Total to Pay</span>
-            <span class="font-black font-mono text-xl text-brand-900" id="summary-total">Rs. 0</span>
-          </div>
-        </div>
-      </div>
+        )}
+        {wa && phone && (
+          <a class="caption" href={wa} target="_blank" rel="noopener noreferrer">WhatsApp {phone.display}</a>
+        )}
+      </aside>
     </div>
   </div>
+  <script type="application/json" id="catalog-prices" is:inline set:html={catalogJson}></script>
 </Layout>
 
 <script>
-  // Hydrate summary from Nano Stores
   import { cartStore } from '../store/cartStore';
-  
-  const container = document.getElementById('checkout-container');
+  import { formatPkr, priceCart, type CatalogPrice } from '../lib/money';
+  import { orderNotSaved } from '../lib/order';
+  import { normalizePkMobile, phoneRule } from '../lib/phone';
+
+  // ===== Order summary =====
   const itemsContainer = document.getElementById('summary-items');
   const totalEl = document.getElementById('summary-total');
-  const form = document.getElementById('checkout-form') as HTMLFormElement;
+  const merchandiseEl = document.getElementById('summary-merchandise');
+  const nameInput = document.getElementById('field-name') as HTMLInputElement | null;
+  const nameError = document.getElementById('field-name-error');
+  const addressInput = document.getElementById('field-address') as HTMLTextAreaElement | null;
+  const addressError = document.getElementById('field-address-error');
+  const paymentInput = document.getElementById('field-payment-ref') as HTMLInputElement | null;
+  const paymentError = document.getElementById('field-payment-error');
+  const phoneInput = document.getElementById('field-phone') as HTMLInputElement | null;
+  const phoneError = document.getElementById('field-phone-error');
+  const destinationInput = document.getElementById('field-destination') as HTMLInputElement | null;
+  const destinationError = document.getElementById('field-destination-error');
   const submitBtn = document.getElementById('submit-btn') as HTMLButtonElement;
+  const form = document.getElementById('checkout-form') as HTMLFormElement;
   const errorMsg = document.getElementById('error-msg');
-  
-  if (container) {
-    const renderSummary = () => {
-      const items = Object.values(cartStore.get());
-      if (items.length === 0) {
-        if (itemsContainer) itemsContainer.innerHTML = '<p class="text-sm opacity-50">Your cart is empty.</p>';
-        if (totalEl) totalEl.innerText = 'Rs. 0';
-        submitBtn.disabled = true;
-        submitBtn.classList.add('opacity-50', 'cursor-not-allowed');
+
+  function readCatalog(): CatalogPrice[] {
+    try {
+      const node = document.getElementById('catalog-prices');
+      if (!node?.textContent) return [];
+      const parsed = JSON.parse(node.textContent) as unknown;
+      return Array.isArray(parsed) ? parsed as CatalogPrice[] : [];
+    } catch {
+      return [];
+    }
+  }
+
+  const catalog = readCatalog();
+
+  function setTotals(amount: number) {
+    const label = formatPkr(amount);
+    if (totalEl) totalEl.textContent = label;
+    if (merchandiseEl) merchandiseEl.textContent = label;
+  }
+
+  function showFieldError(input: HTMLElement | null, errorEl: HTMLElement | null, message: string | null) {
+    if (!errorEl) return;
+    if (!message) {
+      errorEl.textContent = '';
+      errorEl.classList.add('hidden');
+      input?.removeAttribute('aria-invalid');
+      return;
+    }
+    errorEl.textContent = message;
+    errorEl.classList.remove('hidden');
+    input?.setAttribute('aria-invalid', 'true');
+  }
+
+  function phoneMessage(): string | null {
+    const value = phoneInput?.value ?? '';
+    if (!value.trim()) return phoneRule;
+    return normalizePkMobile(value) ? null : phoneRule;
+  }
+
+  function nameMessage(): string | null {
+    return (nameInput?.value.trim().length ?? 0) >= 2 ? null : "Name must be at least 2 characters";
+  }
+  function addressMessage(): string | null {
+    return (addressInput?.value.trim().length ?? 0) >= 10 ? null : "Please provide a complete address";
+  }
+  function paymentMessage(): string | null {
+    return (paymentInput?.value.trim().length ?? 0) >= 5 ? null : "Payment Reference is too short";
+  }
+  function destinationMessage(): string | null {
+    const value = destinationInput?.value.trim() ?? '';
+    return value.length >= 2 ? null : 'Enter the city or area.';
+  }
+
+  function setSubmitEnabled(enabled: boolean) {
+    if (!submitBtn) return;
+    submitBtn.disabled = !enabled;
+    submitBtn.style.opacity = enabled ? '1' : '0.5';
+    submitBtn.style.cursor = enabled ? 'pointer' : 'not-allowed';
+  }
+
+  const renderSummary = () => {
+    const items = Object.values(cartStore.get());
+    if (!itemsContainer || !totalEl) return;
+    itemsContainer.replaceChildren();
+
+    if (items.length === 0) {
+      const empty = document.createElement('p');
+      empty.className = 'text-sm text-center py-4';
+      empty.style.color = '#475569';
+      empty.textContent = 'Your cart is empty.';
+      itemsContainer.append(empty);
+      setTotals(0);
+      setSubmitEnabled(false);
+      return;
+    }
+
+    const priced = priceCart(catalog, items);
+    for (const line of priced.lines) {
+      const row = document.createElement('div');
+      row.style.display = 'flex';
+      row.style.justifyContent = 'space-between';
+      row.style.alignItems = 'flex-start';
+      row.style.gap = '0.5rem';
+
+      const copy = document.createElement('div');
+      copy.style.flex = '1';
+      copy.style.minWidth = '0';
+
+      const title = document.createElement('p');
+      title.style.fontSize = '0.8rem';
+      title.style.fontWeight = '700';
+      title.style.color = '#161A1D';
+      title.style.fontFamily = "'IBM Plex Mono',monospace";
+      title.style.whiteSpace = 'nowrap';
+      title.style.overflow = 'hidden';
+      title.style.textOverflow = 'ellipsis';
+      title.textContent = `${line.quantity}× ${line.part_number}`;
+
+      const name = document.createElement('p');
+      name.style.fontSize = '0.7rem';
+      name.style.color = '#475569';
+      name.style.whiteSpace = 'nowrap';
+      name.style.overflow = 'hidden';
+      name.style.textOverflow = 'ellipsis';
+      name.textContent = line.name;
+
+      const amount = document.createElement('span');
+      amount.className = 'money';
+      amount.style.fontSize = '0.8rem';
+      amount.style.fontWeight = '700';
+      amount.style.color = '#161A1D';
+      amount.style.fontFamily = "'IBM Plex Mono',monospace";
+      amount.style.whiteSpace = 'nowrap';
+      amount.style.flexShrink = '0';
+      amount.textContent = formatPkr(line.line_total);
+
+      copy.append(title, name);
+      row.append(copy, amount);
+      itemsContainer.append(row);
+    }
+
+    for (const partNumber of priced.missing) {
+      const note = document.createElement('p');
+      note.style.fontSize = '0.75rem';
+      note.style.color = '#BE123C';
+      note.textContent = `The shop does not sell ${partNumber}.`;
+      itemsContainer.append(note);
+    }
+    for (const partNumber of priced.invalid) {
+      const note = document.createElement('p');
+      note.style.fontSize = '0.75rem';
+      note.style.color = '#BE123C';
+      note.textContent = `${partNumber}: quantity must be a positive integer.`;
+      itemsContainer.append(note);
+    }
+
+    setTotals(priced.total);
+    setSubmitEnabled(priced.lines.length > 0 && priced.missing.length === 0 && priced.invalid.length === 0);
+  };
+
+  cartStore.subscribe(renderSummary);
+
+  phoneInput?.addEventListener('blur', () => {
+    if (!phoneInput.value.trim()) {
+      showFieldError(phoneInput, phoneError, null);
+      return;
+    }
+    showFieldError(phoneInput, phoneError, phoneMessage());
+  });
+  destinationInput?.addEventListener('blur', () => {
+    if (!destinationInput.value.trim()) {
+      showFieldError(destinationInput, destinationError, null);
+      return;
+    }
+    showFieldError(destinationInput, destinationError, destinationMessage());
+  });
+  nameInput?.addEventListener('blur', () => {
+    if (!nameInput.value.trim()) { showFieldError(nameInput, nameError, null); return; }
+    showFieldError(nameInput, nameError, nameMessage());
+  });
+  addressInput?.addEventListener('blur', () => {
+    if (!addressInput.value.trim()) { showFieldError(addressInput, addressError, null); return; }
+    showFieldError(addressInput, addressError, addressMessage());
+  });
+  paymentInput?.addEventListener('blur', () => {
+    if (!paymentInput.value.trim()) { showFieldError(paymentInput, paymentError, null); return; }
+    showFieldError(paymentInput, paymentError, paymentMessage());
+  });
+
+  // ===== Payment tabs =====
+  document.querySelectorAll('.payment-tab').forEach(tab => {
+    tab.addEventListener('click', () => {
+      const targetId = (tab as HTMLElement).dataset.tab!;
+      document.querySelectorAll('.payment-tab').forEach((t: any) => {
+        t.style.color = 'rgba(255,255,255,0.5)';
+        t.style.borderBottomColor = 'transparent';
+        t.style.background = 'transparent';
+      });
+      document.querySelectorAll('.payment-panel').forEach((p: any) => p.classList.add('hidden'));
+      (tab as HTMLElement).style.color = '#ffffff';
+      (tab as HTMLElement).style.borderBottomColor = '#8A4E2B';
+      (tab as HTMLElement).style.background = 'rgba(0,122,173,0.15)';
+      document.getElementById(targetId)?.classList.remove('hidden');
+    });
+  });
+
+  // ===== Copy buttons =====
+  document.querySelectorAll('.copy-btn').forEach(btn => {
+    btn.addEventListener('click', async () => {
+      const text = (btn as HTMLElement).dataset.copy || '';
+      try {
+        await navigator.clipboard.writeText(text);
+        btn.textContent = '✓ Copied';
+        btn.classList.add('copied');
+        (btn as HTMLElement).style.background = 'rgba(5,150,105,0.4)';
+        (btn as HTMLElement).style.color = '#6EE7B7';
+        setTimeout(() => {
+          btn.textContent = 'Copy';
+          btn.classList.remove('copied');
+          (btn as HTMLElement).style.background = 'rgba(255,255,255,0.12)';
+          (btn as HTMLElement).style.color = 'rgba(255,255,255,0.7)';
+        }, 2000);
+      } catch {}
+    });
+  });
+
+  // ===== Form submission =====
+  if (form) {
+    form.addEventListener('submit', async (e) => {
+      e.preventDefault();
+      if (!submitBtn) return;
+      submitBtn.disabled = true;
+      submitBtn.innerText = 'Processing...';
+      if (errorMsg) errorMsg.classList.add('hidden');
+
+      const formData = new FormData(form);
+      const priced = priceCart(catalog, Object.values(cartStore.get()));
+      if (priced.missing.length > 0 || priced.invalid.length > 0 || priced.lines.length === 0) {
+        const message = priced.missing.length > 0
+          ? `The shop does not sell ${priced.missing[0]}.`
+          : priced.invalid.length > 0
+            ? 'Quantity must be a positive integer.'
+            : 'Cart cannot be empty.';
+        if (errorMsg) { errorMsg.textContent = message; errorMsg.classList.remove('hidden'); }
+        submitBtn.innerText = 'Place order';
+        renderSummary();
         return;
       }
-      
-      let total = 0;
-      let html = '';
-      items.forEach(item => {
-        total += item.price * item.quantity;
-        html += `
-          <div class="flex justify-between items-start text-sm">
-            <div class="pr-4">
-              <span class="font-bold">${item.quantity}x</span> ${item.part_number}
-              <p class="text-xs opacity-50 truncate w-48">${item.name}</p>
-            </div>
-            <span class="font-mono font-bold whitespace-nowrap">Rs. ${(item.price * item.quantity).toLocaleString()}</span>
-          </div>
-        `;
-      });
-      
-      if (itemsContainer) itemsContainer.innerHTML = html;
-      if (totalEl) totalEl.innerText = `Rs. ${total.toLocaleString()}`;
-    };
-    
-    // Subscribe to store changes
-    cartStore.subscribe(renderSummary);
-    
-    // Handle submission
-    if (form) {
-      form.addEventListener('submit', async (e) => {
-        e.preventDefault();
-        
-        submitBtn.disabled = true;
-        submitBtn.innerText = 'Processing...';
-        if (errorMsg) errorMsg.classList.add('hidden');
-        
-        const formData = new FormData(form);
-        const payload = {
-          name: formData.get('name'),
-          phone: formData.get('phone'),
-          address: formData.get('address'),
-          payment_ref: formData.get('payment_ref'),
-          items: Object.values(cartStore.get()),
-          total: Object.values(cartStore.get()).reduce((acc, item) => acc + (item.price * item.quantity), 0),
-          turnstile_token: 'dummy_token' // Stubbed for MVP unless keys provided
-        };
-        
-        try {
-          const res = await fetch('/api/order', {
-            method: 'POST',
-            headers: { 'Content-Type': 'application/json' },
-            body: JSON.stringify(payload)
-          });
-          
-          const data = await res.json();
-          if (res.ok) {
-            cartStore.set({}); // Clear cart
-            window.location.href = `/order-success/${data.id}`;
-          } else {
-            throw new Error(data.error || 'Failed to place order');
-          }
-        } catch (err: any) {
-          if (errorMsg) {
-            errorMsg.innerText = err.message;
-            errorMsg.classList.remove('hidden');
-          }
-          submitBtn.disabled = false;
-          submitBtn.innerText = 'Place Order';
+      const problems = [
+        [nameInput, nameError, nameMessage()],
+        [phoneInput, phoneError, phoneMessage()],
+        [destinationInput, destinationError, destinationMessage()],
+        [addressInput, addressError, addressMessage()],
+        [paymentInput, paymentError, paymentMessage()],
+      ] as const;
+      let firstInvalid: HTMLElement | null = null;
+      for (const [input, errorEl, message] of problems) {
+        showFieldError(input, errorEl, message);
+        if (message && !firstInvalid && input) firstInvalid = input;
+      }
+      if (firstInvalid) {
+        submitBtn.innerText = 'Place order';
+        renderSummary();
+        firstInvalid.focus();
+        return;
+      }
+      const line2 = String(formData.get('address_line_2') ?? '').trim();
+      const payload = {
+        name: formData.get('name'),
+        phone: normalizePkMobile(String(formData.get('phone') ?? '')),
+        address: formData.get('address'),
+        destination: String(formData.get('destination') ?? '').trim(),
+        address_line_2: line2 || undefined,
+        payment_ref: formData.get('payment_ref'),
+        items: priced.lines.map((line) => ({
+          part_number: line.part_number,
+          name: line.name,
+          price: line.price,
+          quantity: line.quantity,
+        })),
+        total: priced.total,
+      };
+
+      try {
+        const res = await fetch('/api/order', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify(payload),
+        });
+        const data = await res.json() as { id?: string; error?: string };
+        if (res.ok) {
+          cartStore.set({});
+          window.location.href = `/order-success/${data.id}`;
+        } else {
+          throw new Error(data.error || orderNotSaved);
         }
-      });
-    }
+      } catch (err: any) {
+        if (errorMsg) { errorMsg.innerText = err.message; errorMsg.classList.remove('hidden'); }
+        if (submitBtn) { submitBtn.disabled = false; submitBtn.innerText = 'Place order'; }
+      }
+    });
   }
 </script>

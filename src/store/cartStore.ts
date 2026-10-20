@@ -1,9 +1,9 @@
+import { atom } from 'nanostores';
 import { persistentMap } from '@nanostores/persistent';
 
 export type CartItem = {
   part_number: string;
   name: string;
-  price: number;
   quantity: number;
   image?: string;
 };
@@ -18,19 +18,15 @@ export const cartStore = persistentMap<Record<string, CartItem>>(
   }
 );
 
-export function addToCart(item: Omit<CartItem, 'quantity'>) {
+export function addToCart(item: Omit<CartItem, 'quantity'>, quantity = 1) {
   const existing = cartStore.get()[item.part_number];
-  if (existing) {
-    cartStore.setKey(item.part_number, {
-      ...existing,
-      quantity: existing.quantity + 1
-    });
-  } else {
-    cartStore.setKey(item.part_number, {
-      ...item,
-      quantity: 1
-    });
-  }
+  const nextQuantity = (existing?.quantity ?? 0) + quantity;
+  cartStore.setKey(item.part_number, {
+    part_number: item.part_number,
+    name: item.name,
+    image: item.image ?? existing?.image,
+    quantity: nextQuantity,
+  });
   
   // Also open the drawer when an item is added
   isCartDrawerOpen.set(true);
@@ -51,11 +47,12 @@ export function updateQuantity(part_number: string, quantity: number) {
   const existing = cartStore.get()[part_number];
   if (existing) {
     cartStore.setKey(part_number, {
-      ...existing,
-      quantity
+      part_number: existing.part_number,
+      name: existing.name,
+      image: existing.image,
+      quantity,
     });
   }
 }
 
-import { atom } from 'nanostores';
 export const isCartDrawerOpen = atom(false);

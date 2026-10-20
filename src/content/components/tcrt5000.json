@@ -1,0 +1,42 @@
+{
+  "part_number": "TCRT5000",
+  "manufacturer": "Vishay",
+  "mpn": "TCRT5000",
+  "name": "Reflective IR module, 5 V",
+  "category": "Sensors",
+  "price": 65,
+  "currency": "PKR",
+  "stock_qty": 30,
+  "package_type": "PCB module",
+  "mounting_type": "Through-hole",
+  "voltage": "5 V",
+  "specs": [
+    {
+      "label": "Supply",
+      "value": "5",
+      "unit": "V"
+    },
+    {
+      "label": "Sensor",
+      "value": "TCRT5000"
+    },
+    {
+      "label": "Outputs",
+      "value": "Digital and analog"
+    },
+    {
+      "label": "Sensitivity",
+      "value": "Adjustable on the module"
+    },
+    {
+      "label": "Package",
+      "value": "PCB module"
+    }
+  ],
+  "in_the_bag": "Module in an antistatic bag.",
+  "min_qty": 1,
+  "qty_multiple": 1,
+  "description": "IR reflective module built around a TCRT5000. 5 V supply, digital and analog outputs, sensitivity set by the onboard potentiometer. Sourced from Hall Road, Lahore.",
+  "image": "/parts/tcrt5000.jpg",
+  "image_note": "Representative studio photograph, not a photo of the lot in the drawer."
+}

@@ -1,0 +1,44 @@
+{
+  "part_number": "LM7805",
+  "manufacturer": "Texas Instruments",
+  "mpn": "LM7805",
+  "name": "5 V, 1 A, TO-220 linear regulator",
+  "category": "Power",
+  "price": 45,
+  "currency": "PKR",
+  "stock_qty": 48,
+  "package_type": "TO-220",
+  "mounting_type": "Through-hole",
+  "voltage": "7–35 V in, 5 V out",
+  "specs": [
+    {
+      "label": "Output voltage",
+      "value": "5",
+      "unit": "V"
+    },
+    {
+      "label": "Output current",
+      "value": "1",
+      "unit": "A"
+    },
+    {
+      "label": "Input voltage",
+      "value": "7–35",
+      "unit": "V"
+    },
+    {
+      "label": "Package",
+      "value": "TO-220"
+    },
+    {
+      "label": "Mounting",
+      "value": "Through-hole"
+    }
+  ],
+  "in_the_bag": "Loose TO-220 in an antistatic bag.",
+  "min_qty": 1,
+  "qty_multiple": 1,
+  "description": "LM7805 positive 5 V linear regulator. TO-220, 1 A continuous output, with thermal shutdown and short-circuit protection. Sourced from Hall Road, Lahore.",
+  "image": "/parts/lm7805.jpg",
+  "image_note": "Representative studio photograph, not a photo of the lot in the drawer."
+}

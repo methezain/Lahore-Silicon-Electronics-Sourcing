@@ -1,34 +1,70 @@
 ---
 import '../styles/global.css';
-import TopUtilityBanner from '../components/TopUtilityBanner.astro';
-import GlobalNavbar from '../components/GlobalNavbar.astro';
+import SiteHeader from '../components/SiteHeader.astro';
 import Footer from '../components/Footer.astro';
 import CartDrawer from '../components/CartDrawer.tsx';
+import { loadCatalog } from '../lib/catalog';
+import { shippingWindows } from '../lib/shipping';
 
 interface Props {
-	title?: string;
+  title?: string;
+  description?: string;
+  ogImage?: string;
+  canonical?: string;
 }
 
-const { title = "Lahore Silicon - Electronic Component Sourcing" } = Astro.props;
+const {
+  title = "Lahore Silicon — Electronic Component Sourcing from Hall Road",
+  description = `On-demand sourcing of ICs, microcontrollers, sensors, and passive components from Hall Road, Lahore. ${shippingWindows}`,
+  ogImage = "/og-image.png",
+  canonical = Astro.url.href,
+} = Astro.props;
+
+const catalog = await loadCatalog();
 ---
 <!doctype html>
-<html lang="en" class="bg-brand-50 text-brand-900 scroll-smooth">
-	<head>
-		<meta charset="utf-8" />
-		<meta name="viewport" content="width=device-width, initial-scale=1.0" />
-		<link rel="icon" type="image/svg+xml" href="/favicon.svg" />
-		<link rel="icon" href="/favicon.ico" />
-		<meta name="generator" content={Astro.generator} />
-		<title>{title}</title>
-		<slot name="head" />
-	</head>
-	<body class="min-h-screen flex flex-col font-sans antialiased">
-		<TopUtilityBanner />
-		<GlobalNavbar />
-		<main class="flex-grow w-full pt-32 pb-16 px-4 max-w-5xl mx-auto">
-			<slot />
-		</main>
-		<Footer />
-		<CartDrawer client:load />
-	</body>
+<html lang="en" class="scroll-smooth">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <meta name="generator" content={Astro.generator} />
+
+    <!-- SEO -->
+    <title>{title}</title>
+    <meta name="description" content={description} />
+    <link rel="canonical" href={canonical} />
+    <meta name="robots" content="index, follow" />
+
+    <!-- Open Graph -->
+    <meta property="og:type" content="website" />
+    <meta property="og:title" content={title} />
+    <meta property="og:description" content={description} />
+    <meta property="og:image" content={ogImage} />
+    <meta property="og:url" content={canonical} />
+    <meta property="og:site_name" content="Lahore Silicon" />
+    <meta property="og:locale" content="en_PK" />
+
+    <!-- Twitter Card -->
+    <meta name="twitter:card" content="summary_large_image" />
+    <meta name="twitter:title" content={title} />
+    <meta name="twitter:description" content={description} />
+    <meta name="twitter:image" content={ogImage} />
+
+    <!-- Favicon -->
+    <link rel="icon" type="image/svg+xml" href="/favicon.svg" />
+    <link rel="icon" href="/favicon.ico" />
+
+    <link rel="preload" href="/fonts/ibm-plex-sans-latin-400-normal.woff2" as="font" type="font/woff2" crossorigin />
+
+    <!-- Page-level head slot -->
+    <slot name="head" />
+  </head>
+  <body class="min-h-screen flex flex-col antialiased">
+    <SiteHeader parts={catalog} />
+    <main id="main" class="flex-grow w-full">
+      <slot />
+    </main>
+    <Footer />
+    <CartDrawer client:load catalog={catalog} />
+  </body>
 </html>

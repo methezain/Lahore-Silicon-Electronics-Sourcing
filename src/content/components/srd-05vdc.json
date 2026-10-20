@@ -1,0 +1,47 @@
+{
+  "part_number": "SRD-05VDC-SL-C",
+  "manufacturer": "Songle",
+  "mpn": "SRD-05VDC-SL-C",
+  "name": "5 V single-channel relay module",
+  "category": "Relays",
+  "price": 120,
+  "currency": "PKR",
+  "stock_qty": 14,
+  "package_type": "PCB module",
+  "mounting_type": "Through-hole",
+  "voltage": "5 V coil",
+  "specs": [
+    {
+      "label": "Coil",
+      "value": "5",
+      "unit": "V"
+    },
+    {
+      "label": "Channels",
+      "value": "1"
+    },
+    {
+      "label": "Contact rating",
+      "value": "10 A, 250 VAC"
+    },
+    {
+      "label": "Trigger",
+      "value": "Active low"
+    },
+    {
+      "label": "Input",
+      "value": "Opto-isolator"
+    },
+    {
+      "label": "Relay",
+      "value": "SRD-05VDC-SL-C"
+    }
+  ],
+  "in_the_bag": "Relay module in an antistatic bag.",
+  "limits": "The coil supply is 5 V. The contact rating is the load, not the logic pin.",
+  "min_qty": 1,
+  "qty_multiple": 1,
+  "description": "Single-channel module with an SRD-05VDC-SL-C relay. 5 V coil, opto-isolator, active-low trigger, indicator LED, and a flyback diode. Contacts are rated 10 A at 250 VAC. Sourced from Hall Road, Lahore.",
+  "image": "/parts/srd-05vdc.jpg",
+  "image_note": "Representative studio photograph, not a photo of the lot in the drawer."
+}

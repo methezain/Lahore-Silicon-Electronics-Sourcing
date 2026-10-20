@@ -1,0 +1,81 @@
+---
+import Layout from '../layouts/Layout.astro';
+import { paymentMethods, whatsappHref } from '../lib/shop';
+import { clockRows, returnRule } from '../lib/shipping';
+
+const methods = paymentMethods();
+const wa = whatsappHref();
+---
+
+<Layout
+  title="Shipping and payment — Lahore Silicon"
+  description="How Lahore Silicon takes payment, dispatches from Hall Road, and replaces a defective part."
+>
+  <article class="page page-narrow stack">
+    <p class="label">Policy</p>
+    <h1 class="display">Shipping and payment</h1>
+    <p class="lede">The desk buys the part on Hall Road after the order is paid. The clock below is the one used on the product page.</p>
+
+    <section class="panel prose">
+      <h2 class="heading">Why payment comes first</h2>
+      <p>
+        This is not a warehouse. Placing an order sends someone to Hall Road to buy that part.
+        The payment is what makes that trip happen.
+      </p>
+      <p>
+        If the part cannot be bought, the payment is returned by the same method within 24 hours.
+      </p>
+    </section>
+
+    {methods.length > 0 && (
+      <section class="panel">
+        <h2 class="heading">Payment details</h2>
+        {methods.map((method) => (
+          <div style="margin-top: 16px;">
+            <p class="label">{method.label}</p>
+            <dl>
+              {method.lines.map((line) => (
+                <div class="summary-row">
+                  <dt class="caption">{line.label}</dt>
+                  <dd class="mono">{line.value}</dd>
+                </div>
+              ))}
+            </dl>
+          </div>
+        ))}
+      </section>
+    )}
+
+    <section class="panel">
+      <h2 class="heading">Dispatch</h2>
+      {clockRows.map((row) => (
+        <div class="summary-row" style="padding: 12px 0; border-bottom: 1px solid var(--line-subtle);">
+          <div>
+            <p>{row.label}</p>
+            <p class="caption">{row.detail}</p>
+          </div>
+          <p class="mono">{row.value}</p>
+        </div>
+      ))}
+      <div class="summary-row" style="padding: 12px 0;">
+        <div>
+          <p>Packaging</p>
+          <p class="caption">Antistatic bag, then a labeled parcel.</p>
+        </div>
+        <p class="mono">Antistatic</p>
+      </div>
+    </section>
+
+    <section id="defects" class="panel prose">
+      <h2 class="heading">A part that does not work</h2>
+      <p>{returnRule}</p>
+      <p>Send a photo or a short video of the part on the bench, with the order id.</p>
+      <p>The part must still be in the condition it arrived. A replacement, once confirmed, is dispatched within 2 business days.</p>
+      {wa ? (
+        <a class="btn-ink" href={wa}>Message the desk</a>
+      ) : (
+        <a class="btn-ink" href="/contact">Contact the desk</a>
+      )}
+    </section>
+  </article>
+</Layout>

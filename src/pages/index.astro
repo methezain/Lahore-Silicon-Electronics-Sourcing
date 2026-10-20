@@ -1,66 +1,123 @@
 ---
-import Layout from '../layouts/Layout.astro';
-import CatalogGridView from '../components/CatalogGridView.astro';
-import CatalogTableView from '../components/CatalogTableView.astro';
-import { getCollection } from 'astro:content';
+import Layout from "../layouts/Layout.astro";
+import { getCollection } from "astro:content";
+import { CATEGORIES } from "../lib/categories";
+import { formatPkr, unitPrice } from "../lib/money";
 
-const components = await getCollection('components');
+const components = await getCollection("components");
+const requested = Astro.url.searchParams.get("category");
+const sort = Astro.url.searchParams.get("sort") ?? "catalog";
+
+const categoryOrder = new Map(CATEGORIES.map((category, index) => [category, index]));
+let parts = [...components];
+if (requested) {
+  parts = parts.filter((part) => part.data.category === requested);
+}
+
+parts.sort((a, b) => {
+  if (sort === "price" || sort === "price-desc") {
+    const diff = a.data.price - b.data.price;
+    return sort === "price" ? diff : -diff;
+  }
+  if (sort === "stock" || sort === "stock-desc") {
+    const diff = a.data.stock_qty - b.data.stock_qty;
+    return sort === "stock" ? diff : -diff;
+  }
+  const categoryDiff = (categoryOrder.get(a.data.category) ?? 99) - (categoryOrder.get(b.data.category) ?? 99);
+  if (categoryDiff !== 0) return categoryDiff;
+  return a.data.part_number.localeCompare(b.data.part_number);
+});
+
+function catalogHref(category: string | null, nextSort = sort) {
+  const params = new URLSearchParams();
+  if (category) params.set("category", category);
+  if (nextSort && nextSort !== "catalog") params.set("sort", nextSort);
+  const query = params.toString();
+  return query ? `/?${query}#catalog` : "/#catalog";
+}
+
+function toggleSort(key: "price" | "stock") {
+  if (sort === key) return catalogHref(requested, `${key}-desc`);
+  if (sort === `${key}-desc`) return catalogHref(requested, "catalog");
+  return catalogHref(requested, key);
+}
 ---
 
-<Layout>
-  <div class="mb-10">
-    <h1 class="text-4xl md:text-5xl font-black tracking-tighter mb-3 uppercase text-brand-900">Component Catalog</h1>
-    <p class="text-brand-900/70 text-lg">Direct sourcing from Hall Road, Lahore. Real-time pricing and stock.</p>
-  </div>
-  
-  <div class="flex flex-col md:flex-row justify-between items-start md:items-center gap-4 mb-8">
-    <div class="flex flex-wrap gap-2">
-      <button class="px-5 py-2 bg-brand-500 text-brand-50 rounded-full text-sm font-semibold border border-brand-500">All Parts</button>
-      <button class="px-5 py-2 bg-white text-brand-900 rounded-full text-sm font-medium border border-brand-200 hover:border-brand-500 transition-colors">Microcontrollers</button>
-      <button class="px-5 py-2 bg-white text-brand-900 rounded-full text-sm font-medium border border-brand-200 hover:border-brand-500 transition-colors">Power Modules</button>
-    </div>
-    
-    <div class="flex items-center gap-1 bg-white border border-brand-200 rounded-full p-1 shadow-sm">
-      <button id="view-grid" class="px-5 py-1.5 bg-brand-900 text-brand-50 rounded-full text-xs font-bold uppercase tracking-tight transition-colors">Grid</button>
-      <button id="view-table" class="px-5 py-1.5 bg-transparent text-brand-900 rounded-full text-xs font-bold uppercase tracking-tight hover:bg-brand-50 transition-colors">Table</button>
-    </div>
-  </div>
+<Layout title="Parts — Lahore Silicon" description="A short catalog of parts from Hall Road, Lahore. The price on the row is the price in the cart.">
+  <section class="hero">
+    <p class="label">Hall Road, Lahore</p>
+    <h1 class="display">Parts, counted and priced.</h1>
+    <p class="lede">Ten parts on the desk. The photograph shows the object. The number in the stock column is how many you can add.</p>
+  </section>
+  <section id="catalog" class="catalog">
 
-  <div id="catalog-grid" class="block animate-in fade-in duration-300">
-    <CatalogGridView components={components} />
-  </div>
-  
-  <div id="catalog-table" class="hidden animate-in fade-in duration-300">
-    <CatalogTableView components={components} />
-  </div>
+    <div class="catalog-tools">
+      <a href={catalogHref(null)} aria-current={!requested ? "true" : undefined}>All</a>
+      {CATEGORIES.map((category) => (
+        <a href={catalogHref(category)} aria-current={requested === category ? "true" : undefined}>{category}</a>
+      ))}
+      <a href={toggleSort("price")}>Sort by price</a>
+      <a href={toggleSort("stock")}>Sort by stock</a>
+    </div>
+
+    {requested && (
+      <p class="caption">
+        Showing {requested}. <a href={catalogHref(null)}>Remove</a>
+      </p>
+    )}
+
+    {parts.length === 0 ? (
+      <p class="body">No parts in {requested ?? "this category"}. <a href="/#catalog">Show the full catalog.</a></p>
+    ) : (
+      <>
+        <table class="catalog-table">
+          <thead>
+            <tr>
+              <th></th>
+              <th>Part</th>
+              <th>What it is</th>
+              <th>Spec</th>
+              <th>Stock</th>
+              <th>Price</th>
+            </tr>
+          </thead>
+          <tbody>
+            {parts.map((part) => (
+              <tr>
+                <td>
+                  <a href={`/product/${part.data.part_number.toLowerCase()}`}>
+                    {part.data.image && (
+                      <img class="thumb" src={part.data.image} alt="" width="56" height="56" />
+                    )}
+                  </a>
+                </td>
+                <td><a class="mono" href={`/product/${part.data.part_number.toLowerCase()}`}>{part.data.part_number}</a></td>
+                <td>{part.data.name}</td>
+                <td>{part.data.voltage ?? part.data.package_type}</td>
+                <td class:list={["num", part.data.stock_qty > 0 && "stock-in"]}>{part.data.stock_qty}</td>
+                <td class="num money">{formatPkr(unitPrice({ price: part.data.price, breaks: part.data.breaks }, 1))}</td>
+              </tr>
+            ))}
+          </tbody>
+        </table>
+
+        <ul class="catalog-list">
+          {parts.map((part) => (
+            <li>
+              <a href={`/product/${part.data.part_number.toLowerCase()}`}>
+                {part.data.image && (
+                  <img class="thumb" src={part.data.image} alt="" width="72" height="72" />
+                )}
+                <span class="mono">{part.data.part_number}</span>
+                <span class="job">{part.data.name}</span>
+                <span class="meta">{part.data.voltage ?? part.data.package_type}</span>
+                <span class="meta">{part.data.stock_qty} in stock</span>
+                <span class="price-line money">{formatPkr(unitPrice({ price: part.data.price, breaks: part.data.breaks }, 1))}</span>
+              </a>
+            </li>
+          ))}
+        </ul>
+      </>
+    )}
+  </section>
 </Layout>
-
-<script>
-  // Lean vanilla JS for view toggling without framework bloat
-  const btnGrid = document.getElementById('view-grid');
-  const btnTable = document.getElementById('view-table');
-  const viewGrid = document.getElementById('catalog-grid');
-  const viewTable = document.getElementById('catalog-table');
-  
-  if(btnGrid && btnTable && viewGrid && viewTable) {
-    const activeBtnClass = 'px-5 py-1.5 bg-brand-900 text-brand-50 rounded-full text-xs font-bold uppercase tracking-tight transition-colors';
-    const inactiveBtnClass = 'px-5 py-1.5 bg-transparent text-brand-900 rounded-full text-xs font-bold uppercase tracking-tight hover:bg-brand-50 transition-colors';
-
-    const setGrid = () => {
-      viewGrid.classList.replace('hidden', 'block');
-      viewTable.classList.replace('block', 'hidden');
-      btnGrid.className = activeBtnClass;
-      btnTable.className = inactiveBtnClass;
-    };
-    
-    const setTable = () => {
-      viewTable.classList.replace('hidden', 'block');
-      viewGrid.classList.replace('block', 'hidden');
-      btnTable.className = activeBtnClass;
-      btnGrid.className = inactiveBtnClass;
-    };
-    
-    btnGrid.addEventListener('click', setGrid);
-    btnTable.addEventListener('click', setTable);
-  }
-</script>

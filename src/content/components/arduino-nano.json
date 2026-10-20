@@ -1,0 +1,51 @@
+{
+  "part_number": "ARDUINO-NANO",
+  "manufacturer": "Arduino",
+  "mpn": "ARDUINO-NANO",
+  "name": "ATmega328P board, 5 V logic",
+  "category": "Boards",
+  "price": 850,
+  "currency": "PKR",
+  "stock_qty": 12,
+  "package_type": "DIP-30 module",
+  "mounting_type": "Through-hole",
+  "voltage": "5 V logic, 3.3 V pin",
+  "specs": [
+    {
+      "label": "MCU",
+      "value": "ATmega328P"
+    },
+    {
+      "label": "Logic",
+      "value": "5",
+      "unit": "V"
+    },
+    {
+      "label": "3.3 V pin",
+      "value": "3.3",
+      "unit": "V"
+    },
+    {
+      "label": "Digital I/O",
+      "value": "14"
+    },
+    {
+      "label": "Analog inputs",
+      "value": "8"
+    },
+    {
+      "label": "USB",
+      "value": "Mini-B"
+    },
+    {
+      "label": "Package",
+      "value": "DIP-30 module"
+    }
+  ],
+  "in_the_bag": "Board in an antistatic bag.",
+  "min_qty": 1,
+  "qty_multiple": 1,
+  "description": "Arduino Nano V3 with an ATmega328P. Mini-B USB, 14 digital I/O pins, 8 analog inputs, 5 V logic and a 3.3 V pin. Sourced from Hall Road, Lahore.",
+  "image": "/parts/arduino-nano.jpg",
+  "image_note": "Representative studio photograph, not a photo of the lot in the drawer."
+}

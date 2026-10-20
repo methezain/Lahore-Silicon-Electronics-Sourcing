@@ -1,12 +1,43 @@
 {
   "part_number": "ESP32-WROOM-32D",
-  "name": "Wi-Fi & Bluetooth Dual-Core Microcontroller",
-  "category": "Microcontrollers",
-  "voltage": "3.3V",
-  "package_type": "Module (SMD)",
+  "manufacturer": "Espressif",
+  "mpn": "ESP32-WROOM-32D",
+  "name": "Wi-Fi and Bluetooth module, 3.3 V",
+  "category": "Boards",
   "price": 1250,
+  "currency": "PKR",
+  "stock_qty": 9,
+  "package_type": "Module",
   "mounting_type": "SMD",
-  "in_stock": true,
-  "image": "https://placehold.co/400x400/334155/f8fafc?text=ESP32",
-  "description": "ESP32-WROOM-32D Wi-Fi & Bluetooth Module. Powerful 32-bit MCU for IoT projects. Sourced direct from Hall Road, Lahore for electronic hobbyists, R&D labs, and B2B projects."
+  "voltage": "3.3 V",
+  "specs": [
+    {
+      "label": "Supply",
+      "value": "3.3",
+      "unit": "V"
+    },
+    {
+      "label": "Radio",
+      "value": "Wi-Fi and Bluetooth"
+    },
+    {
+      "label": "CPU",
+      "value": "Dual-core"
+    },
+    {
+      "label": "Package",
+      "value": "Module"
+    },
+    {
+      "label": "Mounting",
+      "value": "SMD"
+    }
+  ],
+  "in_the_bag": "Module in an antistatic bag.",
+  "limits": "I/O is 3.3 V logic.",
+  "min_qty": 1,
+  "qty_multiple": 1,
+  "description": "ESP32-WROOM-32D Wi-Fi and Bluetooth module. Dual-core 32-bit MCU, 3.3 V supply. Sourced from Hall Road, Lahore.",
+  "image": "/parts/esp32.jpg",
+  "image_note": "Representative studio photograph, not a photo of the lot in the drawer."
 }
