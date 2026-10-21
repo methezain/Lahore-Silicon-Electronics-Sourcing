@@ -4,6 +4,7 @@
  * Shows the id, lines, total, date, and city. Not the phone or street address.
  */
 import "../info.css";
+import "../order-received.css";
 import Layout from "../../layouts/Layout.astro";
 import Button from "../../components/Button.astro";
 import { counterPlace } from "../../lib/desk";
@@ -85,14 +86,29 @@ const description = order ? `${orderReceivedTitle}. ${orderReceivedNext}` : titl
 ---
 
 <Layout title={title} description={description} robots="noindex, nofollow">
-  <article class="info-page">
+  <article class:list={["info-page", order && "order-received"]}>
     {order && timeline ? (
       <>
         <p class="eyebrow">Order</p>
         <h1 class="title">{orderReceivedTitle}</h1>
         <p class="lede">{orderReceivedNext}</p>
         <div class="info-stack">
-          <section class="sheet" aria-labelledby="receipt-heading">
+          <div class="received">
+            <div class="connect-bay" aria-hidden="true">
+              <svg class="connect-mark" viewBox="0 0 64 64" focusable="false">
+                <circle class="connect-ring" cx="32" cy="32" r="28" fill="none" stroke="currentColor" stroke-width="1.8" />
+                <g class="half half-left">
+                  <path fill="currentColor" d="M20 12h6v40h-6v-6h-.5A14 14 0 0 1 6 34H3v-4h3a14 14 0 0 1 13.5-12H20zm6 10.5h-4a2.5 2.5 0 0 0 0 5h4zm0 14h-4a2.5 2.5 0 0 0 0 5h4z" />
+                </g>
+                <g class="half half-right">
+                  <path fill="currentColor" d="M38 12h6v6h.5A14 14 0 0 1 58 30h3v4h-3a14 14 0 0 1-13.5 12H44v6h-6zm-6 10.5a2.5 2.5 0 0 0 0 5h6v-5zm0 14a2.5 2.5 0 0 0 0 5h6v-5z" />
+                </g>
+                <path class="connect-check" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" d="M24 33.5 30 39.5 42 26" />
+              </svg>
+              <span class="slot-lip"></span>
+            </div>
+            <div class="print-window">
+          <section class="sheet receipt-sheet" aria-labelledby="receipt-heading">
             <h2 id="receipt-heading" class="heading">Receipt</h2>
             <p class="eyebrow">Order</p>
             <p class="order-id">{order.id}</p>
@@ -157,6 +173,8 @@ const description = order ? `${orderReceivedTitle}. ${orderReceivedNext}` : titl
               <span class="money">{formatPkr(order.total_price)}</span>
             </p>
           </section>
+            </div>
+          </div>
 
           <section class="sheet" aria-labelledby="next-heading">
             <h2 id="next-heading" class="heading">What happens next</h2>

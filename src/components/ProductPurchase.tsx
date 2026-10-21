@@ -1,9 +1,21 @@
 import { useEffect, useRef, useState } from "preact/hooks";
 import { etaDetail, etaLead, pricedChoice, purchaseModel, quantityBreakTable } from "../lib/product";
-import { correctQuantity, type QtyRule } from "../lib/quantity";
+import { correctQuantity, quantityPresets, type QtyRule } from "../lib/quantity";
 import { formatPkr, type PriceBreak } from "../lib/money";
 import { addToCart, cartStore, isCartDrawerOpen } from "../store/cartStore";
+import {
+  ADDED_HOLD_MS,
+  armPhotoMorph,
+  beginViewTransition,
+  connectHaptic,
+  desktopPhotoMorph,
+  markConnect,
+  prefersReducedMotion,
+  waitForCartPhoto,
+} from "../lib/connect";
+import RollingText from "./RollingText";
 import "./product-purchase.css";
+import "./connect.css";
 
 type Props = {
   partNumber: string;
@@ -23,9 +35,22 @@ function PriceFigure({ amount, className = "" }: { amount: number; className?: s
   return (
     <p class={`unit-price ${className}`.trim()}>
       <span class="rs" aria-hidden="true">Rs</span>
-      <span aria-hidden="true">{figure}</span>
+      <span aria-hidden="true"><RollingText value={figure} /></span>
       <span class="sr-only">{formatted}</span>
     </p>
+  );
+}
+
+function BuyLabel({ added, total }: { added: boolean; total: number }) {
+  if (added) {
+    return (
+      <span class="buy-add-label">Added<svg class="buy-add-check" width="20" height="20" aria-hidden="true" focusable="false"><use href="#check" /></svg></span>
+    );
+  }
+  const formatted = formatPkr(total);
+  const figure = formatted.startsWith("Rs ") ? formatted.slice(3) : formatted;
+  return (
+    <span class="buy-add-label">{"Add to cart · Rs "}<RollingText value={figure} /></span>
   );
 }
 
@@ -41,9 +66,11 @@ export default function ProductPurchase(props: Props) {
   const [committed, setCommitted] = useState(starting);
   const [message, setMessage] = useState("");
   const [added, setAdded] = useState(false);
+  const [editing, setEditing] = useState(false);
   const [lead, setLead] = useState<string | null>(null);
-  const [bar, setBar] = useState(false);
+  const [bar, setBar] = useState(true);
   const buttonRef = useRef<HTMLButtonElement>(null);
+  const revertTimer = useRef(0);
   const part = { price: props.price, breaks: props.breaks };
   const priced = pricedChoice(part, committed, props.stock_qty);
   const model = purchaseModel({
@@ -53,24 +80,37 @@ export default function ProductPurchase(props: Props) {
     lineTotal: priced.total,
     askHref: props.askHref,
   });
-  const label = added ? "Added" : model.label;
   const tiers = quantityBreakTable(part);
+  const presets = quantityPresets(rule);
   const noteId = `qty-note-${props.partNumber.replace(/[^a-zA-Z0-9]+/g, "-")}`;
 
-  function commit(next: number) {
+  function cancelAdded() {
+    window.clearTimeout(revertTimer.current);
+    setAdded(false);
+  }
+
+  function holdAdded() {
+    window.clearTimeout(revertTimer.current);
+    setAdded(true);
+    revertTimer.current = window.setTimeout(() => setAdded(false), ADDED_HOLD_MS);
+  }
+
+  function commit(next: number, keepAdded = false) {
     if (unavailable) return 0;
+    if (!keepAdded) cancelAdded();
+    setEditing(false);
     const corrected = correctQuantity(next, rule);
     const quantity = corrected.quantity < 1 ? props.min_qty : corrected.quantity;
     setDraft(String(quantity));
     setCommitted(quantity);
     setMessage(corrected.message ?? "");
-    setAdded(false);
     return quantity;
   }
 
-  function add() {
+  function add(button: HTMLButtonElement) {
     if (unavailable) return;
-    const chosen = commit(Number(draft));
+    window.clearTimeout(revertTimer.current);
+    const chosen = commit(Number(draft), true);
     if (chosen < 1) return;
     const existing = cartStore.get()[props.partNumber]?.quantity ?? 0;
     const corrected = correctQuantity(existing + chosen, rule);
@@ -80,12 +120,64 @@ export default function ProductPurchase(props: Props) {
       isCartDrawerOpen.set(true);
       return;
     }
-    addToCart({ part_number: props.partNumber, name: props.name, image: props.image }, delta);
-    setAdded(true);
+
+    const apply = () => {
+      addToCart({ part_number: props.partNumber, name: props.name, image: props.image }, delta);
+      holdAdded();
+    };
+
+    markConnect();
+    connectHaptic();
+
+    const reduced = prefersReducedMotion();
+    const morphPhoto = !reduced && desktopPhotoMorph();
+    const morphButton = !reduced && button.isConnected;
+    if (!morphButton) {
+      apply();
+      return;
+    }
+
+    const root = document.documentElement;
+    root.classList.add("is-connect");
+    if (morphPhoto) root.classList.add("is-connect-photo");
+    button.style.setProperty("view-transition-name", "buy-connect");
+
+    let release = () => {};
+    let settled = false;
+    const finish = () => {
+      if (settled) return;
+      settled = true;
+      button.style.removeProperty("view-transition-name");
+      release();
+      root.classList.remove("is-connect", "is-connect-photo");
+    };
+
+    let transition: ReturnType<typeof beginViewTransition> = null;
+    try {
+      transition = beginViewTransition(() => {
+        apply();
+        if (!morphPhoto) return;
+        return waitForCartPhoto(props.partNumber).then(() => {
+          release = armPhotoMorph(props.partNumber);
+        });
+      });
+    } catch {
+      finish();
+      apply();
+      return;
+    }
+
+    if (!transition) {
+      finish();
+      apply();
+      return;
+    }
+    transition.finished.then(finish, finish);
   }
 
   useEffect(() => {
     setLead(etaLead());
+    return () => window.clearTimeout(revertTimer.current);
   }, []);
 
   useEffect(() => {
@@ -101,13 +193,14 @@ export default function ProductPurchase(props: Props) {
     }
 
     const header = document.querySelector(".site-header");
-    const top = header instanceof HTMLElement ? Math.ceil(header.getBoundingClientRect().height) : 0;
 
-    // Show the bar only after the button has scrolled above the header.
-    // A button still below the fold stays the control, so the bar does not cover the price.
+    // The bar is the buy control whenever the panel button is outside the viewport,
+    // including on load when the gallery pushes it below the first screen.
     function sync() {
       const rect = observed.getBoundingClientRect();
-      apply(rect.bottom > top);
+      const headerBottom = header instanceof HTMLElement ? header.getBoundingClientRect().bottom : 0;
+      const inView = rect.top >= headerBottom && rect.bottom <= window.innerHeight;
+      apply(inView);
     }
 
     const observer = new IntersectionObserver(sync, { threshold: [0, 1] });
@@ -137,9 +230,12 @@ export default function ProductPurchase(props: Props) {
         disabled={model.disabled}
         tabIndex={primary && bar ? -1 : undefined}
         aria-hidden={primary && bar ? "true" : undefined}
-        onClick={add}
+        onClick={(event) => {
+          const target = event.currentTarget;
+          if (target instanceof HTMLButtonElement) add(target);
+        }}
       >
-        {label}
+        {model.disabled ? model.label : <BuyLabel added={added} total={priced.total} />}
       </button>
     );
   }
@@ -178,6 +274,22 @@ export default function ProductPurchase(props: Props) {
           <p class="eta-detail">{etaDetail}</p>
         </div>
       </div>
+      {presets.length > 0 && (
+        <div class="qty-presets" role="group" aria-label="Quantity presets">
+          {presets.map((preset) => (
+            <button
+              key={preset}
+              type="button"
+              class="qty-preset"
+              aria-pressed={committed === preset}
+              aria-label={`Set quantity to ${preset}`}
+              onClick={() => commit(preset)}
+            >
+              {preset}
+            </button>
+          ))}
+        </div>
+      )}
       <div class="qty-row">
         <div class="qty-stepper">
           <div class="qty-stepper-control">
@@ -189,26 +301,33 @@ export default function ProductPurchase(props: Props) {
             >
               −
             </button>
-            <input
-              aria-label={`Quantity for ${props.partNumber}`}
-              inputMode="numeric"
-              autoComplete="off"
-              spellcheck={false}
-              value={draft}
-              disabled={unavailable}
-              aria-describedby={noteId}
-              onInput={(event) => {
-                setDraft((event.currentTarget as HTMLInputElement).value);
-                setAdded(false);
-              }}
-              onBlur={(event) => commit(Number((event.currentTarget as HTMLInputElement).value))}
-              onKeyDown={(event) => {
-                if (event.key === "Enter") {
-                  event.preventDefault();
-                  commit(Number((event.currentTarget as HTMLInputElement).value));
-                }
-              }}
-            />
+            <div class="qty-figure">
+              <input
+                class={editing ? "qty-input" : "qty-input is-ghost"}
+                aria-label={`Quantity for ${props.partNumber}`}
+                inputMode="numeric"
+                autoComplete="off"
+                spellcheck={false}
+                value={draft}
+                disabled={unavailable}
+                aria-describedby={noteId}
+                onFocus={() => setEditing(true)}
+                onInput={(event) => {
+                  setDraft((event.currentTarget as HTMLInputElement).value);
+                  cancelAdded();
+                }}
+                onBlur={(event) => commit(Number((event.currentTarget as HTMLInputElement).value))}
+                onKeyDown={(event) => {
+                  if (event.key === "Enter") {
+                    event.preventDefault();
+                    commit(Number((event.currentTarget as HTMLInputElement).value));
+                  }
+                }}
+              />
+              <span class={editing ? "qty-roll is-hidden" : "qty-roll"} aria-hidden="true">
+                <RollingText value={String(committed)} />
+              </span>
+            </div>
             <button
               type="button"
               aria-label={`Increase ${props.partNumber}`}
@@ -225,7 +344,7 @@ export default function ProductPurchase(props: Props) {
       {model.askHref && (
         <a class="buy-ask" href={model.askHref}>Ask on WhatsApp</a>
       )}
-      <div class={bar ? "buy-bar is-on" : "buy-bar"}>
+      <div class={bar ? "buy-bar" : "buy-bar is-off"}>
         <PriceFigure amount={priced.unit} />
         {addButton(false)}
       </div>

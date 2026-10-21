@@ -1,5 +1,5 @@
 import { describe, expect, it } from 'vitest';
-import { correctQuantity, type QtyRule } from '../../src/lib/quantity';
+import { correctQuantity, quantityPresets, type QtyRule } from '../../src/lib/quantity';
 
 const rule: QtyRule = { min_qty: 1, qty_multiple: 1, stock_qty: 10 };
 
@@ -58,5 +58,22 @@ describe('correctQuantity', () => {
 
   it('treats a multiple of zero as steps of one', () => {
     expect(correctQuantity(4, { ...rule, qty_multiple: 0 })).toEqual({ quantity: 4, message: undefined });
+  });
+});
+
+describe('quantityPresets', () => {
+  it('offers 1, 5, 10 and 25 when the shelf can fill them', () => {
+    expect(quantityPresets({ min_qty: 1, qty_multiple: 1, stock_qty: 48 })).toEqual([1, 5, 10, 25]);
+  });
+
+  it('drops presets above stock', () => {
+    expect(quantityPresets({ min_qty: 1, qty_multiple: 1, stock_qty: 9 })).toEqual([1, 5]);
+    expect(quantityPresets({ min_qty: 1, qty_multiple: 1, stock_qty: 3 })).toEqual([1]);
+    expect(quantityPresets({ min_qty: 1, qty_multiple: 1, stock_qty: 0 })).toEqual([]);
+  });
+
+  it('keeps only presets that already match the minimum and the multiple', () => {
+    expect(quantityPresets({ min_qty: 5, qty_multiple: 1, stock_qty: 30 })).toEqual([5, 10, 25]);
+    expect(quantityPresets({ min_qty: 1, qty_multiple: 5, stock_qty: 25 })).toEqual([5, 10, 25]);
   });
 });

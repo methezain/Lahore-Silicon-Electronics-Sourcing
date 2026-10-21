@@ -60,7 +60,7 @@ const relation = target === "_blank" ? rel ?? "noopener noreferrer" : rel;
     white-space: nowrap;
     cursor: pointer;
     transition-property: background-color, box-shadow, color, transform;
-    transition-duration: var(--dur-1);
+    transition-duration: var(--dur-fast);
     transition-timing-function: var(--ease-out);
   }
 
@@ -89,7 +89,8 @@ const relation = target === "_blank" ? rel ?? "noopener noreferrer" : rel;
     color: var(--color-surface);
   }
 
-  .btn.primary:hover {
+  .btn.primary:hover,
+  .btn.primary:active {
     background: var(--color-action-hover);
   }
 
@@ -98,7 +99,8 @@ const relation = target === "_blank" ? rel ?? "noopener noreferrer" : rel;
     color: var(--color-ink);
   }
 
-  .btn.signal:hover {
+  .btn.signal:hover,
+  .btn.signal:active {
     box-shadow: var(--shadow-1);
   }
 
@@ -108,16 +110,19 @@ const relation = target === "_blank" ? rel ?? "noopener noreferrer" : rel;
     box-shadow: inset 0 0 0 1px var(--color-control-line);
   }
 
-  .btn.secondary:hover {
+  .btn.secondary:hover,
+  .btn.secondary:active {
     background: var(--color-sunken);
   }
 
-  .btn.ghost:hover {
+  .btn.ghost:hover,
+  .btn.ghost:active {
     background: var(--color-sunken);
   }
 
   .btn:active {
     transform: scale(0.97);
+    transition-duration: var(--dur-instant);
   }
 
   .btn.primary:disabled,

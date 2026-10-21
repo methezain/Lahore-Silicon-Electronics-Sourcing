@@ -21,6 +21,8 @@ export type CatalogPart = CatalogPrice & {
   min_qty: number;
   qty_multiple: number;
   image?: string;
+  /** Part numbers this record lists. Only ids the catalog still sells are shown. */
+  companions?: string[];
 };
 
 /** WebP thumb for the cart island. Catalog and product pages render `<Picture>` themselves. */
@@ -55,6 +57,7 @@ export async function loadCatalog(): Promise<CatalogPart[]> {
     min_qty: entry.data.min_qty,
     qty_multiple: entry.data.qty_multiple,
     image: entry.data.images?.[0] ? await partThumbSrc(entry.data.images[0].src) : undefined,
+    ...(entry.data.companions ? { companions: [...entry.data.companions] } : {}),
   })));
 }
 

@@ -57,7 +57,7 @@
   "datasheet": "https://www.analog.com/media/en/technical-documentation/data-sheets/ds18b20.pdf",
   "images": [
     {
-      "src": "../../assets/parts/ds18b20.jpg",
+      "src": "../../assets/parts/cutouts/ds18b20.webp",
       "alt": "DS18B20 sensor in a TO-92 package, black body with three metal leads.",
       "note": "Representative studio photograph, not a photo of the lot in the drawer."
     }

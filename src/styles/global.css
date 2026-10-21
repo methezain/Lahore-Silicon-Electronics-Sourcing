@@ -1,5 +1,6 @@
 @import "tailwindcss";
 @import "./tokens.css";
+@import "./press.css";
 
 /* Header bar height is specified in design-system.md section 9 (60px, then 64px). */
 :root {
@@ -206,6 +207,22 @@ main :focus {
   top: var(--inset);
   z-index: 40;
   margin: var(--inset) var(--inset) 0;
+  view-transition-name: site-header;
+}
+.header-sentinel-anchor {
+  position: relative;
+  height: 0;
+}
+.header-sentinel {
+  position: absolute;
+  top: var(--space-80);
+  width: 1px;
+  height: 1px;
+  pointer-events: none;
+}
+/* motion.md #9. Resting height stays 60px, then 64px from 900px. */
+.site-header.is-condensed {
+  --header-bar: 52px;
 }
 .site-bar {
   position: relative;
@@ -218,7 +235,15 @@ main :focus {
   background: color-mix(in oklch, var(--color-surface) 78%, transparent);
   -webkit-backdrop-filter: blur(20px) saturate(1.6);
   backdrop-filter: blur(20px) saturate(1.6);
-  box-shadow: var(--shadow-2), inset 0 0 0 1px color-mix(in oklch, var(--color-line) 70%, transparent);
+  --header-shadow: var(--shadow-2);
+  --header-inset: inset 0 0 0 1px color-mix(in oklch, var(--color-line) 70%, transparent);
+  box-shadow: var(--header-shadow), var(--header-inset);
+  transition-property: height, box-shadow;
+  transition-duration: var(--dur-base, 220ms);
+  transition-timing-function: var(--ease-out);
+}
+.site-header.is-condensed .site-bar {
+  --header-shadow: var(--shadow-3);
 }
 .site-bar .logo {
   flex: none;
@@ -353,9 +378,55 @@ main :focus {
   width: var(--space-20);
   height: var(--space-20);
 }
+.cart-plug {
+  position: relative;
+  display: grid;
+  flex: none;
+  width: var(--space-20);
+  height: var(--space-20);
+}
+.cart-plug-half {
+  grid-area: 1 / 1;
+  width: var(--space-20);
+  height: var(--space-20);
+  transition: transform var(--dur-3) linear(0, 0.247, 0.577, 0.797, 0.914, 0.967, 0.989, 0.997, 1);
+}
+.cart-plug-half.is-left {
+  transform: translateX(calc((var(--space-2) - var(--space-8)) / 2));
+}
+.cart-plug-half.is-right {
+  transform: translateX(calc((var(--space-8) - var(--space-2)) / 2));
+}
+.cart-plug.is-joined .cart-plug-half {
+  transform: translateX(0);
+}
+.cart-plug-ring {
+  grid-area: 1 / 1;
+  place-self: center;
+  width: var(--space-20);
+  height: var(--space-20);
+  border-radius: var(--radius-pill);
+  box-shadow: 0 0 0 var(--space-2) var(--color-signal);
+  opacity: 0;
+  pointer-events: none;
+}
+.cart-plug.is-ring .cart-plug-ring {
+  animation: cart-signal-ring var(--dur-slow, var(--dur-3)) var(--ease-out);
+}
+@keyframes cart-signal-ring {
+  from {
+    opacity: 1;
+    transform: scale(0.6);
+  }
+  to {
+    opacity: 0;
+    transform: scale(1.5);
+  }
+}
 .cart-count {
   display: inline-grid;
   place-items: center;
+  overflow: hidden;
   min-width: var(--space-24);
   height: var(--space-24);
   padding: 0 var(--space-4);
@@ -483,6 +554,7 @@ main :focus {
   margin: 0 0 var(--space-12);
 }
 .site-footer {
+  view-transition-name: site-footer;
   margin: var(--space-64) var(--inset) var(--inset);
   padding: var(--space-40) var(--space-20);
   border-radius: var(--radius-frame);
@@ -547,9 +619,9 @@ main :focus {
 .thumb {
   width: var(--space-56);
   height: var(--space-56);
-  object-fit: cover;
+  object-fit: contain;
   display: block;
-  mix-blend-mode: multiply;
+  mix-blend-mode: normal;
 }
 .stock-in { color: var(--color-ok); }
 .lede {
@@ -564,12 +636,134 @@ main :focus {
 @view-transition {
   navigation: auto;
 }
+
+::view-transition-group(site-header) {
+  animation-duration: var(--dur-base, 220ms);
+  animation-timing-function: var(--ease-out);
+  z-index: 100;
+}
+::view-transition-group(site-footer) {
+  animation-duration: var(--dur-base, 220ms);
+  animation-timing-function: var(--ease-out);
+}
+::view-transition-old(site-header),
+::view-transition-new(site-header),
+::view-transition-old(site-footer),
+::view-transition-new(site-footer) {
+  animation: none;
+  mix-blend-mode: normal;
+  height: 100%;
+}
+::view-transition-old(root),
+::view-transition-new(root) {
+  animation-duration: var(--dur-base, 220ms);
+  animation-timing-function: var(--ease-out);
+}
+::view-transition-group(.part-morph),
+::view-transition-old(.part-morph),
+::view-transition-new(.part-morph) {
+  animation-duration: var(--dur-page, 420ms);
+  animation-timing-function: var(--ease-out);
+}
+::view-transition-old(.part-morph),
+::view-transition-new(.part-morph) {
+  width: 100%;
+  height: 100%;
+  overflow: clip;
+}
+::view-transition-old(.part-photo),
+::view-transition-new(.part-photo) {
+  width: 100%;
+  object-fit: cover;
+  object-position: center;
+}
+
+@keyframes nav-rise {
+  from {
+    opacity: 0;
+    transform: translateY(var(--space-12));
+  }
+  to {
+    opacity: 1;
+    transform: none;
+  }
+}
+@keyframes nav-fade {
+  from { opacity: 0; }
+  to { opacity: 1; }
+}
+
+@media (prefers-reduced-motion: no-preference) {
+  .buy-panel > .title { view-transition-name: buy-name; }
+  .buy-panel > .summary { view-transition-name: buy-summary; }
+  .buy-panel > .buy-controls { view-transition-name: buy-purchase; }
+  .buy-panel > .rule { view-transition-name: buy-rule; }
+  .buy-panel > .kv { view-transition-name: buy-facts; }
+
+  html:not(.skip-enter) .buy-panel > .title,
+  html:not(.skip-enter) .buy-panel > .summary,
+  html:not(.skip-enter) .buy-panel > .buy-controls,
+  html:not(.skip-enter) .buy-panel > .rule,
+  html:not(.skip-enter) .buy-panel > .kv {
+    animation: nav-rise var(--dur-page, 420ms) var(--ease-out) both;
+  }
+  html:not(.skip-enter) .buy-panel > .summary { animation-delay: 40ms; }
+  html:not(.skip-enter) .buy-panel > .buy-controls { animation-delay: 80ms; }
+  html:not(.skip-enter) .buy-panel > .rule { animation-delay: 120ms; }
+  html:not(.skip-enter) .buy-panel > .kv { animation-delay: 160ms; }
+}
+
+::view-transition-new(buy-name),
+::view-transition-new(buy-summary),
+::view-transition-new(buy-purchase),
+::view-transition-new(buy-rule),
+::view-transition-new(buy-facts) {
+  animation: nav-rise var(--dur-page, 420ms) var(--ease-out) both;
+}
+::view-transition-new(buy-summary) { animation-delay: 40ms; }
+::view-transition-new(buy-purchase) { animation-delay: 80ms; }
+::view-transition-new(buy-rule) { animation-delay: 120ms; }
+::view-transition-new(buy-facts) { animation-delay: 160ms; }
+::view-transition-old(buy-name),
+::view-transition-old(buy-summary),
+::view-transition-old(buy-purchase),
+::view-transition-old(buy-rule),
+::view-transition-old(buy-facts) {
+  animation-duration: var(--dur-fast, 140ms);
+  animation-timing-function: var(--ease-out);
+}
+
 @media (prefers-reduced-motion: reduce) {
-  .cart-btn, .search-trigger, .site-seg a { transition: none; }
+  .cart-btn, .search-trigger, .site-seg a, .site-bar { transition: none; }
   .cart-btn:active, .search-trigger:active { transform: none; }
-  ::view-transition-group(*),
-  ::view-transition-old(*),
-  ::view-transition-new(*) {
+  .cart-plug-half { transition: none; }
+  .cart-plug-ring { animation: none; }
+  html:not(.skip-enter) .buy-panel > .title,
+  html:not(.skip-enter) .buy-panel > .summary,
+  html:not(.skip-enter) .buy-panel > .buy-controls,
+  html:not(.skip-enter) .buy-panel > .rule,
+  html:not(.skip-enter) .buy-panel > .kv {
+    animation: nav-fade var(--dur-1) linear both;
+  }
+  ::view-transition-old(root),
+  ::view-transition-new(root) {
+    animation-duration: var(--dur-1);
+    animation-timing-function: linear;
+  }
+  ::view-transition-group(site-header),
+  ::view-transition-old(site-header),
+  ::view-transition-new(site-header),
+  ::view-transition-group(site-footer),
+  ::view-transition-old(site-footer),
+  ::view-transition-new(site-footer),
+  ::view-transition-group(.part-morph),
+  ::view-transition-old(.part-morph),
+  ::view-transition-new(.part-morph),
+  ::view-transition-new(buy-name),
+  ::view-transition-new(buy-summary),
+  ::view-transition-new(buy-purchase),
+  ::view-transition-new(buy-rule),
+  ::view-transition-new(buy-facts) {
     animation: none;
   }
 }

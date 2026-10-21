@@ -3,6 +3,8 @@
  * Dev-only gallery for the Phase 2 controls.
  * Production requests 404. Not linked from the storefront.
  */
+import PackageMark from "../../components/illustrations/PackageMark.tsx";
+import { PACKAGE_SHEET } from "../../components/illustrations/packages";
 import Layout from "../../layouts/Layout.astro";
 import Button from "../../components/Button.astro";
 import Input from "../../components/Input.astro";
@@ -10,6 +12,7 @@ import Stepper from "../../components/Stepper.tsx";
 import FilterPills from "../../components/FilterPills.astro";
 import StockIndicator from "../../components/StockIndicator.astro";
 import ProductCard from "../../components/ProductCard.astro";
+import ProductGallery from "../../components/ProductGallery.astro";
 import CatalogTable from "../../components/CatalogTable.astro";
 import KeyFigures from "../../components/KeyFigures.astro";
 import ProcessBand from "../../components/ProcessBand.astro";
@@ -143,6 +146,30 @@ const priceSort = sort === "price" ? "ascending" as const : sort === "price-desc
       </p>
     </header>
 
+    <section id="illustrations" aria-labelledby="illustrations-heading">
+      <h2 id="illustrations-heading" class="heading">Package illustrations</h2>
+      <p class="caption">
+        Line drawings for a missing photograph and for an empty catalog, cart, or search.
+        Lead counts are the package.
+      </p>
+      <ul class="illus-grid">
+        {PACKAGE_SHEET.map((row) => (
+          <li>
+            <div class="illus-well">
+              <PackageMark kind={row.kind} />
+            </div>
+            <p class="caption">{row.title} · {row.detail}</p>
+          </li>
+        ))}
+      </ul>
+      <p class="caption">Gallery with the photograph omitted. LM7805 does have a photograph in the catalog.</p>
+      <ProductGallery
+        partNumber={lm7805.data.part_number}
+        manufacturer={lm7805.data.manufacturer}
+        packageType={lm7805.data.package_type}
+      />
+    </section>
+
     <section aria-labelledby="buttons-heading">
       <h2 id="buttons-heading" class="heading">Buttons</h2>
       <p class="caption">These labels are the system words. Clicks here do not change the cart.</p>
@@ -247,7 +274,10 @@ const priceSort = sort === "price" ? "ascending" as const : sort === "price-desc
       <h2 id="pills-heading" class="heading">Filter pills</h2>
       <FilterPills items={pills} />
       {requested && ordered.length === 0 && (
-        <p class="body">No parts in {requested}. <a href={pillHref()}>Show the full catalog.</a></p>
+        <p class="body">
+          <PackageMark kind="module" empty />
+          No parts in {requested}. <a href={pillHref()}>Show the full catalog.</a>
+        </p>
       )}
       {known && (
         <p class="caption">Showing {known}. <a href={pillHref()}>Remove</a></p>
@@ -322,7 +352,10 @@ const priceSort = sort === "price" ? "ascending" as const : sort === "price-desc
         The last row, when the full catalog is showing, is a five-digit price for layout. Not a catalog price.
       </p>
       {catalogRows.length === 0 ? (
-        <p class="body">No parts in {requested ?? "this category"}. <a href={pillHref()}>Show the full catalog.</a></p>
+        <p class="body">
+          <PackageMark kind="module" empty />
+          No parts in {requested ?? "this category"}. <a href={pillHref()}>Show the full catalog.</a>
+        </p>
       ) : (
         <CatalogTable
           rows={catalogRows}
@@ -427,6 +460,29 @@ const priceSort = sort === "price" ? "ascending" as const : sort === "price-desc
     min-width: 0;
   }
 
+  .illus-grid {
+    display: grid;
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+    gap: var(--space-16);
+    margin: 0;
+    padding: 0;
+    list-style: none;
+  }
+
+  .illus-grid li {
+    display: flex;
+    flex-direction: column;
+    gap: var(--space-8);
+    min-width: 0;
+  }
+
+  .illus-well {
+    aspect-ratio: 1;
+    overflow: hidden;
+    border-radius: var(--radius-control);
+    background: var(--color-sunken);
+  }
+
   .sample-price {
     margin: 0;
     font-size: var(--text-heading);
@@ -449,6 +505,10 @@ const priceSort = sort === "price" ? "ascending" as const : sort === "price-desc
       grid-template-columns: repeat(3, minmax(0, 1fr));
       gap: var(--space-24);
       align-items: start;
+    }
+
+    .illus-grid {
+      grid-template-columns: repeat(3, minmax(0, 1fr));
     }
 
   }

@@ -5,11 +5,13 @@ import { partTransitionClass, partTransitionCss, partTransitionName } from '../.
 
 describe('part transition names', () => {
   it('turns part numbers into CSS idents', () => {
-    expect(partTransitionName('AMS1117-3.3')).toBe('part-ams1117-3-3');
-    expect(partTransitionName('ESP32-WROOM-32D')).toBe('part-esp32-wroom-32d');
-    expect(partTransitionClass('LM7805')).toBe('vt-part-lm7805');
+    expect(partTransitionName('AMS1117-3.3')).toBe('part-photo-ams1117-3-3');
+    expect(partTransitionName('ESP32-WROOM-32D')).toBe('part-photo-esp32-wroom-32d');
+    expect(partTransitionClass('LM7805')).toBe('vt-part-photo-lm7805');
     expect(partTransitionCss(['AMS1117-3.3', ''])).toBe(
-      '.vt-part-ams1117-3-3{view-transition-name:part-ams1117-3-3}',
+      '.vt-part-photo-ams1117-3-3{view-transition-name:part-photo-ams1117-3-3;view-transition-class:part-morph part-photo}' +
+        '.vt-part-chip-ams1117-3-3{view-transition-name:part-chip-ams1117-3-3;view-transition-class:part-morph part-chip}' +
+        '@media (prefers-reduced-motion:reduce){.vt-part-photo-ams1117-3-3,.vt-part-chip-ams1117-3-3{view-transition-name:none;view-transition-class:none}}',
     );
   });
 });

@@ -1,13 +1,16 @@
 ---
 /**
  * Category pills. docs/design-system.md section 9 (Segmented control and filter pills).
- * Selection lives in the URL. Counts are passed in; this file does not count parts.
+ * docs/motion.md #3: one navy indicator slides between pills. Without JavaScript
+ * the selected pill keeps its own fill. Counts are passed in.
  */
 interface Pill {
   label: string;
   href: string;
   count: number;
   current: boolean;
+  /** Empty string is All. Omitted on pages that only navigate. */
+  category?: string;
 }
 
 interface Props {
@@ -19,16 +22,65 @@ const { label = "Category", items } = Astro.props;
 ---
 
 <nav class="pills" aria-label={label}>
+  <span class="indicator" data-pill-indicator aria-hidden="true"></span>
   {items.map((item) => (
-    <a href={item.href} aria-current={item.current ? "page" : undefined}>
-      {item.label}
-      <span class="count">{item.count}</span>
+    <a
+      href={item.href}
+      data-category={item.category}
+      aria-current={item.current ? "page" : undefined}
+    >
+      <span class="face face-ink">
+        {item.label}
+        <span class="count">{item.count}</span>
+      </span>
+      <span class="face face-on" aria-hidden="true">
+        {item.label}
+        <span class="count">{item.count}</span>
+      </span>
     </a>
   ))}
 </nav>
 
+<script>
+  function place(nav: HTMLElement, instant: boolean) {
+    const current = nav.querySelector<HTMLElement>('a[aria-current="page"]');
+    if (!current) {
+      nav.classList.remove("is-sliding");
+      return;
+    }
+    const animate = nav.classList.contains("is-sliding") && !instant;
+    if (!animate) nav.classList.add("is-instant");
+    nav.style.setProperty("--pill-x", `${current.offsetLeft}px`);
+    nav.style.setProperty("--pill-y", `${current.offsetTop}px`);
+    nav.style.setProperty("--pill-w", `${current.offsetWidth}px`);
+    nav.style.setProperty("--pill-h", `${current.offsetHeight}px`);
+    for (const link of nav.querySelectorAll<HTMLElement>("a")) {
+      link.style.setProperty("--self-x", `${link.offsetLeft}px`);
+      link.style.setProperty("--self-w", `${link.offsetWidth}px`);
+    }
+    if (!animate) {
+      nav.getBoundingClientRect();
+      nav.classList.remove("is-instant");
+    }
+    nav.classList.add("is-sliding");
+  }
+
+  function mount(nav: HTMLElement) {
+    if (nav.dataset.pills === "true") return;
+    nav.dataset.pills = "true";
+    place(nav, true);
+    const observer = new MutationObserver(() => place(nav, false));
+    observer.observe(nav, { subtree: true, attributes: true, attributeFilter: ["aria-current"] });
+    window.addEventListener("resize", () => place(nav, true));
+    document.fonts?.ready.then(() => place(nav, true)).catch(() => undefined);
+  }
+
+  for (const nav of document.querySelectorAll<HTMLElement>("nav.pills")) mount(nav);
+</script>
+
 <style>
   .pills {
+    position: relative;
     display: flex;
     gap: var(--space-8);
     max-width: 100%;
@@ -36,17 +88,45 @@ const { label = "Category", items } = Astro.props;
     padding: var(--space-4);
     overflow-x: auto;
     scrollbar-width: none;
+    transition:
+      --pill-x var(--dur-2) var(--ease-out),
+      --pill-y var(--dur-2) var(--ease-out),
+      --pill-w var(--dur-2) var(--ease-out),
+      --pill-h var(--dur-2) var(--ease-out);
   }
 
   .pills::-webkit-scrollbar {
     display: none;
   }
 
+  .pills.is-instant {
+    transition: none;
+  }
+
+  .indicator {
+    position: absolute;
+    z-index: 0;
+    left: var(--pill-x, 0px);
+    top: var(--pill-y, 0px);
+    width: var(--pill-w, 0px);
+    height: var(--pill-h, 36px);
+    border-radius: var(--radius-pill);
+    background: var(--color-navy);
+    opacity: 0;
+    pointer-events: none;
+  }
+
+  .pills.is-sliding .indicator {
+    opacity: 1;
+  }
+
   .pills a {
-    display: inline-flex;
+    --pad: var(--space-16);
+    position: relative;
+    z-index: 1;
+    display: inline-grid;
     flex: none;
     align-items: center;
-    gap: var(--space-8);
     height: 36px;
     padding: 0 var(--space-16);
     border-radius: var(--radius-pill);
@@ -58,16 +138,37 @@ const { label = "Category", items } = Astro.props;
     line-height: 1;
     text-decoration: none;
     transition-property: background-color, color, transform, box-shadow;
-    transition-duration: var(--dur-1);
+    transition-duration: var(--dur-fast);
     transition-timing-function: var(--ease-out);
   }
 
-  .pills a:hover {
+  .face {
+    grid-area: 1 / 1;
+    display: inline-flex;
+    align-items: center;
+    gap: var(--space-8);
+    white-space: nowrap;
+  }
+
+  .face-on {
+    display: none;
+    color: var(--color-on-navy);
+    clip-path: inset(
+      -20px
+      max(0px, calc(var(--self-x) + var(--self-w) - var(--pill-x) - var(--pill-w) - var(--pad)))
+      -20px
+      max(0px, calc(var(--pill-x) - var(--self-x) - var(--pad)))
+    );
+  }
+
+  .pills a:hover,
+  .pills a:active {
     background: var(--color-sunken);
   }
 
   .pills a:active {
     transform: scale(0.97);
+    transition-duration: var(--dur-instant);
   }
 
   .pills a[aria-current="page"] {
@@ -76,8 +177,36 @@ const { label = "Category", items } = Astro.props;
     box-shadow: none;
   }
 
-  .pills a[aria-current="page"]:hover {
+  .pills a[aria-current="page"]:hover,
+  .pills a[aria-current="page"]:active {
     background: var(--color-navy-raised);
+  }
+
+  .pills a[aria-current="page"]:active {
+    transform: scale(0.97);
+    transition-duration: var(--dur-instant);
+  }
+
+  .pills.is-sliding a,
+  .pills.is-sliding a:hover,
+  .pills.is-sliding a:active,
+  .pills.is-sliding a[aria-current="page"],
+  .pills.is-sliding a[aria-current="page"]:hover,
+  .pills.is-sliding a[aria-current="page"]:active {
+    background: transparent;
+    color: var(--color-ink);
+  }
+
+  .pills.is-sliding a {
+    box-shadow: inset 0 0 0 1px var(--color-line);
+  }
+
+  .pills.is-sliding a[aria-current="page"] {
+    box-shadow: none;
+  }
+
+  .pills.is-sliding .face-on {
+    display: inline-flex;
   }
 
   .count {
@@ -90,11 +219,24 @@ const { label = "Category", items } = Astro.props;
     line-height: var(--text-label--line-height);
   }
 
-  .pills a[aria-current="page"] .count {
+  .pills a[aria-current="page"] .face-ink .count {
+    color: var(--color-on-navy-muted);
+  }
+
+  .pills.is-sliding a .face-ink .count,
+  .pills.is-sliding a[aria-current="page"] .face-ink .count {
+    color: var(--color-ink-muted);
+  }
+
+  .face-on .count {
     color: var(--color-on-navy-muted);
   }
 
   @media (prefers-reduced-motion: reduce) {
+    .pills {
+      transition: none;
+    }
+
     .pills a {
       transition-property: background-color, color, box-shadow;
     }
@@ -102,5 +244,31 @@ const { label = "Category", items } = Astro.props;
     .pills a:active {
       transform: none;
     }
+  }
+</style>
+
+<style is:global>
+  @property --pill-x {
+    syntax: "<length>";
+    inherits: true;
+    initial-value: 0px;
+  }
+
+  @property --pill-y {
+    syntax: "<length>";
+    inherits: true;
+    initial-value: 0px;
+  }
+
+  @property --pill-w {
+    syntax: "<length>";
+    inherits: true;
+    initial-value: 0px;
+  }
+
+  @property --pill-h {
+    syntax: "<length>";
+    inherits: true;
+    initial-value: 0px;
   }
 </style>

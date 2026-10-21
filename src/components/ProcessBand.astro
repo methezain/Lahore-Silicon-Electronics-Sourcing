@@ -2,8 +2,10 @@
 /**
  * Three-step band. docs/design-system.md section 9 (Process band).
  * Delivery and dispatch sentences come from src/lib/shipping.ts.
+ * The connector draws with scroll on /home. docs/motion.md item 26.
  */
 import { deliveryCost, sameDayDispatch } from "../lib/shipping";
+import "./home-reveal.css";
 
 const steps = [
   {
@@ -21,19 +23,27 @@ const steps = [
 ];
 ---
 
-<section class="band" id="ordering" aria-labelledby="ordering-title">
+<section class="band home-reveal" id="ordering" aria-labelledby="ordering-title">
   <div class="band-inner">
     <p class="eyebrow">How ordering works</p>
     <h2 id="ordering-title" class="band-title">Three steps, and you pay the total shown.</h2>
-    <ol class="steps">
-      {steps.map((step, index) => (
-        <li class="step">
-          <p class="step-k">Step {index + 1}</p>
-          <h3 class="step-title">{step.title}</h3>
-          <p class="step-body">{step.body}</p>
-        </li>
-      ))}
-    </ol>
+    <div class="steps-wrap">
+      <svg class="connector connector-h" viewBox="0 0 100 2" preserveAspectRatio="none" aria-hidden="true">
+        <path pathLength="1" d="M0 1H100" />
+      </svg>
+      <svg class="connector connector-v" viewBox="0 0 2 100" preserveAspectRatio="none" aria-hidden="true">
+        <path pathLength="1" d="M1 0V100" />
+      </svg>
+      <ol class="steps">
+        {steps.map((step, index) => (
+          <li class="step">
+            <p class="step-k">Step {index + 1}</p>
+            <h3 class="step-title">{step.title}</h3>
+            <p class="step-body">{step.body}</p>
+          </li>
+        ))}
+      </ol>
+    </div>
   </div>
 </section>
 
@@ -76,15 +86,54 @@ const steps = [
     text-wrap: balance;
   }
 
+  .steps-wrap {
+    position: relative;
+    margin-top: var(--space-40);
+  }
+
   .steps {
     display: grid;
     gap: var(--space-12);
-    margin: var(--space-40) 0 0;
+    margin: 0;
     padding: 0;
     list-style: none;
   }
 
+  .connector {
+    position: absolute;
+    z-index: 0;
+    color: var(--color-signal);
+    pointer-events: none;
+  }
+
+  .connector path {
+    fill: none;
+    stroke: currentColor;
+    stroke-width: 1.5px;
+    stroke-linecap: round;
+    vector-effect: non-scaling-stroke;
+    stroke-dasharray: 1;
+    stroke-dashoffset: 0;
+  }
+
+  .connector-h {
+    top: var(--space-32);
+    left: calc(100% / 6);
+    width: calc(100% * 2 / 3);
+    height: var(--space-2);
+  }
+
+  .connector-v {
+    top: var(--space-24);
+    bottom: var(--space-24);
+    left: calc(50% - 1px);
+    width: var(--space-2);
+    height: auto;
+  }
+
   .step {
+    position: relative;
+    z-index: 1;
     min-width: 0;
     padding: var(--space-24);
     border-radius: var(--radius-panel);
@@ -123,6 +172,12 @@ const steps = [
     text-wrap: pretty;
   }
 
+  @media (max-width: 899px) {
+    .connector-h {
+      display: none;
+    }
+  }
+
   @media (min-width: 900px) {
     .band {
       padding: var(--space-80) var(--space-56);
@@ -130,6 +185,31 @@ const steps = [
 
     .steps {
       grid-template-columns: repeat(3, minmax(0, 1fr));
+    }
+
+    .connector-v {
+      display: none;
+    }
+  }
+
+  @media (prefers-reduced-motion: no-preference) {
+    @supports (animation-timeline: view()) {
+      .steps-wrap {
+        view-timeline-name: --ordering-line;
+      }
+
+      .connector path {
+        stroke-dashoffset: 1;
+        animation: ordering-draw linear both;
+        animation-timeline: --ordering-line;
+        animation-range: entry 0% cover 45%;
+      }
+    }
+  }
+
+  @keyframes ordering-draw {
+    to {
+      stroke-dashoffset: 0;
     }
   }
 </style>

@@ -47,20 +47,28 @@ test('product photo is sized, eager, and does not shift', async ({ page }) => {
 
 test('catalog thumbnail and product photo share a view-transition name', async ({ page }) => {
   await page.goto('/');
-  const thumb = page.locator('#catalog img.vt-part-lm7805:visible');
+  const thumb = page.locator('#catalog img.vt-part-photo-lm7805:visible');
   const desktop = (page.viewportSize()?.width ?? 0) >= 900;
   await expect(thumb).toHaveAttribute('alt', '');
-  await expect(thumb).toHaveAttribute('width', desktop ? '52' : '160');
-  await expect(thumb).toHaveAttribute('height', desktop ? '52' : '160');
-  await expect(thumb).toHaveAttribute('sizes', desktop ? '52px' : '80px');
+  await expect(thumb).toHaveAttribute('width', desktop ? '64' : '640');
+  await expect(thumb).toHaveAttribute('height', desktop ? '64' : '640');
+  await expect(thumb).toHaveAttribute(
+    'sizes',
+    desktop ? '64px' : '(min-width: 1200px) 360px, (min-width: 900px) 380px, calc(100vw - 64px)',
+  );
   await expect(thumb).toHaveAttribute('loading', 'lazy');
   await expect(thumb).toHaveAttribute('decoding', 'async');
   const catalogName = await thumb.evaluate((el) => getComputedStyle(el).viewTransitionName);
-  expect(catalogName).toBe('part-lm7805');
+  expect(catalogName).toBe('part-photo-lm7805');
+  const catalogChip = page.locator('#catalog .vt-part-chip-lm7805:visible');
+  const catalogChipName = await catalogChip.evaluate((el) => getComputedStyle(el).viewTransitionName);
+  expect(catalogChipName).toBe('part-chip-lm7805');
 
   await page.goto('/product/lm7805');
   const productName = await page.locator('.gallery-well img').evaluate((el) => getComputedStyle(el).viewTransitionName);
   expect(productName).toBe(catalogName);
+  const productChip = await page.locator('.buy-panel .chip').evaluate((el) => getComputedStyle(el).viewTransitionName);
+  expect(productChip).toBe(catalogChipName);
 });
 
 test('cart line uses the optimized thumb', async ({ page }) => {

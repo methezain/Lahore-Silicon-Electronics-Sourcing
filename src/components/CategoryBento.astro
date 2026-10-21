@@ -6,6 +6,7 @@
 import type { ImageMetadata } from "astro";
 import { partNoun } from "../lib/home";
 import PartPicture from "./PartPicture.astro";
+import PhotoStage from "./PhotoStage.tsx";
 
 export interface BentoTile {
   href: string;
@@ -64,18 +65,21 @@ const { tiles, total, allHref } = Astro.props;
           </span>
           {tile.featured && tile.image && tile.imagePart && (
             <span class="shot">
-              <PartPicture
-                src={tile.image}
-                partNumber={tile.imagePart}
-                alt=""
-                width={480}
-                height={480}
-                sizes="(min-width: 900px) 280px, 42vw"
-                widths={[320, 480]}
-                transition={false}
-                class="photo"
-                frameClass="frame"
-              />
+              <PhotoStage cutout>
+                <PartPicture
+                  src={tile.image}
+                  partNumber={tile.imagePart}
+                  alt=""
+                  width={480}
+                  height={480}
+                  sizes="(min-width: 900px) 280px, 42vw"
+                  widths={[320, 480]}
+                  transition={false}
+                  fit="contain"
+                  class="photo"
+                  frameClass="frame"
+                />
+              </PhotoStage>
             </span>
           )}
         </a>

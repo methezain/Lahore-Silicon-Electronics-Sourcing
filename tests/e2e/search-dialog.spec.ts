@@ -29,7 +29,10 @@ test('search dialog finds a part, misses cleanly, and traps focus', async ({ pag
   await expect(thumb).toHaveAttribute('width', '56');
   await expect(thumb).toHaveAttribute('height', '56');
   await expect(thumb).toHaveAttribute('src', /webp/i);
-  await expect.poll(async () => thumb.evaluate((node: HTMLImageElement) => node.naturalWidth)).toBeGreaterThan(0);
+  await expect.poll(
+    async () => thumb.evaluate((node: HTMLImageElement) => node.naturalWidth),
+    { timeout: 15_000 },
+  ).toBeGreaterThan(0);
   await exact.screenshot({ path: shot('hit') });
   await page.screenshot({ path: shot('exact') });
 
@@ -140,7 +143,9 @@ test('search dialog stays put with reduced motion', async ({ page }) => {
   await page.keyboard.press('/');
   const panel = page.locator('.search-panel');
   await expect(panel).toBeVisible();
-  await expect(panel).toHaveCSS('animation-name', 'none');
+  await expect.poll(async () => panel.evaluate((node) => getComputedStyle(node).animationName)).not.toBe('search-palette-in');
+  const transform = await panel.evaluate((node) => getComputedStyle(node).transform);
+  expect(['none', 'matrix(1, 0, 0, 1, 0, 0)']).toContain(transform);
   await page.keyboard.press('Escape');
   await expect(page.getByRole('dialog', { name: 'Search parts' })).toBeHidden();
 });

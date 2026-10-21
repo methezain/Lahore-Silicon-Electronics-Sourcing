@@ -1,11 +1,10 @@
 import { exec as execCommand } from 'node:child_process';
 import { closeSync, mkdirSync, openSync, statSync, unlinkSync } from 'node:fs';
-import { createRequire } from 'node:module';
 import { setTimeout as delay } from 'node:timers/promises';
 import { promisify } from 'node:util';
 import { expect, test } from '@playwright/test';
+import { expectNoAxeViolations } from './axe';
 
-const require = createRequire(import.meta.url);
 const exec = promisify(execCommand);
 const orderLock = 'test-results/checkout-order.lock';
 
@@ -158,10 +157,30 @@ test('add to cart, clear field errors, and save the order', async ({ page }, tes
     () => document.documentElement.scrollWidth - document.documentElement.clientWidth,
   );
   expect(savedOverflow).toBeLessThanOrEqual(1);
+  await expectNoAxeViolations(page);
   await page.screenshot({
     path: `test-results/order-review/${testInfo.project.name}-success.png`,
     fullPage: true,
   });
+});
+
+test('an empty cart shows an empty state instead of the form', async ({ page }, testInfo) => {
+  await page.goto('/checkout');
+  const empty = page.locator('#checkout-empty');
+  await expect(empty).toBeVisible();
+  await expect(empty).toHaveText('Your cart is empty. Browse the catalog.');
+  await expect(empty.getByRole('link', { name: 'Browse the catalog.' })).toHaveAttribute('href', '/');
+  await expect(page.locator('#checkout-form')).toBeHidden();
+  await expect(page.locator('#checkout-intro')).toBeHidden();
+  await expect(page.getByRole('button', { name: /Place order/ })).toBeHidden();
+  await expect(page.getByText(/Show order/)).toBeHidden();
+  await page.screenshot({
+    path: `test-results/checkout-review/${testInfo.project.name}-empty.png`,
+    fullPage: true,
+  });
+  await empty.getByRole('link', { name: 'Browse the catalog.' }).click();
+  await expect(page).toHaveURL(/\/$/);
+  await expect(page.getByRole('heading', { level: 1, name: 'Catalog' })).toBeVisible();
 });
 
 test('axe finds no WCAG A/AA violations on checkout', async ({ page }) => {
@@ -177,29 +196,7 @@ test('axe finds no WCAG A/AA violations on checkout', async ({ page }) => {
   });
   await page.goto('/checkout');
   await page.getByRole('button', { name: /Place order/ }).waitFor();
-  await page.addScriptTag({ path: require.resolve('axe-core') });
-  const violations = await page.evaluate(async () => {
-    const axe = (window as unknown as {
-      axe: {
-        run: (
-          context: Document,
-          options: { runOnly: { type: 'tag'; values: string[] } },
-        ) => Promise<{
-          violations: { id: string; impact: string | null; help: string; nodes: { target: string[] }[] }[];
-        }>;
-      };
-    }).axe;
-    const result = await axe.run(document, {
-      runOnly: { type: 'tag', values: ['wcag2a', 'wcag2aa', 'wcag21a', 'wcag21aa'] },
-    });
-    return result.violations.map((violation) => ({
-      id: violation.id,
-      impact: violation.impact,
-      help: violation.help,
-      targets: violation.nodes.slice(0, 3).map((node) => node.target.join(' ')),
-    }));
-  });
-  expect(violations).toEqual([]);
+  await expectNoAxeViolations(page);
 });
 
 test.describe('reduced motion', () => {

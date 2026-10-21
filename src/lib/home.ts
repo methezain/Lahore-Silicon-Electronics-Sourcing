@@ -121,3 +121,38 @@ export function keySpec(part: { voltage?: string; package_type: string }): strin
 export function partNoun(count: number): string {
   return count === 1 ? "part" : "parts";
 }
+
+/**
+ * Package groups the `/home` story can show.
+ * Names match the illustration set (TO-220, TO-92, SOT-223, DIP-8, module PCB, relay module).
+ * A part is included only when its package_type or category proves the group.
+ */
+export const STORY_PACKAGES = [
+  { id: "to-220", label: "TO-220" },
+  { id: "to-92", label: "TO-92" },
+  { id: "sot-223", label: "SOT-223" },
+  { id: "dip-8", label: "DIP-8" },
+  { id: "module", label: "Module" },
+  { id: "relay", label: "Relay module" },
+] as const;
+
+export type StoryPackageId = (typeof STORY_PACKAGES)[number]["id"];
+
+export function packageSlot(part: { package_type: string; category: string }): StoryPackageId | null {
+  const pkg = part.package_type.trim().toLowerCase();
+  if (pkg.startsWith("to-220")) return "to-220";
+  if (pkg.startsWith("to-92")) return "to-92";
+  if (pkg.startsWith("sot-223")) return "sot-223";
+  if (pkg.startsWith("dip-8")) return "dip-8";
+  if (part.category === "Relays") return "relay";
+  if (pkg.includes("module")) return "module";
+  return null;
+}
+
+/** Groups that have at least one real part, in illustration order. */
+export function storyPackages<T extends { package_type: string; category: string }>(
+  parts: readonly T[],
+): (typeof STORY_PACKAGES)[number][] {
+  const present = new Set(parts.map((part) => packageSlot(part)).filter((id) => id != null));
+  return STORY_PACKAGES.filter((slot) => present.has(slot.id));
+}

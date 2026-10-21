@@ -6,16 +6,20 @@
  */
 import { getImage } from "astro:assets";
 import { getCollection } from "astro:content";
+import CompanionRail from "../../components/CompanionRail.astro";
+import FaqList from "../../components/FaqList.astro";
 import KeyFigures from "../../components/KeyFigures.astro";
+import Pinout from "../../components/Pinout.astro";
 import ProductGallery from "../../components/ProductGallery.astro";
 import ProductPurchase from "../../components/ProductPurchase.tsx";
+import SectionNav from "../../components/SectionNav.astro";
 import SpecTable from "../../components/SpecTable.astro";
 import Layout from "../../layouts/Layout.astro";
 import { partThumbSrc } from "../../lib/catalog";
 import { cspSha256 } from "../../lib/csp";
 import { unitPrice } from "../../lib/money";
-import { productPhoto } from "../../lib/part-image";
-import { keyFigures, productMetaDescription } from "../../lib/product";
+import { partChipClass, productPhoto } from "../../lib/part-image";
+import { keyFigures, productMetaDescription, specGroups } from "../../lib/product";
 import { pageTitle, shopName, whatsappHref } from "../../lib/shop";
 import { defectFact } from "../../lib/shipping";
 
@@ -37,15 +41,38 @@ const unit = unitPrice({ price: data.price, breaks: data.breaks }, 1);
 const thumb = photo ? await partThumbSrc(photo.src) : undefined;
 const figures = keyFigures(data.specs, data.key_specs);
 const askHref = whatsappHref(data.part_number);
-const photoAlt = photo?.alt ?? `${data.part_number}, ${data.package_type}`;
-const pinout = (data.pinout ?? []).map((row) => ({
-  label: row.pin,
-  value: row.note ? `${row.label}. ${row.note}` : row.label,
+const galleryImages = (data.images ?? []).map((image) => ({
+  src: image.src,
+  alt: image.alt,
+  note: image.note,
 }));
+const pins = data.pinout ?? [];
+const connector = data.specs.find((spec) => spec.label === "USB connector")?.value;
+const groups = specGroups(data.specs, data.in_the_bag);
 const companions = (data.companions ?? []).flatMap((partNumber) => {
   const match = catalog.find((entry) => entry.data.part_number === partNumber);
-  return match ? [{ partNumber: match.data.part_number, name: match.data.name }] : [];
+  if (!match) return [];
+  const image = match.data.images?.[0]?.src;
+  return [{
+    partNumber: match.data.part_number,
+    name: match.data.name,
+    price: match.data.price,
+    breaks: match.data.breaks,
+    stockQty: match.data.stock_qty,
+    lowStockAt: match.data.low_stock_at,
+    restockOn: match.data.restock_on,
+    packageType: match.data.package_type,
+    ...(image ? { image } : {}),
+    minQty: match.data.min_qty,
+    qtyMultiple: match.data.qty_multiple,
+  }];
 });
+const sectionNav = [
+  { href: "#overview", label: "Overview" },
+  { href: "#specs", label: "Specs" },
+  ...(pins.length > 0 ? [{ href: "#pinout", label: "Pinout" }] : []),
+  ...(data.faq && data.faq.length > 0 ? [{ href: "#questions", label: "Questions" }] : []),
+];
 
 const schemaLD: Record<string, unknown> = {
   "@context": "https://schema.org/",
@@ -85,25 +112,23 @@ if (Astro.csp) Astro.csp.insertScriptHash(await cspSha256(jsonLd));
   <article class="product-page" data-pagefind-body>
     <nav class="crumb" aria-label="Breadcrumb">
       <ol>
-        <li><a href="/#catalog">Catalog</a></li>
+        <li><a href="/">Catalog</a></li>
         <li><a href={`/?category=${encodeURIComponent(data.category)}#catalog`}>{data.category}</a></li>
         <li><span class="here" aria-current="page">{data.part_number}</span></li>
       </ol>
     </nav>
 
-    <div class="pdp">
+    <div class="pdp" id="overview">
       <ProductGallery
         partNumber={data.part_number}
         manufacturer={data.manufacturer}
         packageType={data.package_type}
-        image={photo?.src}
-        imageNote={photo?.note}
-        alt={photoAlt}
+        images={galleryImages}
       />
 
       <aside class="buy-panel" aria-label={`Buy ${data.part_number}`}>
         <div class="pn-line">
-          <span class="chip">{data.part_number}</span>
+          <span class:list={["chip", partChipClass(data.part_number)]}>{data.part_number}</span>
           <span class="pkg">{data.package_type} · {data.mounting_type}</span>
         </div>
         <h1 class="title">{data.name}</h1>
@@ -165,59 +190,48 @@ if (Astro.csp) Astro.csp.insertScriptHash(await cspSha256(jsonLd));
       </aside>
     </div>
 
-    {figures.length > 0 && (
-      <section class="block" aria-labelledby="figures-heading">
-        <h2 id="figures-heading" class="heading">Key figures</h2>
-        <KeyFigures figures={figures} />
-      </section>
-    )}
+    <div class="lower">
+      <SectionNav items={sectionNav} />
 
-    <section class="block" aria-labelledby="specs-heading">
-      <h2 id="specs-heading" class="heading">Specifications</h2>
-      <SpecTable specs={data.specs} />
-      <p class="body copy">{data.description}</p>
-      {data.limits && <p class="limits">{data.limits}</p>}
-    </section>
-
-    {(pinout.length > 0 || companions.length > 0) && (
-      <div class:list={["block", "split", pinout.length > 0 && companions.length > 0 && "is-pair"]}>
-        {pinout.length > 0 && (
-          <section aria-labelledby="pinout-heading">
-            <h2 id="pinout-heading" class="heading">Pinout</h2>
-            <SpecTable specs={pinout} />
+      <div class="block" id="specs">
+        {figures.length > 0 && (
+          <section aria-labelledby="figures-heading">
+            <h2 id="figures-heading" class="heading">Key figures</h2>
+            <KeyFigures figures={figures} />
           </section>
         )}
-        {companions.length > 0 && (
-          <section aria-labelledby="companions-heading">
-            <h2 id="companions-heading" class="heading">You will also need</h2>
-            <ul class="panel">
-              {companions.map((part) => (
-                <li>
-                  <a class="companion" href={`/product/${part.partNumber.toLowerCase()}`}>
-                    <span class="pn">{part.partNumber}</span>
-                    <span class="job">{part.name}</span>
-                  </a>
-                </li>
-              ))}
-            </ul>
-          </section>
-        )}
+        <section class="spec-block" aria-labelledby="specs-heading">
+          <h2 id="specs-heading" class="heading">Specifications</h2>
+          <SpecTable groups={groups} />
+          <p class="body copy">{data.description}</p>
+          {data.limits && <p class="limits">{data.limits}</p>}
+        </section>
       </div>
-    )}
 
-    {data.faq && data.faq.length > 0 && (
-      <section class="block" aria-labelledby="questions-heading">
-        <h2 id="questions-heading" class="heading">Questions</h2>
-        <div class="panel">
-          {data.faq.map((item) => (
-            <div class="qa">
-              <h3 class="q">{item.q}</h3>
-              <p class="a">{item.a}</p>
-            </div>
-          ))}
+      {(pins.length > 0 || companions.length > 0) && (
+        <div class:list={["block", "split", pins.length > 0 && companions.length > 0 && "is-pair"]}>
+          {pins.length > 0 && (
+            <section id="pinout" aria-labelledby="pinout-heading">
+              <h2 id="pinout-heading" class="heading">Pinout</h2>
+              <Pinout packageType={data.package_type} pins={pins} connector={connector} />
+            </section>
+          )}
+          {companions.length > 0 && (
+            <section aria-labelledby="companions-heading">
+              <h2 id="companions-heading" class="heading">You will also need</h2>
+              <CompanionRail parts={companions} />
+            </section>
+          )}
         </div>
-      </section>
-    )}
+      )}
+
+      {data.faq && data.faq.length > 0 && (
+        <section class="block" id="questions" aria-labelledby="questions-heading">
+          <h2 id="questions-heading" class="heading">Questions</h2>
+          <FaqList items={data.faq} />
+        </section>
+      )}
+    </div>
   </article>
 </Layout>
 
@@ -225,7 +239,7 @@ if (Astro.csp) Astro.csp.insertScriptHash(await cspSha256(jsonLd));
   .product-page {
     max-width: var(--page-max);
     margin-inline: auto;
-    padding: var(--header-clearance) var(--gutter) var(--space-56);
+    padding: var(--space-16) var(--gutter) var(--space-56);
   }
 
   .crumb ol {
@@ -408,80 +422,39 @@ if (Astro.csp) Astro.csp.insertScriptHash(await cspSha256(jsonLd));
     text-wrap: pretty;
   }
 
+  .lower {
+    margin-top: var(--space-32);
+  }
+
+  .lower > .block {
+    margin-top: var(--space-32);
+  }
+
+  .spec-block {
+    margin-top: var(--space-32);
+  }
+
+  #specs > .spec-block:first-child {
+    margin-top: 0;
+  }
+
+  #overview {
+    scroll-margin-top: var(--header-clearance);
+  }
+
+  #specs,
+  #pinout,
+  #questions {
+    scroll-margin-top: var(--space-80);
+  }
+
+  .product-page :focus {
+    scroll-margin-top: calc(var(--header-clearance) + var(--space-64));
+  }
+
   .split.is-pair {
     display: grid;
     gap: var(--space-32);
-  }
-
-  .panel {
-    margin: 0;
-    padding: 0;
-    overflow: hidden;
-    list-style: none;
-    border-radius: var(--radius-panel);
-    background: var(--color-surface);
-    box-shadow: inset 0 0 0 1px var(--color-line);
-  }
-
-  .panel > li + li,
-  .qa + .qa {
-    border-top: 1px solid var(--color-line);
-  }
-
-  .companion {
-    display: flex;
-    flex-direction: column;
-    gap: var(--space-4);
-    padding: var(--space-12) var(--space-16);
-    color: var(--color-ink);
-    text-decoration: none;
-  }
-
-  .companion:hover .job,
-  .companion:focus-visible .job {
-    color: var(--color-link);
-  }
-
-  .pn {
-    color: var(--color-link);
-    font-family: var(--font-part);
-    font-size: var(--text-small);
-    font-weight: var(--font-weight-part);
-    font-variation-settings: normal;
-    font-variant-numeric: slashed-zero;
-    letter-spacing: var(--tracking-part);
-    line-height: var(--text-small--line-height);
-    text-decoration: underline;
-    text-underline-offset: 2px;
-    overflow-wrap: anywhere;
-  }
-
-  .job {
-    color: var(--color-ink);
-    font-size: var(--text-small);
-    line-height: var(--text-small--line-height);
-    text-wrap: pretty;
-  }
-
-  .qa {
-    padding: var(--space-16);
-  }
-
-  .q {
-    margin: 0;
-    color: var(--color-ink);
-    font-size: var(--text-small);
-    font-weight: var(--font-weight-strong);
-    line-height: var(--text-small--line-height);
-    text-wrap: pretty;
-  }
-
-  .a {
-    margin: var(--space-8) 0 0;
-    color: var(--color-ink-muted);
-    font-size: var(--text-small);
-    line-height: var(--text-small--line-height);
-    text-wrap: pretty;
   }
 
   @media (min-width: 900px) {
@@ -504,6 +477,10 @@ if (Astro.csp) Astro.csp.insertScriptHash(await cspSha256(jsonLd));
 
     .block {
       margin-top: var(--space-96);
+    }
+
+    .lower > .block {
+      margin-top: var(--space-40);
     }
 
     .split.is-pair {

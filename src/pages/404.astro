@@ -48,7 +48,7 @@ const title = heading.length > 80 ? pageTitle("Not found") : pageTitle(heading);
     <h1 class="title miss">{heading}</h1>
     <div class="actions">
       <Button id="page-search" type="button" variant="primary">Search parts</Button>
-      <Button href="/#catalog" variant="ghost">All parts</Button>
+      <Button href="/" variant="ghost">All parts</Button>
     </div>
     {wa && (
       <p class="lede"><a href={wa} target="_blank" rel="noopener noreferrer">{sourcingOffer}</a></p>

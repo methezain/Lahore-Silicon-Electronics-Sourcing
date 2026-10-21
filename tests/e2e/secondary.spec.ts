@@ -1,5 +1,5 @@
-import { createRequire } from 'node:module';
 import { expect, test, type Page } from '@playwright/test';
+import { expectNoAxeViolations } from './axe';
 import { partsListRule } from '../../src/lib/desk';
 import { pageMissing, serverBroke } from '../../src/lib/order';
 import { phoneRule } from '../../src/lib/phone';
@@ -11,35 +11,8 @@ import {
   returnRule,
 } from '../../src/lib/shipping';
 
-const require = createRequire(import.meta.url);
-
 async function overflow(page: Page): Promise<number> {
   return page.evaluate(() => document.documentElement.scrollWidth - document.documentElement.clientWidth);
-}
-
-async function axeViolations(page: Page) {
-  await page.addScriptTag({ path: require.resolve('axe-core') });
-  return page.evaluate(async () => {
-    const axe = (window as unknown as {
-      axe: {
-        run: (
-          context: Document,
-          options: { runOnly: { type: 'tag'; values: string[] } },
-        ) => Promise<{
-          violations: { id: string; impact: string | null; help: string; nodes: { target: string[] }[] }[];
-        }>;
-      };
-    }).axe;
-    const result = await axe.run(document, {
-      runOnly: { type: 'tag', values: ['wcag2a', 'wcag2aa', 'wcag21a', 'wcag21aa'] },
-    });
-    return result.violations.map((violation) => ({
-      id: violation.id,
-      impact: violation.impact,
-      help: violation.help,
-      targets: violation.nodes.slice(0, 3).map((node) => node.target.join(' ')),
-    }));
-  });
 }
 
 test('shipping and payment renders the policy modules', async ({ page }, testInfo) => {
@@ -200,7 +173,7 @@ test('axe finds no WCAG A/AA violations on the secondary pages', async ({ page }
   for (const path of ['/shipping-and-payments', '/about', '/contact', '/no-such-page', '/500']) {
     await page.goto(path);
     await expect(page.getByRole('heading', { level: 1 })).toBeVisible();
-    expect(await axeViolations(page)).toEqual([]);
+    await expectNoAxeViolations(page);
   }
 });
 

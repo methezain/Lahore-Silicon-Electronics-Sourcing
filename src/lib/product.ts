@@ -46,6 +46,31 @@ export function keyFigures(specs: readonly CatalogSpec[], labels?: readonly stri
   });
 }
 
+/**
+ * Package and board geometry. Everything else in `specs` is electrical.
+ * docs/premium-roadmap.md R4. A label that is not in this set stays in Electrical.
+ */
+const PHYSICAL_SPEC_LABELS = new Set(["Package", "Mounting", "Pin count", "USB connector"]);
+
+export type SpecGroup = {
+  title: "Electrical" | "Physical" | "In the bag";
+  rows: CatalogSpec[];
+  /** Bag sentence. Not a spec row, so it has no invented label. */
+  prose?: string;
+};
+
+/** Electrical, then Physical, then the bag sentence when the part has one. */
+export function specGroups(specs: readonly CatalogSpec[], inTheBag?: string): SpecGroup[] {
+  const physical = specs.filter((spec) => PHYSICAL_SPEC_LABELS.has(spec.label));
+  const electrical = specs.filter((spec) => !PHYSICAL_SPEC_LABELS.has(spec.label));
+  const groups: SpecGroup[] = [];
+  if (electrical.length > 0) groups.push({ title: "Electrical", rows: electrical });
+  if (physical.length > 0) groups.push({ title: "Physical", rows: physical });
+  const bag = inTheBag?.trim();
+  if (bag) groups.push({ title: "In the bag", rows: [], prose: bag });
+  return groups;
+}
+
 /** Page description. docs/copy.md#metadata. */
 export function productMetaDescription(summary: string): string {
   return `${summary} Ships from Hall Road, Lahore.`;

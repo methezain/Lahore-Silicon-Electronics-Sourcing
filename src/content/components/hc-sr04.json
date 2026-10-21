@@ -52,7 +52,7 @@
   ],
   "images": [
     {
-      "src": "../../assets/parts/hc-sr04.jpg",
+      "src": "../../assets/parts/cutouts/hc-sr04.webp",
       "alt": "HC-SR04 module on a blue board, with two silver ultrasonic transducers and a four-pin header.",
       "note": "Representative studio photograph, not a photo of the lot in the drawer."
     }

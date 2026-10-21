@@ -85,7 +85,7 @@
   "datasheet": "https://docs.arduino.cc/resources/datasheets/A000005-datasheet.pdf",
   "images": [
     {
-      "src": "../../assets/parts/arduino-nano.jpg",
+      "src": "../../assets/parts/cutouts/arduino-nano.webp",
       "alt": "ARDUINO-NANO board with a Mini-B USB socket, a crystal marked 16.000, and unsoldered header holes.",
       "note": "Representative studio photograph, not a photo of the lot in the drawer."
     }

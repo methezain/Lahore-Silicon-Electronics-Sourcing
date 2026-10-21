@@ -1,0 +1,64 @@
+---
+/**
+ * Closing catalog link for /home. docs/pages.md (Home).
+ */
+import Button from "./Button.astro";
+import { partNoun } from "../lib/home";
+
+interface Props {
+  total: number;
+  href: string;
+}
+
+const { total, href } = Astro.props;
+---
+
+<section class="close home-reveal" aria-labelledby="close-title">
+  <div class="wrap">
+    <h2 id="close-title">See every part on the counter.</h2>
+    <p>{total} {partNoun(total)}. The price on the page is the price at checkout.</p>
+    <Button href={href} variant="primary" size="large">Open the catalog</Button>
+  </div>
+</section>
+
+<style>
+  .close {
+    padding: var(--space-56) 0 var(--space-24);
+  }
+
+  .wrap {
+    max-width: var(--page-max);
+    margin-inline: auto;
+    padding-inline: var(--gutter);
+  }
+
+  h2 {
+    max-width: 16ch;
+    margin: 0;
+    color: var(--color-ink);
+    font-size: var(--text-display);
+    font-weight: var(--text-display--font-weight);
+    line-height: var(--text-display--line-height);
+    letter-spacing: var(--text-display--letter-spacing);
+    font-stretch: calc(var(--wdth-display) * 1%);
+    font-variation-settings: "wdth" var(--wdth-display);
+    text-wrap: balance;
+  }
+
+  p {
+    max-width: 36rem;
+    margin: var(--space-16) 0 var(--space-24);
+    color: var(--color-ink-muted);
+    font-size: var(--text-body-lg);
+    font-weight: var(--text-body-lg--font-weight);
+    line-height: var(--text-body-lg--line-height);
+    letter-spacing: var(--text-body-lg--letter-spacing);
+    text-wrap: pretty;
+  }
+
+  @media (min-width: 900px) {
+    .close {
+      padding: var(--space-80) 0 var(--space-40);
+    }
+  }
+</style>

@@ -74,6 +74,10 @@ const geistUnicodeRange = [
 export default defineConfig({
   site: 'https://lahoresilicon.com',
   output: 'server',
+  // Hover prefetch where Speculation Rules are unavailable. Product links opt in.
+  prefetch: {
+    defaultStrategy: 'hover',
+  },
   security: {
     checkOrigin: true,
     csp: {
@@ -97,7 +101,7 @@ export default defineConfig({
     },
     server: {
       watch: {
-        ignored: ['**/.astro/**', '**/.wrangler/**', '**/worker-configuration.d.ts']
+        ignored: ['**/.astro/**', '**/.wrangler/**', '**/.lighthouseci/**', '**/worker-configuration.d.ts']
       }
     }
   },
@@ -105,7 +109,7 @@ export default defineConfig({
   integrations: [
     preact(),
     sitemap({
-      filter: (page) => !page.includes("/dev/") && !page.includes("/404") && !page.includes("/500"),
+      filter: (page) => !page.includes("/dev/") && !page.includes("/404") && !page.includes("/500") && !page.includes("/api/"),
     }),
   ],
   adapter: cloudflare({

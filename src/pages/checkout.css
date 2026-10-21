@@ -26,6 +26,24 @@
   margin: var(--space-16) 0 0;
 }
 
+.checkout-empty {
+  margin: var(--space-24) 0 0;
+  max-width: var(--measure);
+  color: var(--color-ink);
+  font-size: var(--text-body);
+  line-height: var(--text-body--line-height);
+}
+
+.checkout-empty a {
+  color: var(--color-link);
+}
+
+#checkout-intro[hidden],
+#checkout-empty[hidden],
+#checkout-grid[hidden] {
+  display: none;
+}
+
 .checkout-grid {
   display: grid;
   gap: var(--space-24);
@@ -83,10 +101,15 @@
   color: var(--color-ink);
 }
 
+.step-head .heading {
+  scroll-margin-top: var(--header-clearance);
+}
+
 .checkout-page .field {
   display: flex;
   flex-direction: column;
   gap: var(--space-8);
+  width: 100%;
   min-width: 0;
 }
 
@@ -111,6 +134,7 @@
   font-size: var(--text-body);
   line-height: var(--text-body--line-height);
   box-shadow: inset 0 0 0 1px var(--color-control-line);
+  transition: box-shadow var(--dur-1) var(--ease-out);
 }
 
 .checkout-page textarea.control {
@@ -145,6 +169,7 @@
   border-radius: var(--radius-control);
   background: var(--color-surface);
   box-shadow: inset 0 0 0 1px var(--color-control-line);
+  transition: box-shadow var(--dur-1) var(--ease-out);
 }
 
 .phone .dial {
@@ -228,6 +253,38 @@
 .form-error[hidden],
 .method-panel[hidden] {
   display: none;
+}
+
+/* docs/motion.md #22. The slot stays put so the message can rise without pushing the next field. */
+.field .field-error {
+  min-height: calc(var(--text-caption) * var(--text-caption--line-height));
+  overflow: hidden;
+}
+
+.field .field-error[data-lines="2"] {
+  min-height: calc(var(--text-caption) * var(--text-caption--line-height) * 2);
+}
+
+.checkout-page .field {
+  container-type: inline-size;
+}
+
+@container (min-width: 34rem) {
+  .field .field-error[data-lines="2"] {
+    min-height: calc(var(--text-caption) * var(--text-caption--line-height));
+  }
+}
+
+.field-error-text {
+  display: block;
+  opacity: 0;
+  transform: translateY(var(--space-4));
+  transition: opacity var(--dur-2) var(--ease-out), transform var(--dur-2) var(--ease-out);
+}
+
+.field-error[data-state="shown"] .field-error-text {
+  opacity: 1;
+  transform: translateY(0);
 }
 
 .line2 {
@@ -380,6 +437,10 @@
 }
 
 .copy-btn {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: var(--space-8);
   grid-area: button;
   min-width: 44px;
   min-height: 44px;
@@ -394,7 +455,39 @@
   font-size: var(--text-small);
   font-weight: var(--font-weight-strong);
   line-height: 1;
+  white-space: nowrap;
   cursor: pointer;
+}
+
+.copy-ico {
+  position: relative;
+  flex: none;
+  width: var(--space-16);
+  height: var(--space-16);
+}
+
+.copy-glyph,
+.copy-check {
+  position: absolute;
+  inset: 0;
+  display: block;
+  width: var(--space-16);
+  height: var(--space-16);
+  transition: opacity var(--dur-2) var(--ease-out), clip-path var(--dur-2) var(--ease-out);
+}
+
+.copy-check {
+  opacity: 0;
+  clip-path: inset(0 100% 0 0);
+}
+
+.copy-btn[data-state="copied"] .copy-glyph {
+  opacity: 0;
+}
+
+.copy-btn[data-state="copied"] .copy-check {
+  opacity: 1;
+  clip-path: inset(0 0 0 0);
 }
 
 .copy-btn:hover,
@@ -644,6 +737,149 @@
   font-variation-settings: "wdth" var(--wdth-num);
 }
 
+.steps-progress {
+  position: relative;
+}
+
+.steps-progress ol {
+  position: relative;
+  z-index: 1;
+  display: grid;
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  margin: 0;
+  padding: 0;
+  list-style: none;
+}
+
+.steps-progress a {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: var(--space-8);
+  min-height: 44px;
+  color: var(--color-ink-muted);
+  font-size: var(--text-caption);
+  font-weight: var(--font-weight-strong);
+  line-height: var(--text-caption--line-height);
+  text-align: center;
+  text-decoration: none;
+}
+
+.steps-progress a:focus-visible {
+  outline: 2px solid var(--color-action);
+  outline-offset: 2px;
+  border-radius: var(--radius-chip);
+}
+
+.steps-index {
+  display: grid;
+  place-items: center;
+  width: var(--space-24);
+  height: var(--space-24);
+  border-radius: var(--radius-pill);
+  background: var(--color-surface);
+  color: var(--color-ink-muted);
+  box-shadow: inset 0 0 0 1px var(--color-line);
+  font-family: var(--font-label);
+  font-size: var(--text-label);
+  font-weight: var(--text-label--font-weight);
+  font-variation-settings: normal;
+  letter-spacing: var(--text-label--letter-spacing);
+  line-height: 1;
+  transition: background-color var(--dur-1) var(--ease-out), color var(--dur-1) var(--ease-out);
+}
+
+.steps-num,
+.steps-check {
+  grid-area: 1 / 1;
+}
+
+.steps-check {
+  display: none;
+  width: var(--space-16);
+  height: var(--space-16);
+}
+
+.steps-progress [data-state="current"] a,
+.steps-progress [data-state="done"] a {
+  color: var(--color-ink);
+}
+
+.steps-progress [data-state="current"] .steps-index {
+  background: var(--color-action);
+  color: var(--color-surface);
+  box-shadow: none;
+}
+
+.steps-progress [data-state="done"] .steps-index {
+  background: var(--color-navy);
+  color: var(--color-on-navy);
+  box-shadow: none;
+}
+
+.steps-progress [data-state="done"] .steps-num {
+  display: none;
+}
+
+.steps-progress [data-state="done"] .steps-check {
+  display: block;
+}
+
+.steps-track {
+  position: absolute;
+  z-index: 0;
+  top: calc(var(--space-24) / 2 - var(--space-2) / 2);
+  left: calc(100% / 6);
+  right: calc(100% / 6);
+  height: var(--space-2);
+  overflow: hidden;
+  border-radius: var(--radius-pill);
+  background: var(--color-line);
+}
+
+.steps-fill {
+  display: block;
+  width: 100%;
+  height: 100%;
+  background: var(--color-action);
+  transform: scaleX(0);
+  transform-origin: left center;
+  transition: transform var(--dur-2) var(--ease-out);
+}
+
+.steps-progress[data-done="1"] .steps-fill {
+  transform: scaleX(0.5);
+}
+
+.steps-progress[data-done="2"] .steps-fill,
+.steps-progress[data-done="3"] .steps-fill {
+  transform: scaleX(1);
+}
+
+.roll-slot {
+  display: inline-block;
+  height: 1em;
+  overflow: hidden;
+  line-height: 1;
+  vertical-align: bottom;
+  white-space: pre;
+}
+
+.roll-col {
+  display: block;
+  transition: transform var(--dur-1) var(--ease-out);
+}
+
+.roll-col > span {
+  display: block;
+  height: 1em;
+  line-height: 1;
+}
+
+.roll-col.is-rolling {
+  transform: translateY(-50%);
+}
+
 @media (min-width: 900px) {
   .checkout-page {
     padding-bottom: var(--space-96);
@@ -689,8 +925,28 @@
 @media (prefers-reduced-motion: reduce) {
   .place,
   .copy-btn,
-  .method {
+  .method,
+  .steps-fill,
+  .steps-index,
+  .roll-col,
+  .checkout-page .control,
+  .phone,
+  .copy-glyph,
+  .copy-check {
     transition: none;
+  }
+
+  .field-error-text {
+    transform: none;
+    transition: opacity var(--dur-1) var(--ease-out);
+  }
+
+  .copy-check {
+    display: none;
+  }
+
+  .copy-btn[data-state="copied"] .copy-glyph {
+    opacity: 1;
   }
 
   .copy-btn:active,

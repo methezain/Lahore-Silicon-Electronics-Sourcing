@@ -46,7 +46,7 @@
   "datasheet": "https://www.ti.com/lit/ds/symlink/lm340.pdf",
   "images": [
     {
-      "src": "../../assets/parts/lm7805.jpg",
+      "src": "../../assets/parts/cutouts/lm7805.webp",
       "alt": "LM7805 regulator in a TO-220 package, black body with three metal leads and a mounting hole.",
       "note": "Representative studio photograph, not a photo of the lot in the drawer."
     }

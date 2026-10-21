@@ -3,6 +3,7 @@ import { describe, expect, it } from 'vitest';
 import {
   applySecurityHeaders,
   frameAncestorsPolicy,
+  secureResponse,
   securityHeaderEntries,
 } from '../../src/lib/security-headers';
 
@@ -25,5 +26,18 @@ describe('security headers', () => {
       expect(file).toContain(`${name}: ${value}`);
     }
     expect(file).toContain(`Content-Security-Policy: ${frameAncestorsPolicy}`);
+  });
+
+  it('copies immutable response headers instead of failing the image', async () => {
+    const response = new Response('image', { status: 200, headers: { 'content-type': 'image/avif' } });
+    response.headers.set = () => {
+      throw new TypeError("Can't modify immutable headers.");
+    };
+    const secured = secureResponse(response);
+    expect(secured).not.toBe(response);
+    expect(secured.headers.get('content-type')).toBe('image/avif');
+    expect(secured.headers.get('X-Content-Type-Options')).toBe('nosniff');
+    expect(secured.headers.get('Content-Security-Policy')).toBe(frameAncestorsPolicy);
+    expect(await secured.text()).toBe('image');
   });
 });

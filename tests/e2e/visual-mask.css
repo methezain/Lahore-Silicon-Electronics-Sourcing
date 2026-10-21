@@ -1,0 +1,25 @@
+/* Clock-driven dispatch chip and ETA. docs/engineering.md#testing */
+.home-hero .status,
+.eta-lead {
+  visibility: hidden !important;
+}
+
+/* Resting state once the screenshot turns animations off. */
+.home-hero .intro,
+.cart-sheet-panel,
+.search-panel {
+  animation: none !important;
+  opacity: 1 !important;
+  transform: none !important;
+}
+
+/* Shop phone and payment account numbers stay out of the baseline. */
+.site-footer a[href^="https://wa.me/"],
+.sum-help,
+#checkout-turnstile {
+  display: none !important;
+}
+
+.pay-value {
+  visibility: hidden !important;
+}

@@ -1,153 +1,89 @@
 ---
 /**
- * Home. docs/pages.md#home-.
- * Server-rendered so the dispatch chip reads Asia/Karachi on each request.
+ * Catalog, the front door. docs/pages.md#catalog- (default page).
+ * `?category=` and `?sort=` filter without JavaScript. `#catalog` still lands here.
  */
-import { getCollection } from "astro:content";
-import type { ImageMetadata } from "astro";
+import PackageMark from "../components/illustrations/PackageMark.tsx";
 import Layout from "../layouts/Layout.astro";
+import CatalogGrid from "../components/CatalogGrid.astro";
 import CatalogTable from "../components/CatalogTable.astro";
-import CategoryBento from "../components/CategoryBento.astro";
 import FilterPills from "../components/FilterPills.astro";
-import Hero, { type HeroCard } from "../components/Hero.astro";
-import ProcessBand from "../components/ProcessBand.astro";
-import { CATEGORIES, CATEGORY_HEADINGS, FEATURED_CATEGORY, FEATURED_TILE_PART } from "../lib/categories";
+import Input from "../components/Input.astro";
+import ViewToggle from "../components/ViewToggle.astro";
+import { CATEGORIES } from "../lib/categories";
 import {
-  bentoOrder,
-  categoryCounts,
-  categoryPhoto,
-  keySpec,
-  orderedParts,
-  pickHeroDeck,
-  resolveFeaturedCategory,
-  type HomePart,
-} from "../lib/home";
-import type { PriceBreak } from "../lib/money";
+  SORT_OPTIONS,
+  catalogHref,
+  catalogRowTransitionCss,
+  columnSortState,
+  compareCatalog,
+  counterNoun,
+  counterSentence,
+  emptyCatalogCopy,
+  matchesQuery,
+  nextColumnSort,
+  parseCatalogQuery,
+  sortLabel,
+} from "../lib/catalog-query";
+import { dispatchClock } from "../lib/clock";
+import { loadCounterParts } from "../lib/counter-parts";
+import { cspSha256 } from "../lib/csp";
+import { categoryCounts, keySpec, orderedParts } from "../lib/home";
 import { pageTitle } from "../lib/shop";
 
-type HomeRecord = HomePart & {
-  name: string;
-  price: number;
-  breaks?: readonly PriceBreak[];
-  stock_qty: number;
-  restock_on?: string;
-  package_type: string;
-  voltage?: string;
-  image?: ImageMetadata;
-  min_qty: number;
-  qty_multiple: number;
-};
-
-const components = await getCollection("components");
-const records: HomeRecord[] = components.map((entry) => ({
-  part_number: entry.data.part_number,
-  category: entry.data.category,
-  featured: entry.data.featured,
-  name: entry.data.name,
-  price: entry.data.price,
-  breaks: entry.data.breaks,
-  stock_qty: entry.data.stock_qty,
-  restock_on: entry.data.restock_on,
-  package_type: entry.data.package_type,
-  voltage: entry.data.voltage,
-  image: entry.data.images?.[0]?.src,
-  min_qty: entry.data.min_qty,
-  qty_multiple: entry.data.qty_multiple,
-}));
-
-const requestedRaw = Astro.url.searchParams.get("category")?.trim() ?? "";
-const requested = requestedRaw.length > 0 ? requestedRaw : null;
-const sortParam = Astro.url.searchParams.get("sort");
-const sort =
-  sortParam === "price" || sortParam === "price-desc" || sortParam === "stock" || sortParam === "stock-desc"
-    ? sortParam
-    : "catalog";
-
+const records = await loadCounterParts();
+const query = parseCatalogQuery(Astro.url.searchParams);
+const clock = dispatchClock();
 const counts = categoryCounts(records, CATEGORIES);
-const feature = resolveFeaturedCategory(records, CATEGORIES, FEATURED_CATEGORY);
-const deck = pickHeroDeck(records, CATEGORIES, feature);
 const ordered = orderedParts(records, CATEGORIES);
+const catalogOrder = new Map(ordered.map((part, index) => [part.part_number, index]));
 
 function productHref(partNumber: string) {
   return `/product/${encodeURIComponent(partNumber.toLowerCase())}`;
 }
 
-function toCard(part: HomeRecord): HeroCard {
+function rank(part: (typeof ordered)[number]) {
   return {
-    href: productHref(part.part_number),
-    partNumber: part.part_number,
-    name: part.name,
     price: part.price,
-    breaks: part.breaks,
-    stockQty: part.stock_qty,
-    restockOn: part.restock_on,
-    packageType: part.package_type,
-    voltage: part.voltage,
-    image: part.image,
+    stock: part.stock_qty,
+    order: catalogOrder.get(part.part_number) ?? 0,
   };
 }
 
-const tiles = bentoOrder(counts, CATEGORIES, feature).map((row) => {
-  const members = ordered.filter((part) => part.category === row.category);
-  const photo = categoryPhoto(records, row.category, CATEGORIES, row.category === feature ? FEATURED_TILE_PART : undefined);
-  const heading = CATEGORY_HEADINGS[row.category as keyof typeof CATEGORY_HEADINGS] ?? row.category;
+function asMatch(part: (typeof ordered)[number]) {
   return {
-    href: `/?category=${encodeURIComponent(row.category)}#catalog`,
-    category: row.category,
-    heading,
-    count: row.count,
-    featured: row.category === feature,
-    partNumbers: row.category === feature ? members.map((part) => part.part_number) : undefined,
-    image: photo?.image,
-    imagePart: photo?.part_number,
+    part_number: part.part_number,
+    name: part.name,
+    category: part.category,
+    keySpec: keySpec(part),
   };
-});
-
-function catalogHref(category: string | null, nextSort = sort) {
-  const params = new URLSearchParams();
-  if (category) params.set("category", category);
-  if (nextSort && nextSort !== "catalog") params.set("sort", nextSort);
-  const query = params.toString();
-  return query ? `/?${query}#catalog` : "/#catalog";
 }
 
-function toggleSort(key: "price" | "stock") {
-  if (sort === key) return catalogHref(requested, `${key}-desc`);
-  if (sort === `${key}-desc`) return catalogHref(requested, "catalog");
-  return catalogHref(requested, key);
-}
-
-function columnSort(key: "price" | "stock"): "ascending" | "descending" | "none" {
-  if (sort === key) return "ascending";
-  if (sort === `${key}-desc`) return "descending";
-  return "none";
-}
-
-let parts = [...ordered];
-if (requested) parts = parts.filter((part) => part.category === requested);
-parts.sort((a, b) => {
-  if (sort === "price" || sort === "price-desc") {
-    const diff = a.price - b.price;
-    return sort === "price" ? diff : -diff;
-  }
-  if (sort === "stock" || sort === "stock-desc") {
-    const diff = a.stock_qty - b.stock_qty;
-    return sort === "stock" ? diff : -diff;
-  }
-  return 0;
-});
+const sorted = [...ordered].sort((a, b) => compareCatalog(query.sort)(rank(a), rank(b)));
+const inCategory = query.category ? ordered.filter((part) => part.category === query.category).length : ordered.length;
+const matched = sorted.filter((part) => matchesQuery(asMatch(part), query));
+const emptyText = emptyCatalogCopy(query, matched.length, inCategory);
+const showAll = catalogHref({ category: null, sort: query.sort, q: "" });
+const sentence = counterSentence(matched.length);
 
 const pills = [
-  { label: "All", href: catalogHref(null), count: records.length, current: !requested },
+  {
+    label: "All",
+    href: catalogHref({ ...query, category: null }),
+    count: records.length,
+    current: !query.category,
+    category: "",
+  },
   ...counts.map((row) => ({
     label: row.category,
-    href: catalogHref(row.category),
+    href: catalogHref({ ...query, category: row.category }),
     count: row.count,
-    current: requested === row.category,
+    current: query.category === row.category,
+    category: row.category,
   })),
 ];
 
-const rows = parts.map((part) => ({
+const rows = sorted.map((part) => ({
   partNumber: part.part_number,
   name: part.name,
   keySpec: keySpec(part),
@@ -161,105 +97,556 @@ const rows = parts.map((part) => ({
   minQty: part.min_qty,
   qtyMultiple: part.qty_multiple,
   transition: true,
+  category: part.category,
+  order: catalogOrder.get(part.part_number) ?? 0,
+  hidden: !matchesQuery(asMatch(part), query),
 }));
+
+const rowMotionCss = catalogRowTransitionCss(ordered.map((part) => part.part_number));
+const catalogEnterGate =
+  `(function(){try{var k="ls-catalog-entrance";if(sessionStorage.getItem(k)==="1"){document.documentElement.classList.add("catalog-entered");}else{sessionStorage.setItem(k,"1");}}catch(e){}})();`;
+if (Astro.csp) {
+  if (rowMotionCss) Astro.csp.insertStyleHash(await cspSha256(rowMotionCss));
+  Astro.csp.insertScriptHash(await cspSha256(catalogEnterGate));
+}
 ---
 
 <Layout
   title={pageTitle("Catalog")}
   description="Regulators, boards, sensors and relays. Every price is the price at checkout. Every stock number is a real count."
 >
-  <Hero front={deck ? toCard(deck.front) : null} behind={deck ? deck.behind.map(toCard) : []} />
-  <CategoryBento tiles={tiles} total={records.length} allHref="/#catalog" />
-  <section class="catalog-section" id="catalog" aria-labelledby="catalog-title">
+  <script slot="head" is:inline set:html={catalogEnterGate} />
+  <section class="catalog-section is-enter" id="catalog" aria-labelledby="catalog-title">
     <div class="wrap">
-      <div class="section-head">
-        <p class="eyebrow">Catalog</p>
-        <h2 id="catalog-title">On the counter today</h2>
-      </div>
+      <header class="page-head">
+        <div class="title-block">
+          <h1 id="catalog-title">
+            <span class="title-clip"><span class="title-rise">Catalog</span></span>
+          </h1>
+          <p class="live-count" aria-live="polite">
+            <span class="count-num" id="catalog-count" data-count={String(matched.length)}>{matched.length}</span><span id="catalog-rest"> {counterNoun(matched.length)} on the counter</span>
+          </p>
+        </div>
+        {clock.chip && (
+          <p class="dispatch">
+            <span class:list={["dot", clock.kind]} aria-hidden="true"></span>
+            {clock.within ? (
+              <>Dispatching today · order within <strong>{clock.within}</strong></>
+            ) : (
+              clock.chip
+            )}
+          </p>
+        )}
+      </header>
       <div class="toolbar">
-        <FilterPills items={pills} />
+        <div class="toolbar-bar">
+          <FilterPills items={pills} />
+          <form class="tools" id="catalog-filter" action="/" method="get" role="search">
+            <input type="hidden" name="category" value={query.category ?? ""} disabled={!query.category} />
+            <input type="hidden" name="sort" value={query.sort === "catalog" ? "" : query.sort} disabled={query.sort === "catalog"} />
+            <Input
+              id="catalog-q"
+              label="Filter"
+              name="q"
+              type="search"
+              shape="pill"
+              value={query.q}
+              placeholder="LM7805, ESP32"
+              autocomplete="off"
+              inputmode="search"
+            />
+            <details class="sort" id="catalog-sort">
+              <summary>
+                <span class="sort-kicker">Sort</span>
+                <span class="sort-value" id="catalog-sort-value">{sortLabel(query.sort)}</span>
+              </summary>
+              <div class="sort-menu">
+                {SORT_OPTIONS.map((id) => (
+                  <a
+                    href={catalogHref({ ...query, sort: id })}
+                    data-sort={id}
+                    aria-current={query.sort === id ? "page" : undefined}
+                  >
+                    {sortLabel(id)}
+                  </a>
+                ))}
+              </div>
+            </details>
+          </form>
+          <ViewToggle />
+        </div>
       </div>
-      {parts.length === 0 ? (
-        <p class="empty">
-          {requested ? (
-            <>No parts in {requested}. <a href={catalogHref(null)}>Show the full catalog.</a></>
-          ) : (
-            <>No parts on the counter.</>
-          )}
-        </p>
-      ) : (
-        <CatalogTable
-          rows={rows}
-          sort={{
-            stockHref: toggleSort("stock"),
-            priceHref: toggleSort("price"),
-            stock: columnSort("stock"),
-            price: columnSort("price"),
-          }}
-        />
+      <p id="catalog-empty" class="empty" hidden={emptyText === null}>
+        <PackageMark kind="module" empty />
+        <span class="empty-copy">
+          <span data-empty-text>{emptyText ?? sentence}</span>
+          <a href={showAll} data-catalog-show="all" hidden={!query.category && !query.q}>Show all</a>
+        </span>
+      </p>
+      {records.length > 0 && (
+        <div id="catalog-results" class="catalog-results" hidden={matched.length === 0}>
+          <div data-layout="list">
+            <CatalogTable
+              rows={rows}
+              cards={false}
+              sort={{
+                stockHref: catalogHref({ ...query, sort: nextColumnSort(query.sort, "stock") }),
+                priceHref: catalogHref({ ...query, sort: nextColumnSort(query.sort, "price") }),
+                stock: columnSortState(query.sort, "stock"),
+                price: columnSortState(query.sort, "price"),
+              }}
+            />
+          </div>
+          <div data-layout="grid">
+            <CatalogGrid rows={rows} />
+          </div>
+        </div>
       )}
     </div>
   </section>
-  <ProcessBand />
+  <script>
+    import { mountCatalog } from "../lib/catalog-live";
+    const root = document.getElementById("catalog");
+    if (root) mountCatalog(root);
+  </script>
 </Layout>
 
 <style>
   .catalog-section {
-    padding: 0 0 var(--space-56);
+    padding: var(--space-24) 0 var(--space-56);
   }
 
   .wrap {
     max-width: var(--page-max);
+    min-width: 0;
     margin-inline: auto;
     padding-inline: var(--gutter);
   }
 
-  .section-head {
-    margin-bottom: var(--space-24);
-  }
-
-  .eyebrow {
-    margin: 0;
-    color: var(--color-ink-muted);
-    font-family: var(--font-label);
-    font-size: var(--text-label);
-    font-weight: var(--text-label--font-weight);
-    font-variation-settings: normal;
-    line-height: var(--text-label--line-height);
-    letter-spacing: var(--text-label--letter-spacing);
-    text-transform: uppercase;
-  }
-
-  h2 {
-    margin: var(--space-8) 0 0;
-    color: var(--color-ink);
-    font-size: var(--text-display);
-    font-weight: var(--text-display--font-weight);
-    line-height: var(--text-display--line-height);
-    letter-spacing: var(--text-display--letter-spacing);
-    font-stretch: calc(var(--wdth-display) * 1%);
-    font-variation-settings: "wdth" var(--wdth-display);
-    text-wrap: balance;
-  }
-
-  .toolbar {
+  .page-head {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: flex-start;
+    justify-content: space-between;
+    gap: var(--space-12) var(--space-16);
     margin-bottom: var(--space-16);
   }
 
+  .title-block {
+    flex: 1 1 16rem;
+    min-width: 0;
+  }
+
+  .title-clip {
+    display: block;
+    overflow: clip;
+  }
+
+  .title-rise {
+    display: block;
+  }
+
+  h1 {
+    margin: 0;
+    color: var(--color-ink);
+    font-size: var(--text-title);
+    font-weight: var(--text-title--font-weight);
+    line-height: var(--text-title--line-height);
+    letter-spacing: var(--text-title--letter-spacing);
+    font-stretch: calc(var(--wdth-title) * 1%);
+    font-variation-settings: "wdth" var(--wdth-title);
+    text-wrap: balance;
+  }
+
+  .live-count {
+    margin: var(--space-8) 0 0;
+    color: var(--color-ink-muted);
+    font-size: var(--text-small);
+    line-height: var(--text-small--line-height);
+  }
+
+  .count-num {
+    color: var(--color-ink);
+    font-weight: var(--font-weight-num);
+    font-variant-numeric: tabular-nums;
+    font-variation-settings: "wdth" var(--wdth-num);
+    letter-spacing: var(--tracking-num);
+  }
+
+  .dispatch {
+    display: inline-flex;
+    align-items: center;
+    flex-wrap: wrap;
+    gap: var(--space-8);
+    max-width: 100%;
+    margin: 0;
+    padding: var(--space-8) var(--space-12) var(--space-8) var(--space-8);
+    border-radius: var(--radius-pill);
+    background: var(--color-surface);
+    box-shadow: inset 0 0 0 1px var(--color-line);
+    color: var(--color-ink);
+    font-size: var(--text-caption);
+    line-height: var(--text-caption--line-height);
+    text-wrap: pretty;
+  }
+
+  .dispatch strong {
+    font-weight: var(--font-weight-num);
+    font-variant-numeric: tabular-nums;
+  }
+
+  .dot {
+    flex: none;
+    width: var(--space-8);
+    height: var(--space-8);
+    border-radius: var(--radius-pill);
+    background: var(--color-ink-muted);
+  }
+
+  .dot.today {
+    background: var(--color-ok);
+  }
+
+  .toolbar {
+    position: sticky;
+    top: calc(var(--inset) + var(--header-bar));
+    z-index: 30;
+    margin: 0 calc(var(--gutter) * -1) var(--space-16);
+    padding: var(--space-8) var(--gutter);
+    background: var(--color-canvas);
+    box-shadow: 0 1px 0 var(--color-line);
+  }
+
+  .toolbar-bar {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: end;
+    gap: var(--space-12);
+    min-width: 0;
+  }
+
+  .toolbar-bar :global(.pills),
+  .tools,
+  .toolbar-bar :global(#catalog-view) {
+    flex: 1 1 100%;
+    min-width: 0;
+  }
+
+  .toolbar-bar :global(#catalog-view) {
+    align-self: flex-end;
+  }
+
+  .tools {
+    display: flex;
+    align-items: end;
+    gap: var(--space-8);
+  }
+
+  .tools :global(.field) {
+    flex: 1 1 auto;
+    min-width: 0;
+  }
+
+  .sort {
+    position: relative;
+    flex: none;
+  }
+
+  .sort summary {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: var(--space-8);
+    height: 44px;
+    padding: 0 var(--space-16);
+    border-radius: var(--radius-pill);
+    color: var(--color-ink);
+    font-size: var(--text-small);
+    font-weight: var(--font-weight-strong);
+    line-height: 1;
+    cursor: pointer;
+    list-style: none;
+  }
+
+  .sort summary::-webkit-details-marker,
+  .sort summary::marker {
+    content: "";
+    display: none;
+  }
+
+  .sort summary:hover {
+    background: var(--color-sunken);
+  }
+
+  .sort summary:active {
+    transform: scale(0.97);
+  }
+
+  .sort-value {
+    color: var(--color-ink-muted);
+    font-weight: var(--text-small--font-weight);
+  }
+
+  .sort-menu {
+    position: absolute;
+    z-index: 2;
+    top: calc(100% + var(--space-8));
+    right: 0;
+    left: 0;
+    padding: var(--space-8);
+    border-radius: var(--radius-control);
+    background: var(--color-surface);
+    box-shadow: var(--shadow-2), inset 0 0 0 1px var(--color-line);
+  }
+
+  .sort[open] .sort-menu {
+    display: flex;
+    flex-direction: column;
+    gap: var(--space-4);
+  }
+
+  .sort-menu a {
+    display: flex;
+    align-items: center;
+    min-height: 44px;
+    padding: 0 var(--space-12);
+    border-radius: var(--radius-chip);
+    color: var(--color-ink);
+    font-size: var(--text-small);
+    line-height: var(--text-small--line-height);
+    text-decoration: none;
+    white-space: nowrap;
+  }
+
+  .sort-menu a:hover,
+  .sort-menu a[aria-current="page"] {
+    background: var(--color-blue-50);
+  }
+
+  .sort-menu a[aria-current="page"] {
+    font-weight: var(--font-weight-strong);
+  }
+
   .empty {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: center;
+    gap: var(--space-12);
     margin: 0;
     font-size: var(--text-body);
     line-height: var(--text-body--line-height);
     text-wrap: pretty;
   }
 
+  .empty-copy {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: baseline;
+    gap: var(--space-8);
+  }
+
   .empty a {
     color: var(--color-link);
   }
 
+  #catalog-empty[hidden],
+  #catalog-empty a[hidden],
+  #catalog-results[hidden],
+  #catalog [data-part][hidden] {
+    display: none !important;
+  }
+
+  #catalog :focus {
+    scroll-margin-top: calc(var(--inset) + var(--header-bar) + var(--space-128) + var(--space-80));
+  }
+
   @media (min-width: 900px) {
     .catalog-section {
+      padding-top: var(--space-40);
       padding-bottom: var(--space-96);
     }
+
+    .toolbar-bar :global(.pills) {
+      flex: 1 1 0;
+    }
+
+    .tools {
+      flex: none;
+    }
+
+    .tools :global(.field) {
+      width: calc(var(--space-128) + var(--space-96));
+      flex: none;
+    }
+
+    .toolbar-bar :global(#catalog-view) {
+      flex: none;
+    }
+
+    .sort summary {
+      width: auto;
+      justify-content: flex-start;
+    }
+
+    .sort[open] .sort-menu {
+      left: auto;
+      width: max-content;
+      min-width: 100%;
+    }
+  }
+
+  @media (prefers-reduced-motion: reduce) {
+    .sort summary:active {
+      transform: none;
+    }
+  }
+</style>
+
+<style is:global set:html={rowMotionCss}></style>
+
+<style is:global>
+  #catalog.is-filtering [class*="vt-part-"] {
+    view-transition-name: none;
+  }
+
+  html.catalog-vt::view-transition-old(root),
+  html.catalog-vt::view-transition-new(root) {
+    animation: none;
+  }
+
+  html.catalog-vt::view-transition-group(*) {
+    animation-duration: var(--dur-3);
+    animation-timing-function: var(--ease-out);
+  }
+
+  html.catalog-vt::view-transition-old(*),
+  html.catalog-vt::view-transition-new(*) {
+    animation: none;
+    mix-blend-mode: normal;
+  }
+
+  html.catalog-vt::view-transition-old(*):only-child {
+    animation: catalog-leave var(--dur-1) var(--ease-out) both;
+  }
+
+  html.catalog-vt::view-transition-new(*):only-child {
+    animation: catalog-enter var(--dur-1) var(--ease-out) 60ms both;
+  }
+
+  #catalog .roll-digit {
+    display: inline-block;
+    height: 1lh;
+    overflow: clip;
+    vertical-align: bottom;
+  }
+
+  #catalog .roll-stack {
+    display: flex;
+    flex-direction: column;
+    animation: catalog-digit-roll var(--dur-1) var(--ease-out) forwards;
+  }
+
+  #catalog .roll-stack span {
+    display: block;
+    height: 1lh;
+  }
+
+  @media (prefers-reduced-motion: no-preference) {
+    html:not(.catalog-entered) #catalog.is-enter .title-rise {
+      animation: catalog-title-rise var(--dur-3) var(--ease-out) both;
+    }
+
+    html:not(.catalog-entered) #catalog.is-enter .toolbar {
+      animation: catalog-toolbar-in var(--dur-3) var(--ease-out) 60ms both;
+    }
+
+    html:not(.catalog-entered) #catalog.is-enter .grid > li:nth-child(-n + 8 of :not([hidden])),
+    html:not(.catalog-entered) #catalog.is-enter .grid > li:nth-child(n + 8 of :not([hidden])) {
+      animation: catalog-row-rise var(--dur-3) var(--ease-out) both;
+    }
+
+    html:not(.catalog-entered) #catalog.is-enter .grid > li:nth-child(2 of :not([hidden])) { animation-delay: 30ms; }
+    html:not(.catalog-entered) #catalog.is-enter .grid > li:nth-child(3 of :not([hidden])) { animation-delay: 60ms; }
+    html:not(.catalog-entered) #catalog.is-enter .grid > li:nth-child(4 of :not([hidden])) { animation-delay: 90ms; }
+    html:not(.catalog-entered) #catalog.is-enter .grid > li:nth-child(5 of :not([hidden])) { animation-delay: 120ms; }
+    html:not(.catalog-entered) #catalog.is-enter .grid > li:nth-child(6 of :not([hidden])) { animation-delay: 150ms; }
+    html:not(.catalog-entered) #catalog.is-enter .grid > li:nth-child(7 of :not([hidden])) { animation-delay: 180ms; }
+    html:not(.catalog-entered) #catalog.is-enter .grid > li:nth-child(n + 8 of :not([hidden])) { animation-delay: 210ms; }
+  }
+
+  @media (max-width: 899px) and (prefers-reduced-motion: no-preference) {
+    html:not(.catalog-entered) #catalog.is-enter [data-layout="list"] tbody > tr:nth-child(-n + 8 of :not([hidden])),
+    html:not(.catalog-entered) #catalog.is-enter [data-layout="list"] tbody > tr:nth-child(n + 8 of :not([hidden])) {
+      animation: catalog-row-rise var(--dur-3) var(--ease-out) both;
+    }
+
+    html:not(.catalog-entered) #catalog.is-enter [data-layout="list"] tbody > tr:nth-child(2 of :not([hidden])) { animation-delay: 30ms; }
+    html:not(.catalog-entered) #catalog.is-enter [data-layout="list"] tbody > tr:nth-child(3 of :not([hidden])) { animation-delay: 60ms; }
+    html:not(.catalog-entered) #catalog.is-enter [data-layout="list"] tbody > tr:nth-child(4 of :not([hidden])) { animation-delay: 90ms; }
+    html:not(.catalog-entered) #catalog.is-enter [data-layout="list"] tbody > tr:nth-child(5 of :not([hidden])) { animation-delay: 120ms; }
+    html:not(.catalog-entered) #catalog.is-enter [data-layout="list"] tbody > tr:nth-child(6 of :not([hidden])) { animation-delay: 150ms; }
+    html:not(.catalog-entered) #catalog.is-enter [data-layout="list"] tbody > tr:nth-child(7 of :not([hidden])) { animation-delay: 180ms; }
+    html:not(.catalog-entered) #catalog.is-enter [data-layout="list"] tbody > tr:nth-child(n + 8 of :not([hidden])) { animation-delay: 210ms; }
+  }
+
+  @media (prefers-reduced-motion: reduce) {
+    html:not(.catalog-entered) #catalog.is-enter #catalog-results {
+      animation: catalog-list-fade var(--dur-1) linear both;
+    }
+
+    html.catalog-vt::view-transition-group(*) {
+      animation: none;
+    }
+
+    html.catalog-vt::view-transition-old(*) {
+      animation: catalog-list-fade var(--dur-1) linear reverse both;
+    }
+
+    html.catalog-vt::view-transition-new(*) {
+      animation: catalog-list-fade var(--dur-1) linear both;
+    }
+
+    html.catalog-vt::view-transition-old(root),
+    html.catalog-vt::view-transition-new(root) {
+      animation: none;
+    }
+
+    #catalog .roll-stack {
+      animation: none;
+    }
+  }
+
+  @keyframes catalog-title-rise {
+    from { transform: translateY(100%); }
+    to { transform: translateY(0); }
+  }
+
+  @keyframes catalog-toolbar-in {
+    from { opacity: 0; }
+    to { opacity: 1; }
+  }
+
+  @keyframes catalog-row-rise {
+    from { opacity: 0; transform: translateY(var(--space-12)); }
+    to { opacity: 1; transform: translateY(0); }
+  }
+
+  @keyframes catalog-list-fade {
+    from { opacity: 0; }
+    to { opacity: 1; }
+  }
+
+  @keyframes catalog-leave {
+    to { opacity: 0; transform: scale(0.96); }
+  }
+
+  @keyframes catalog-enter {
+    from { opacity: 0; }
+    to { opacity: 1; }
+  }
+
+  @keyframes catalog-digit-roll {
+    from { transform: translateY(0); }
+    to { transform: translateY(-50%); }
   }
 </style>

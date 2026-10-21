@@ -1,5 +1,5 @@
 import { describe, expect, it } from "vitest";
-import { etaLead, etaDetail, keyFigures, pricedChoice, productMetaDescription, purchaseModel, quantityBreakTable } from "../../src/lib/product";
+import { etaLead, etaDetail, keyFigures, pricedChoice, productMetaDescription, purchaseModel, quantityBreakTable, specGroups } from "../../src/lib/product";
 import { deliveryCost, lahoreDelivery, nationwideDelivery } from "../../src/lib/shipping";
 
 const ask = "https://wa.me/923001112233";
@@ -100,6 +100,34 @@ describe("quantity breaks and key figures", () => {
     ], ["Output current", "Missing", "Output voltage"])).toEqual([
       { label: "Output current", value: "1", unit: "A" },
       { label: "Output voltage", value: "5", unit: "V" },
+    ]);
+  });
+
+  it("groups electrical specs, physical specs, and the bag sentence", () => {
+    expect(specGroups([
+      { label: "Output voltage", value: "5", unit: "V" },
+      { label: "Package", value: "TO-220" },
+      { label: "Mounting", value: "Through-hole" },
+      { label: "Pin count", value: "8" },
+      { label: "USB connector", value: "Mini-B" },
+    ], "Loose TO-220 in an antistatic bag.")).toEqual([
+      { title: "Electrical", rows: [{ label: "Output voltage", value: "5", unit: "V" }] },
+      {
+        title: "Physical",
+        rows: [
+          { label: "Package", value: "TO-220" },
+          { label: "Mounting", value: "Through-hole" },
+          { label: "Pin count", value: "8" },
+          { label: "USB connector", value: "Mini-B" },
+        ],
+      },
+      { title: "In the bag", rows: [], prose: "Loose TO-220 in an antistatic bag." },
+    ]);
+  });
+
+  it("omits an empty bag and keeps an ungrouped label in Electrical", () => {
+    expect(specGroups([{ label: "Sensor", value: "TCRT5000" }], "  ")).toEqual([
+      { title: "Electrical", rows: [{ label: "Sensor", value: "TCRT5000" }] },
     ]);
   });
 

@@ -5,9 +5,11 @@ import {
   categoryPhoto,
   keySpec,
   orderedParts,
+  packageSlot,
   partList,
   partNoun,
   pickHeroDeck,
+  storyPackages,
   resolveFeaturedCategory,
   type HomePart,
 } from "../../src/lib/home";
@@ -106,6 +108,28 @@ describe("home selection", () => {
     expect(partList(["A", "B", "C"])).toBe("A, B and C");
     expect(partNoun(1)).toBe("part");
     expect(partNoun(2)).toBe("parts");
+  });
+
+  it("maps a part to a package slot only when the catalog says so", () => {
+    expect(packageSlot({ package_type: "TO-220", category: "Power" })).toBe("to-220");
+    expect(packageSlot({ package_type: "TO-92", category: "Sensors" })).toBe("to-92");
+    expect(packageSlot({ package_type: "SOT-223", category: "Power" })).toBe("sot-223");
+    expect(packageSlot({ package_type: "DIP-8", category: "ICs" })).toBe("dip-8");
+    expect(packageSlot({ package_type: "Module", category: "Boards" })).toBe("module");
+    expect(packageSlot({ package_type: "DIP-30 module", category: "Boards" })).toBe("module");
+    expect(packageSlot({ package_type: "PCB module", category: "Sensors" })).toBe("module");
+    expect(packageSlot({ package_type: "PCB module", category: "Relays" })).toBe("relay");
+    expect(packageSlot({ package_type: "QFN-16", category: "ICs" })).toBeNull();
+  });
+
+  it("keeps story slots that the counter actually stocks", () => {
+    const slots = storyPackages([
+      { package_type: "TO-220", category: "Power" },
+      { package_type: "DIP-8", category: "ICs" },
+      { package_type: "PCB module", category: "Relays" },
+      { package_type: "QFN-16", category: "ICs" },
+    ]).map((slot) => slot.id);
+    expect(slots).toEqual(["to-220", "dip-8", "relay"]);
   });
 
   it("prefers the voltage line for the key spec", () => {

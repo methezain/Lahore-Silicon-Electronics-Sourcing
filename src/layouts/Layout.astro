@@ -3,11 +3,13 @@ import { Font } from 'astro:assets';
 import '../styles/global.css';
 import SiteHeader from '../components/SiteHeader.astro';
 import Footer from '../components/Footer.astro';
+import VitalsReport from '../components/VitalsReport.astro';
 import IconSprite from '../components/IconSprite.astro';
 import CartSheet from '../components/CartSheet.tsx';
 import { loadCatalog } from '../lib/catalog';
 import { cspSha256 } from '../lib/csp';
 import { partTransitionCss } from '../lib/part-image';
+import { enterGateScript, speculationRules } from '../lib/speculation';
 import { shopName } from '../lib/shop';
 import { shippingWindows } from '../lib/shipping';
 
@@ -30,13 +32,18 @@ const {
 
 const catalog = await loadCatalog();
 const transitionCss = partTransitionCss(catalog.map((part) => part.part_number));
-if (Astro.csp && transitionCss) Astro.csp.insertStyleHash(await cspSha256(transitionCss));
+if (Astro.csp) {
+  if (transitionCss) Astro.csp.insertStyleHash(await cspSha256(transitionCss));
+  Astro.csp.insertScriptHash(await cspSha256(enterGateScript));
+  Astro.csp.insertScriptHash(await cspSha256(speculationRules));
+}
 ---
 <!doctype html>
 <html lang="en" class="scroll-smooth">
   <head>
     <meta charset="utf-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <script is:inline set:html={enterGateScript} />
     <meta name="generator" content={Astro.generator} />
 
     <!-- SEO -->
@@ -67,11 +74,16 @@ if (Astro.csp && transitionCss) Astro.csp.insertStyleHash(await cspSha256(transi
     <Font cssVariable="--font-mona" preload />
     <Font cssVariable="--font-geist-mono" />
     <style is:global set:html={transitionCss}></style>
+    <!-- Chromium prerenders product links. Other browsers use Astro prefetch. -->
+    <script type="speculationrules" is:inline set:html={speculationRules} />
 
     <!-- Page-level head slot -->
     <slot name="head" />
   </head>
   <body class="min-h-screen flex flex-col antialiased">
+    <div class="header-sentinel-anchor">
+      <div class="header-sentinel" aria-hidden="true"></div>
+    </div>
     <IconSprite />
     <SiteHeader parts={catalog} />
     <main id="main" class="flex-grow w-full">
@@ -79,5 +91,10 @@ if (Astro.csp && transitionCss) Astro.csp.insertStyleHash(await cspSha256(transi
     </main>
     <Footer />
     <CartSheet client:load catalog={catalog} />
+    <VitalsReport />
+    <script>
+      import { bindPress } from "../lib/press";
+      bindPress();
+    </script>
   </body>
 </html>

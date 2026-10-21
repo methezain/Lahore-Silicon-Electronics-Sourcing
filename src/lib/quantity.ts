@@ -33,3 +33,18 @@ export function correctQuantity(raw: number, rule: QtyRule): { quantity: number;
   }
   return { quantity: Math.max(0, quantity), message };
 }
+
+/** Buy-panel shortcuts. A preset the shelf cannot sell is left out. docs/commerce.md#stock. */
+export const QUANTITY_PRESETS = [1, 5, 10, 25] as const;
+
+export function quantityPresets(rule: QtyRule): number[] {
+  if (rule.stock_qty < 1) return [];
+  const presets: number[] = [];
+  for (const preset of QUANTITY_PRESETS) {
+    if (preset > rule.stock_qty) continue;
+    const corrected = correctQuantity(preset, rule);
+    if (corrected.message || corrected.quantity !== preset) continue;
+    presets.push(preset);
+  }
+  return presets;
+}

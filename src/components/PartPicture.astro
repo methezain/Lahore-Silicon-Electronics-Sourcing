@@ -17,6 +17,8 @@ interface Props {
   transition?: boolean;
   class?: string;
   frameClass?: string;
+  /** Cut-outs use contain so the whole part stays inside the stage. */
+  fit?: "cover" | "contain";
 }
 
 const {
@@ -31,6 +33,7 @@ const {
   transition = true,
   class: className,
   frameClass,
+  fit = "cover",
 } = Astro.props;
 
 const loading = priority
@@ -46,7 +49,7 @@ const loading = priority
   sizes={sizes}
   widths={widths}
   layout="constrained"
-  fit="cover"
+  fit={fit}
   formats={["avif", "webp"]}
   class:list={[className, transition && partTransitionClass(partNumber)]}
   pictureAttributes={frameClass ? { class: frameClass } : undefined}

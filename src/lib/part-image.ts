@@ -1,7 +1,7 @@
 /**
- * Shared photo boxes and the view-transition name shared by a catalog
- * thumbnail and the product gallery. Names are CSS idents: `AMS1117-3.3`
- * becomes `part-ams1117-3-3`.
+ * Shared photo boxes and the view-transition names shared by a catalog
+ * row and the product page. Names are CSS idents: `AMS1117-3.3`
+ * becomes `part-photo-ams1117-3-3` and `part-chip-ams1117-3-3`.
  */
 
 /**
@@ -33,22 +33,49 @@ export function partSlug(partNumber: string): string {
     .replace(/^-+|-+$/g, "");
 }
 
+/** Photo morph. Empty when the part number has no safe ident. */
+export function partPhotoName(partNumber: string): string {
+  const slug = partSlug(partNumber);
+  return slug ? `part-photo-${slug}` : "";
+}
+
+/** Part-number chip morph. */
+export function partChipName(partNumber: string): string {
+  const slug = partSlug(partNumber);
+  return slug ? `part-chip-${slug}` : "";
+}
+
 export function partTransitionName(partNumber: string): string {
-  return `part-${partSlug(partNumber)}`;
+  return partPhotoName(partNumber);
 }
 
 export function partTransitionClass(partNumber: string): string {
-  return `vt-${partTransitionName(partNumber)}`;
+  const name = partPhotoName(partNumber);
+  return name ? `vt-${name}` : "";
 }
 
-/** One rule per part. Callers pass catalog part numbers, which this slug-sanitizes. */
+export function partChipClass(partNumber: string): string {
+  const name = partChipName(partNumber);
+  return name ? `vt-${name}` : "";
+}
+
+/** One photo rule and one chip rule per part. Callers pass catalog part numbers. */
 export function partTransitionCss(partNumbers: readonly string[]): string {
-  return partNumbers
-    .map((partNumber) => {
-      const name = partTransitionName(partNumber);
-      if (name === "part-") return "";
-      return `.${partTransitionClass(partNumber)}{view-transition-name:${name}}`;
-    })
-    .filter(Boolean)
-    .join("");
+  const rules: string[] = [];
+  const selectors: string[] = [];
+  for (const partNumber of partNumbers) {
+    const photo = partPhotoName(partNumber);
+    const chip = partChipName(partNumber);
+    if (!photo || !chip) continue;
+    const photoClass = `vt-${photo}`;
+    const chipClass = `vt-${chip}`;
+    rules.push(`.${photoClass}{view-transition-name:${photo};view-transition-class:part-morph part-photo}`);
+    rules.push(`.${chipClass}{view-transition-name:${chip};view-transition-class:part-morph part-chip}`);
+    selectors.push(`.${photoClass}`, `.${chipClass}`);
+  }
+  if (selectors.length === 0) return "";
+  rules.push(
+    `@media (prefers-reduced-motion:reduce){${selectors.join(",")}{view-transition-name:none;view-transition-class:none}}`,
+  );
+  return rules.join("");
 }

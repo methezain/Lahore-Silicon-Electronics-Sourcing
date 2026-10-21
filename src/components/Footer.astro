@@ -3,15 +3,17 @@ import Logo from './Logo.astro';
 import { CATEGORIES } from '../lib/categories';
 import { deskHours } from '../lib/desk';
 import { returnRule, sameDayDispatch } from '../lib/shipping';
-import { shopPhone, whatsappHref } from '../lib/shop';
+import { shopName, shopPhone, whatsappHref } from '../lib/shop';
 
+const name = shopName();
 const phone = shopPhone();
 const wa = whatsappHref();
 const path = Astro.url.pathname.replace(/\/$/, '') || '/';
+const home = path === '/home';
 const category = Astro.url.searchParams.get('category');
 
 const catalogLinks = [
-  { label: 'All parts', href: '/#catalog', current: path === '/' && !category },
+  { label: 'All parts', href: '/', current: path === '/' && !category },
   ...CATEGORIES.map((label) => ({
     label,
     href: `/?category=${encodeURIComponent(label)}#catalog`,
@@ -57,4 +59,20 @@ const counterLinks = [
       </ul>
     </div>
   </div>
+  {home && <p class="footer-wordmark">{name}</p>}
 </footer>
+
+<style>
+  .footer-wordmark {
+    margin: var(--space-56) 0 0;
+    max-width: 100%;
+    color: var(--color-on-navy);
+    font-size: var(--text-display-xl);
+    font-weight: var(--text-display-xl--font-weight);
+    line-height: 0.92;
+    letter-spacing: var(--text-display-xl--letter-spacing);
+    font-stretch: calc(var(--wdth-display-xl) * 1%);
+    font-variation-settings: "wdth" var(--wdth-display-xl);
+    text-wrap: balance;
+  }
+</style>

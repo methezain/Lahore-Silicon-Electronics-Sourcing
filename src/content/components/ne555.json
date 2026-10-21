@@ -56,7 +56,7 @@
   "datasheet": "https://www.ti.com/lit/ds/symlink/ne555.pdf",
   "images": [
     {
-      "src": "../../assets/parts/ne555.jpg",
+      "src": "../../assets/parts/cutouts/ne555.webp",
       "alt": "NE555 timer in a DIP-8 package, black body with metal leads.",
       "note": "Representative studio photograph, not a photo of the lot in the drawer."
     }

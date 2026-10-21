@@ -1,0 +1,240 @@
+---
+/**
+ * List / Grid toggle. docs/motion.md interaction 5.
+ * A stored choice is applied before first paint. With no choice, List is the
+ * default at ≥ 900px and Grid below, from CSS alone.
+ */
+import { cspSha256 } from "../lib/csp";
+import { CATALOG_VIEW_KEY, WIDE_QUERY } from "../lib/catalog-view";
+
+const boot = `(function () {
+  var key = ${JSON.stringify(CATALOG_VIEW_KEY)};
+  var stored = null;
+  try { stored = localStorage.getItem(key); } catch (e) {}
+  var wide = window.matchMedia(${JSON.stringify(WIDE_QUERY)}).matches;
+  var view = stored === "list" || stored === "grid" ? stored : (wide ? "list" : "grid");
+  if (stored === "list" || stored === "grid") {
+    document.documentElement.setAttribute("data-catalog-view", stored);
+  }
+  var nodes = document.querySelectorAll("#catalog-view [data-view]");
+  for (var i = 0; i < nodes.length; i++) {
+    nodes[i].setAttribute("aria-pressed", nodes[i].getAttribute("data-view") === view ? "true" : "false");
+  }
+})();`;
+
+if (Astro.csp) Astro.csp.insertScriptHash(await cspSha256(boot));
+---
+
+<div class="view-toggle" id="catalog-view" role="group" aria-label="Layout" aria-controls="catalog-results">
+  <button type="button" data-view="list" aria-pressed="false">
+    <svg width="16" height="16" viewBox="0 0 24 24" aria-hidden="true">
+      <path fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" d="M8 7h12M8 12h12M8 17h12M4 7h.01M4 12h.01M4 17h.01" />
+    </svg>
+    List
+  </button>
+  <button type="button" data-view="grid" aria-pressed="false">
+    <svg width="16" height="16" viewBox="0 0 24 24" aria-hidden="true">
+      <path fill="none" stroke="currentColor" stroke-width="1.8" stroke-linejoin="round" d="M4 4h6v6H4zM14 4h6v6h-6zM4 14h6v6H4zM14 14h6v6h-6z" />
+    </svg>
+    Grid
+  </button>
+</div>
+<script is:inline set:html={boot}></script>
+<script>
+  import { bindCatalogView } from "../lib/catalog-view";
+  bindCatalogView();
+</script>
+
+<style>
+  .view-toggle {
+    display: inline-flex;
+    flex: none;
+    gap: var(--space-4);
+    padding: var(--space-4);
+    border-radius: var(--radius-pill);
+    background: var(--color-sunken);
+  }
+
+  .view-toggle button {
+    display: inline-flex;
+    align-items: center;
+    gap: var(--space-8);
+    height: 36px;
+    margin: 0;
+    padding: 0 var(--space-16);
+    border: 0;
+    border-radius: var(--radius-pill);
+    background: transparent;
+    color: var(--color-ink);
+    font: inherit;
+    font-size: var(--text-small);
+    font-weight: var(--font-weight-strong);
+    line-height: 1;
+    white-space: nowrap;
+    cursor: pointer;
+    transition-property: background-color, color, box-shadow, transform;
+    transition-duration: var(--dur-1);
+    transition-timing-function: var(--ease-out);
+  }
+
+  .view-toggle button:hover {
+    background: var(--color-surface);
+  }
+
+  .view-toggle button:active {
+    transform: scale(0.97);
+  }
+
+  .view-toggle button[aria-pressed="true"] {
+    background: var(--color-navy);
+    color: var(--color-on-navy);
+    box-shadow: var(--shadow-1);
+  }
+
+  .view-toggle button[aria-pressed="true"]:hover {
+    background: var(--color-navy-raised);
+  }
+
+  @media (prefers-reduced-motion: reduce) {
+    .view-toggle button {
+      transition-property: background-color, color, box-shadow;
+    }
+
+    .view-toggle button:active {
+      transform: none;
+    }
+  }
+</style>
+
+<style is:global>
+  /* No stored choice: List from 900px, Grid below. A stored choice sets data-catalog-view. */
+  @media (max-width: 899px) {
+    html:not([data-catalog-view]) #catalog [data-layout="list"] {
+      display: none;
+    }
+  }
+
+  @media (min-width: 900px) {
+    html:not([data-catalog-view]) #catalog [data-layout="grid"] {
+      display: none;
+    }
+  }
+
+  html[data-catalog-view="list"] #catalog [data-layout="grid"],
+  html[data-catalog-view="grid"] #catalog [data-layout="list"] {
+    display: none;
+  }
+
+  /* Only the visible layout may carry a part's view-transition name. */
+  @media (max-width: 899px) {
+    html:not([data-catalog-view]) #catalog [data-layout="list"] [class*="vt-part-"] {
+      view-transition-name: none;
+    }
+  }
+
+  @media (min-width: 900px) {
+    html:not([data-catalog-view]) #catalog [data-layout="grid"] [class*="vt-part-"] {
+      view-transition-name: none;
+    }
+  }
+
+  html[data-catalog-view="list"] #catalog [data-layout="grid"] [class*="vt-part-"],
+  html[data-catalog-view="grid"] #catalog [data-layout="list"] [class*="vt-part-"],
+  #catalog [data-layout="list"] .cat-cards [class*="vt-part-"] {
+    view-transition-name: none;
+  }
+
+  /* The page grid replaces the table's narrow cards. Keep the table for List at every width. */
+  main:has(#catalog) {
+    min-width: 0;
+  }
+
+  #catalog,
+  #catalog .wrap,
+  #catalog-results,
+  #catalog [data-layout="list"],
+  #catalog [data-layout="list"] .cat-panel {
+    min-width: 0;
+    max-width: 100%;
+  }
+
+  #catalog [data-layout="list"] .cat-cards {
+    display: none;
+  }
+
+  #catalog [data-layout="list"] .cat-scroll {
+    display: block;
+    width: 100%;
+    max-width: 100%;
+    min-width: 0;
+    overflow-x: auto;
+    overscroll-behavior-x: contain;
+  }
+
+  @media (max-width: 899px) {
+    #catalog [data-layout="list"] .cat-panel {
+      overflow: hidden;
+      border-radius: var(--radius-panel);
+      background: var(--color-surface);
+      box-shadow: inset 0 0 0 1px var(--color-line);
+    }
+
+    #catalog [data-layout="list"] .cat-table {
+      width: 720px;
+      min-width: 720px;
+    }
+  }
+
+  /* Photo morph between list and grid. Header and footer keep their own names. */
+  html.catalog-morph::view-transition-group(.part-morph),
+  html.catalog-morph::view-transition-old(.part-morph),
+  html.catalog-morph::view-transition-new(.part-morph) {
+    animation-duration: var(--dur-slow);
+    animation-timing-function: var(--ease-out);
+  }
+
+  html.catalog-morph::view-transition-old(.part-morph),
+  html.catalog-morph::view-transition-new(.part-morph) {
+    mix-blend-mode: normal;
+  }
+
+  html.catalog-morph::view-transition-group(root),
+  html.catalog-morph::view-transition-old(root),
+  html.catalog-morph::view-transition-new(root) {
+    animation: none;
+  }
+
+  html.catalog-morph::view-transition-old(root) {
+    opacity: 0;
+  }
+
+  html.catalog-morph::view-transition-new(root) {
+    opacity: 1;
+  }
+
+  @media (prefers-reduced-motion: reduce) {
+    html.catalog-morph-reduce #catalog [class*="vt-part-"] {
+      view-transition-name: none;
+    }
+
+    html.catalog-morph::view-transition-old(root) {
+      animation: catalog-fade-out var(--dur-1) linear both;
+      opacity: 1;
+    }
+
+    html.catalog-morph::view-transition-new(root) {
+      animation: catalog-fade-in var(--dur-1) linear both;
+      opacity: 1;
+    }
+  }
+
+  @keyframes catalog-fade-out {
+    from { opacity: 1; }
+    to { opacity: 0; }
+  }
+
+  @keyframes catalog-fade-in {
+    from { opacity: 0; }
+    to { opacity: 1; }
+  }
+</style>

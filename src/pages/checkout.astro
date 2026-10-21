@@ -4,6 +4,9 @@
  * The form posts to the placeOrder action. The script enhances it and maps field errors.
  */
 import "./checkout.css";
+import "../components/photo-stage.css";
+import "../components/illustrations/package-mark.css";
+import PackageMark from "../components/illustrations/PackageMark.tsx";
 import { actions, isInputError } from "astro:actions";
 import { env } from "cloudflare:workers";
 import Layout from "../layouts/Layout.astro";
@@ -11,7 +14,7 @@ import { catalogScriptJson, loadCatalog } from "../lib/catalog";
 import { formatPkr } from "../lib/money";
 import { checkNotComplete } from "../lib/order";
 import { checkoutCookie, isOrderKey } from "../lib/order-key";
-import { pageTitle, paymentMethods, paymentSentOnWhatsApp, shopPhone, whatsappHref } from "../lib/shop";
+import { copyAction, pageTitle, paymentMethods, paymentSentOnWhatsApp, shopPhone, whatsappHref } from "../lib/shop";
 import { deliveryCost, returnRule } from "../lib/shipping";
 
 export const prerender = false;
@@ -54,14 +57,50 @@ const description = methods.length > 0
   <div class="checkout-page">
     <p class="eyebrow">Guest checkout</p>
     <h1 class="title">Checkout</h1>
-    <p class="lede">
+    <p class="lede" id="checkout-intro">
       {methods.length > 0
         ? "Pay the total shown here, then paste the transaction id."
         : paymentSentOnWhatsApp}
     </p>
+    <p id="checkout-empty" class="checkout-empty" hidden>
+      <PackageMark kind="module" empty />
+      Your cart is empty. <a href="/">Browse the catalog.</a>
+    </p>
 
-    <div class="checkout-grid">
+    <div class="checkout-grid" id="checkout-grid">
       <form id="checkout-form" class="checkout-form" method="POST" action={actions.placeOrder} novalidate>
+        <nav class="steps-progress" id="checkout-progress" aria-label="Checkout progress" data-done="0">
+          <div class="steps-track" aria-hidden="true"><span class="steps-fill"></span></div>
+          <ol>
+            <li data-step="contact" data-state="current">
+              <a href="#step-contact" aria-current="step">
+                <span class="steps-index">
+                  <span class="steps-num">1</span>
+                  <svg class="steps-check" viewBox="0 0 24 24" aria-hidden="true" focusable="false"><use href="#check" /></svg>
+                </span>
+                <span class="steps-name">Contact</span>
+              </a>
+            </li>
+            <li data-step="delivery" data-state="upcoming">
+              <a href="#step-delivery">
+                <span class="steps-index">
+                  <span class="steps-num">2</span>
+                  <svg class="steps-check" viewBox="0 0 24 24" aria-hidden="true" focusable="false"><use href="#check" /></svg>
+                </span>
+                <span class="steps-name">Delivery</span>
+              </a>
+            </li>
+            <li data-step="payment" data-state="upcoming">
+              <a href="#step-payment">
+                <span class="steps-index">
+                  <span class="steps-num">3</span>
+                  <svg class="steps-check" viewBox="0 0 24 24" aria-hidden="true" focusable="false"><use href="#check" /></svg>
+                </span>
+                <span class="steps-name">Payment</span>
+              </a>
+            </li>
+          </ol>
+        </nav>
         <section class="step" aria-labelledby="step-contact">
           <div class="step-head">
             <p class="step-k">Step 1</p>
@@ -70,7 +109,9 @@ const description = methods.length > 0
           <div class="field">
             <label for="field-name">Name</label>
             <input class="control" type="text" name="name" id="field-name" autocomplete="name" aria-required="true" aria-invalid={submittedFields.name?.[0] ? "true" : undefined} aria-describedby="field-name-error" />
-            <p id="field-name-error" class="field-error" role="alert" hidden={!submittedFields.name?.[0]}>{submittedFields.name?.[0]}</p>
+            <p id="field-name-error" class="field-error" data-state={submittedFields.name?.[0] ? "shown" : "idle"} role={submittedFields.name?.[0] ? "alert" : undefined}>
+              <span class="field-error-text">{submittedFields.name?.[0] ?? ""}</span>
+            </p>
           </div>
           <div class="field">
             <label for="field-phone">Phone</label>
@@ -79,7 +120,9 @@ const description = methods.length > 0
               <input type="tel" name="phone" id="field-phone" inputmode="numeric" autocomplete="tel" aria-required="true" placeholder="300 1234567" aria-invalid={submittedFields.phone?.[0] ? "true" : undefined} aria-describedby="field-phone-help field-phone-error" />
             </div>
             <p id="field-phone-help" class="hint">We use this if the courier cannot find the address.</p>
-            <p id="field-phone-error" class="field-error" role="alert" hidden={!submittedFields.phone?.[0]}>{submittedFields.phone?.[0]}</p>
+            <p id="field-phone-error" class="field-error" data-lines="2" data-state={submittedFields.phone?.[0] ? "shown" : "idle"} role={submittedFields.phone?.[0] ? "alert" : undefined}>
+              <span class="field-error-text">{submittedFields.phone?.[0] ?? ""}</span>
+            </p>
           </div>
         </section>
 
@@ -92,12 +135,16 @@ const description = methods.length > 0
           <div class="field">
             <label for="field-destination">City or area</label>
             <input class="control" type="text" name="destination" id="field-destination" autocomplete="address-level2" aria-required="true" aria-invalid={submittedFields.destination?.[0] ? "true" : undefined} aria-describedby="field-destination-error" />
-            <p id="field-destination-error" class="field-error" role="alert" hidden={!submittedFields.destination?.[0]}>{submittedFields.destination?.[0]}</p>
+            <p id="field-destination-error" class="field-error" data-state={submittedFields.destination?.[0] ? "shown" : "idle"} role={submittedFields.destination?.[0] ? "alert" : undefined}>
+              <span class="field-error-text">{submittedFields.destination?.[0] ?? ""}</span>
+            </p>
           </div>
           <div class="field">
             <label for="field-address">Address</label>
             <textarea class="control" name="address" id="field-address" rows="3" autocomplete="street-address" aria-required="true" aria-invalid={submittedFields.address?.[0] ? "true" : undefined} aria-describedby="field-address-error"></textarea>
-            <p id="field-address-error" class="field-error" role="alert" hidden={!submittedFields.address?.[0]}>{submittedFields.address?.[0]}</p>
+            <p id="field-address-error" class="field-error" data-lines="2" data-state={submittedFields.address?.[0] ? "shown" : "idle"} role={submittedFields.address?.[0] ? "alert" : undefined}>
+              <span class="field-error-text">{submittedFields.address?.[0] ?? ""}</span>
+            </p>
           </div>
           <details class="line2" id="line2" open={Boolean(submittedFields.address_line_2?.[0])}>
             <summary>Add an apartment, floor, or landmark</summary>
@@ -137,7 +184,16 @@ const description = methods.length > 0
                     <div class="pay-line">
                       <span class="pay-label">{row.label}</span>
                       <span class="pay-value">{row.value}</span>
-                      <button class="copy-btn" type="button" data-copy={row.value} data-label={row.label} aria-label={`Copy ${row.label}`}>Copy</button>
+                      <button class="copy-btn" type="button" data-copy={row.value} data-label={row.label} aria-label={`${copyAction} ${row.label}`}>
+                        <span class="copy-ico" aria-hidden="true">
+                          <svg class="copy-glyph" viewBox="0 0 24 24" focusable="false">
+                            <rect x="8" y="8" width="12" height="12" rx="2" fill="none" stroke="currentColor" stroke-width="1.8" />
+                            <path fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" d="M6 15H5a1 1 0 0 1-1-1V4h10v2" />
+                          </svg>
+                          <svg class="copy-check" viewBox="0 0 24 24" focusable="false"><use href="#check" /></svg>
+                        </span>
+                        <span class="copy-text">{copyAction}</span>
+                      </button>
                     </div>
                   ))}
                 </div>
@@ -156,7 +212,9 @@ const description = methods.length > 0
           <div class="field">
             <label for="field-payment-ref">Payment reference</label>
             <input class="control" type="text" name="payment_ref" id="field-payment-ref" autocomplete="off" aria-required="true" aria-invalid={submittedFields.payment_ref?.[0] ? "true" : undefined} aria-describedby="field-payment-error" />
-            <p id="field-payment-error" class="field-error" role="alert" hidden={!submittedFields.payment_ref?.[0]}>{submittedFields.payment_ref?.[0]}</p>
+            <p id="field-payment-error" class="field-error" data-lines="2" data-state={submittedFields.payment_ref?.[0] ? "shown" : "idle"} role={submittedFields.payment_ref?.[0] ? "alert" : undefined}>
+              <span class="field-error-text">{submittedFields.payment_ref?.[0] ?? ""}</span>
+            </p>
           </div>
         </section>
 
@@ -216,6 +274,7 @@ const description = methods.length > 0
 <script>
   import { actions, isInputError } from "astro:actions";
   import { cartStore } from "../store/cartStore";
+  import { appendPackageMark, packageSvg } from "../components/illustrations/packages";
   import { formatPkr, priceCart, type CatalogPrice } from "../lib/money";
   import {
     addressLine2Rule,
@@ -232,6 +291,8 @@ const description = methods.length > 0
   } from "../lib/order";
   import { checkoutKeyStorage, isOrderKey, turnstileAction } from "../lib/order-key";
   import { phoneMessage } from "../lib/phone";
+  import { prefersReducedMotion } from "../lib/motion";
+  import { copiedAction, copyAction } from "../lib/shop";
 
   type CheckoutPart = CatalogPrice & {
     image?: string;
@@ -267,7 +328,6 @@ const description = methods.length > 0
   const turnstileSitekey = turnstileBox?.dataset.sitekey ?? "";
 
   let submitting = false;
-  let currentTotal = 0;
   let pageKey = "";
   let turnstileWidgetId: string | undefined;
   let turnstileToken = "";
@@ -392,32 +452,147 @@ const description = methods.length > 0
     el.hidden = false;
   }
 
-  function showFieldError(input: HTMLElement | null, errorEl: HTMLElement | null, message: string | null) {
-    showNote(errorEl, message);
-    const phoneWrap = input?.closest(".phone");
-    if (!message) {
-      input?.removeAttribute("aria-invalid");
-      phoneWrap?.removeAttribute("data-invalid");
+  /** docs/motion.md #21. The label returns after 1.6s. */
+  const copyRevertMs = 1600;
+
+  function tokenMs(name: string, fallback: number): number {
+    const raw = getComputedStyle(document.documentElement).getPropertyValue(name).trim();
+    const value = Number.parseFloat(raw);
+    return Number.isFinite(value) ? value : fallback;
+  }
+
+  function moneyLabel(value: string): boolean {
+    return value.includes("Rs ");
+  }
+
+  /**
+   * One roll of the characters that changed. docs/motion.md #18.
+   * The first paint is instant. Later price changes roll.
+   */
+  function rollText(el: HTMLElement | null, next: string) {
+    if (!el) return;
+    const prev = el.dataset.roll ?? "";
+    const generation = String(Number(el.dataset.rollGen ?? "0") + 1);
+    el.dataset.rollGen = generation;
+    const canRoll = prev !== "" && prev !== next && !prefersReducedMotion() && moneyLabel(prev) && moneyLabel(next);
+    if (!canRoll) {
+      el.textContent = next;
+      el.dataset.roll = next;
       return;
     }
-    input?.setAttribute("aria-invalid", "true");
-    if (phoneWrap instanceof HTMLElement) phoneWrap.dataset.invalid = "true";
+    const width = Math.max(prev.length, next.length);
+    const from = prev.padStart(width, "\u2007");
+    const to = next.padStart(width, "\u2007");
+    const frag = document.createDocumentFragment();
+    for (let i = 0; i < width; i += 1) {
+      const slot = document.createElement("span");
+      slot.className = "roll-slot";
+      slot.setAttribute("aria-hidden", "true");
+      if (from[i] === to[i]) {
+        slot.textContent = to[i];
+      } else {
+        const col = document.createElement("span");
+        col.className = "roll-col";
+        const oldDigit = document.createElement("span");
+        oldDigit.textContent = from[i];
+        const newDigit = document.createElement("span");
+        newDigit.textContent = to[i];
+        col.appendChild(oldDigit);
+        col.appendChild(newDigit);
+        slot.appendChild(col);
+      }
+      frag.append(slot);
+    }
+    const live = document.createElement("span");
+    live.className = "sr-only";
+    live.textContent = next;
+    frag.append(live);
+    el.replaceChildren(frag);
+    el.dataset.roll = next;
+    requestAnimationFrame(() => {
+      requestAnimationFrame(() => {
+        if (el.dataset.rollGen !== generation) return;
+        el.querySelectorAll(".roll-col").forEach((col) => col.classList.add("is-rolling"));
+      });
+    });
+    window.setTimeout(() => {
+      if (el.dataset.rollGen !== generation) return;
+      el.textContent = next;
+    }, tokenMs("--dur-1", 120) + 80);
+  }
+
+  function syncProgress() {
+    const nav = document.getElementById("checkout-progress");
+    if (!nav) return;
+    const line2 = (line2Input?.value ?? "").trim();
+    const flags = [
+      nameMessage(nameInput?.value ?? "") === null && phoneMessage(phoneInput?.value ?? "") === null,
+      cityMessage(destinationInput?.value ?? "") === null && addressMessage(addressInput?.value ?? "") === null && line2.length <= 120,
+      paymentRefMessage(paymentInput?.value ?? "") === null,
+    ];
+    let prefix = 0;
+    if (flags[0]) prefix = 1;
+    if (flags[0] && flags[1]) prefix = 2;
+    if (flags[0] && flags[1] && flags[2]) prefix = 3;
+    nav.dataset.done = String(prefix);
+    const steps = ["contact", "delivery", "payment"];
+    steps.forEach((id, index) => {
+      const item = nav.querySelector(`[data-step="${id}"]`);
+      if (!(item instanceof HTMLElement)) return;
+      const state = index < prefix ? "done" : index === prefix ? "current" : "upcoming";
+      item.dataset.state = state;
+      const link = item.querySelector("a");
+      if (!(link instanceof HTMLAnchorElement)) return;
+      if (state === "current") link.setAttribute("aria-current", "step");
+      else link.removeAttribute("aria-current");
+    });
+  }
+
+  function showFieldError(input: HTMLElement | null, errorEl: HTMLElement | null, message: string | null) {
+    const phoneWrap = input?.closest(".phone");
+    const text = errorEl?.querySelector(".field-error-text");
+    if (errorEl && text instanceof HTMLElement) {
+      if (!message) {
+        input?.removeAttribute("aria-invalid");
+        if (phoneWrap instanceof HTMLElement) phoneWrap.removeAttribute("data-invalid");
+        const alreadyClear = text.textContent === "" && errorEl.dataset.state !== "shown" && errorEl.dataset.state !== "clearing";
+        if (!alreadyClear) {
+          errorEl.removeAttribute("role");
+          if (prefersReducedMotion() || errorEl.dataset.state !== "shown") {
+            text.textContent = "";
+            errorEl.dataset.state = "idle";
+          } else {
+            errorEl.dataset.state = "clearing";
+            window.setTimeout(() => {
+              if (errorEl.dataset.state !== "clearing") return;
+              text.textContent = "";
+              errorEl.dataset.state = "idle";
+            }, tokenMs("--dur-2", 200));
+          }
+        }
+      } else {
+        text.textContent = message;
+        errorEl.dataset.state = "shown";
+        if (errorEl.getAttribute("role") !== "alert") errorEl.setAttribute("role", "alert");
+        input?.setAttribute("aria-invalid", "true");
+        if (phoneWrap instanceof HTMLElement) phoneWrap.dataset.invalid = "true";
+      }
+    }
+    syncProgress();
   }
 
   function setButton(enabled: boolean) {
     if (!submitBtn || submitting) return;
     submitBtn.disabled = !enabled;
-    submitBtn.textContent = placeOrderLabel(formatPkr(currentTotal));
   }
 
   function setTotals(amount: number) {
-    currentTotal = amount;
     const label = formatPkr(amount);
-    if (totalEl) totalEl.textContent = label;
-    if (merchandiseEl) merchandiseEl.textContent = label;
-    if (payTotalEl) payTotalEl.textContent = label;
-    if (toggleLabel) toggleLabel.textContent = showOrderLabel(label);
-    if (submitBtn && !submitting) submitBtn.textContent = placeOrderLabel(label);
+    rollText(totalEl, label);
+    rollText(merchandiseEl, label);
+    rollText(payTotalEl, label);
+    rollText(toggleLabel, showOrderLabel(label));
+    if (submitBtn && !submitting) rollText(submitBtn, placeOrderLabel(label));
   }
 
   function lineNote(text: string) {
@@ -427,17 +602,33 @@ const description = methods.length > 0
     return note;
   }
 
+  const checkoutEmpty = document.getElementById("checkout-empty");
+  const checkoutGrid = document.getElementById("checkout-grid");
+  const checkoutIntro = document.getElementById("checkout-intro");
+
+  function showCheckout(hasItems: boolean) {
+    if (checkoutEmpty) checkoutEmpty.hidden = hasItems;
+    if (checkoutGrid) checkoutGrid.hidden = !hasItems;
+    if (checkoutIntro) checkoutIntro.hidden = !hasItems;
+  }
+
   const renderSummary = () => {
     const stored = Object.values(cartStore.get());
     if (!itemsContainer) return;
     itemsContainer.replaceChildren();
 
     if (stored.length === 0) {
+      showCheckout(false);
       const empty = document.createElement("p");
       empty.className = "empty";
+      const mark = document.createElement("span");
+      mark.className = "empty-mark";
+      mark.setAttribute("aria-hidden", "true");
+      mark.innerHTML = packageSvg("module");
+      empty.appendChild(mark);
       empty.appendChild(document.createTextNode("Your cart is empty. "));
       const link = document.createElement("a");
-      link.href = "/#catalog";
+      link.href = "/";
       link.textContent = "Browse the catalog";
       empty.appendChild(link);
       empty.appendChild(document.createTextNode("."));
@@ -450,6 +641,7 @@ const description = methods.length > 0
       return;
     }
 
+    showCheckout(true);
     const priced = priceCart(catalog, stored);
     const problems: string[] = [];
 
@@ -461,17 +653,20 @@ const description = methods.length > 0
       const photo = document.createElement("div");
       photo.className = "line-photo";
       if (part?.image) {
+        const stage = document.createElement("span");
+        stage.className = "photo-stage is-cutout";
+        const fit = document.createElement("span");
+        fit.className = "photo-stage-fit";
         const img = document.createElement("img");
         img.src = part.image;
         img.alt = "";
         img.width = 64;
         img.height = 64;
-        photo.appendChild(img);
+        fit.appendChild(img);
+        stage.appendChild(fit);
+        photo.appendChild(stage);
       } else {
-        const fallback = document.createElement("span");
-        fallback.className = "line-fallback";
-        fallback.textContent = part?.package_type ?? "";
-        photo.appendChild(fallback);
+        appendPackageMark(photo, part?.package_type, line.part_number);
       }
 
       const copy = document.createElement("div");
@@ -530,7 +725,8 @@ const description = methods.length > 0
     const check = () => showFieldError(input, errorEl, message());
     input.addEventListener("blur", check);
     input.addEventListener("input", () => {
-      if (errorEl && !errorEl.hidden) check();
+      if (errorEl?.dataset.state === "shown" || errorEl?.dataset.state === "clearing") check();
+      else syncProgress();
     });
   }
 
@@ -539,6 +735,8 @@ const description = methods.length > 0
   bindField(destinationInput, destinationError, () => cityMessage(destinationInput?.value ?? ""));
   bindField(addressInput, addressError, () => addressMessage(addressInput?.value ?? ""));
   bindField(paymentInput, paymentError, () => paymentRefMessage(paymentInput?.value ?? ""));
+  line2Input?.addEventListener("input", () => syncProgress());
+  syncProgress();
 
   document.querySelectorAll('input[name="payment_method"]').forEach((input) => {
     input.addEventListener("change", () => {
@@ -560,15 +758,18 @@ const description = methods.length > 0
       } catch {
         return;
       }
-      btn.textContent = "Copied";
-      btn.setAttribute("aria-label", "Copied");
-      if (copyStatus) copyStatus.textContent = "Copied";
+      const label = btn.querySelector(".copy-text");
+      if (label) label.textContent = copiedAction;
+      btn.dataset.state = "copied";
+      btn.setAttribute("aria-label", copiedAction);
+      if (copyStatus) copyStatus.textContent = copiedAction;
       window.clearTimeout(timer);
       timer = window.setTimeout(() => {
-        btn.textContent = "Copy";
-        btn.setAttribute("aria-label", `Copy ${btn.dataset.label ?? ""}`.trim());
+        if (label) label.textContent = copyAction;
+        delete btn.dataset.state;
+        btn.setAttribute("aria-label", `${copyAction} ${btn.dataset.label ?? ""}`.trim());
         if (copyStatus) copyStatus.textContent = "";
-      }, 2000);
+      }, copyRevertMs);
     });
   });
 
@@ -640,7 +841,7 @@ const description = methods.length > 0
 
       submitting = true;
       submitBtn.disabled = true;
-      submitBtn.textContent = placingOrder;
+      rollText(submitBtn, placingOrder);
 
       try {
         const { data, error } = await actions.placeOrder(new FormData(form));

@@ -93,7 +93,7 @@
   "datasheet": "https://documentation.espressif.com/esp32-wroom-32d_esp32-wroom-32u_datasheet_en.pdf",
   "images": [
     {
-      "src": "../../assets/parts/esp32.jpg",
+      "src": "../../assets/parts/cutouts/esp32.webp",
       "alt": "ESP32-WROOM-32D module with a metal shield, a PCB antenna, and castellated pads.",
       "note": "Representative studio photograph, not a photo of the lot in the drawer."
     }

@@ -1,13 +1,23 @@
 ---
 /**
- * Catalog table. docs/design-system.md section 9 (Catalog table) and section 7 (52px thumb).
+ * Catalog table. docs/design-system.md section 9 (Catalog table): 64px list photos.
+ * List entrance, row hover, and the pointer preview: docs/motion.md #2, #6, #7.
  * Below 900px the same rows render as product cards. Sort links are optional.
  */
 import type { ImageMetadata } from "astro";
+import { getCollection } from "astro:content";
 import AddPart from "./AddPart.tsx";
+import PackageFallback from "./illustrations/PackageFallback.astro";
+import PackageMark from "./illustrations/PackageMark.tsx";
 import PartPicture from "./PartPicture.astro";
+import PhotoStage from "./PhotoStage.tsx";
 import ProductCard from "./ProductCard.astro";
+import { entranceBootScript } from "../lib/catalog-list";
+import { cspSha256 } from "../lib/csp";
 import { formatPkr, unitPrice, type PriceBreak } from "../lib/money";
+import { rowTransitionName } from "../lib/catalog-query";
+import { partChipClass } from "../lib/part-image";
+import { keyFigures, type KeyFigure } from "../lib/product";
 import { stockLabel, stockLevel } from "../lib/stock";
 
 export interface CatalogTableRow {
@@ -27,6 +37,9 @@ export interface CatalogTableRow {
   /** Layout sample. No link, no add, no stock figure. */
   sample?: boolean;
   transition?: boolean;
+  category?: string;
+  order?: number;
+  hidden?: boolean;
 }
 
 interface Props {
@@ -37,9 +50,11 @@ interface Props {
     stock: "ascending" | "descending" | "none";
     price: "ascending" | "descending" | "none";
   };
+  /** Narrow cards under the table. The catalog page draws CatalogGrid instead. */
+  cards?: boolean;
 }
 
-const { rows, sort } = Astro.props;
+const { rows, sort, cards = true } = Astro.props;
 
 function priceLabel(row: CatalogTableRow) {
   if (row.sample) return formatPkr(row.price);
@@ -50,13 +65,29 @@ function sortLabel(column: string, state: "ascending" | "descending" | "none") {
   if (state === "none") return `Sort by ${column}`;
   return `${column}, sorted ${state}`;
 }
+
+const previewMeta = new Map<string, { figures: KeyFigure[]; alt: string }>();
+if (rows.some((row) => Boolean(row.href) && !row.sample)) {
+  const entries = await getCollection("components");
+  for (const entry of entries) {
+    previewMeta.set(entry.data.part_number, {
+      figures: keyFigures(entry.data.specs, entry.data.key_specs),
+      alt: entry.data.images?.[0]?.alt ?? "",
+    });
+  }
+}
+if (rows.length > 0 && Astro.csp) Astro.csp.insertScriptHash(await cspSha256(entranceBootScript));
 ---
 
-<div class="cat-panel">
+<div class="cat-panel" data-catalog-list>
   {rows.length === 0 ? (
-    <p class="cat-empty">No parts to show.</p>
+    <p class="cat-empty">
+      <PackageMark kind="module" empty />
+      No parts to show.
+    </p>
   ) : (
     <>
+      <script is:inline set:html={entranceBootScript} />
       <div class="cat-scroll">
         <table class="cat-table">
           <caption class="sr-only">Parts on the counter</caption>
@@ -75,14 +106,14 @@ function sortLabel(column: string, state: "ascending" | "descending" | "none") {
               <th scope="col">Part</th>
               <th scope="col">What it is</th>
               <th scope="col">Key spec</th>
-              <th class="num" scope="col" aria-sort={sort?.stock ?? "none"}>
+              <th class="num" scope="col" data-sort-col="stock" aria-sort={sort?.stock ?? "none"}>
                 {sort ? (
                   <a href={sort.stockHref} class:list={[sort.stock !== "none" && "is-sorted"]} aria-label={sortLabel("Stock", sort.stock)}>
                     Stock
                   </a>
                 ) : "Stock"}
               </th>
-              <th class="num" scope="col" aria-sort={sort?.price ?? "none"}>
+              <th class="num" scope="col" data-sort-col="price" aria-sort={sort?.price ?? "none"}>
                 {sort ? (
                   <a href={sort.priceHref} class:list={[sort.price !== "none" && "is-sorted"]} aria-label={sortLabel("Price", sort.price)}>
                     Price
@@ -96,33 +127,105 @@ function sortLabel(column: string, state: "ascending" | "descending" | "none") {
             {rows.map((row) => {
               const level = typeof row.stockQty === "number" ? stockLevel(row.stockQty, row.lowStockAt) : undefined;
               const label = typeof row.stockQty === "number" ? stockLabel(row.stockQty, row.restockOn) : undefined;
+              const preview = previewMeta.get(row.partNumber);
+              const figures = preview?.figures ?? [];
+              const linked = Boolean(row.href) && !row.sample;
+              const vt = rowTransitionName(row.partNumber);
               return (
-                <tr class:list={[row.sample && "is-sample"]}>
+                <tr
+                  class:list={[row.sample && "is-sample", linked && "is-linked"]}
+                  data-part={row.partNumber}
+                  data-category={row.category}
+                  data-name={row.name}
+                  data-spec={row.keySpec}
+                  data-price={row.price}
+                  data-stock={row.stockQty}
+                  data-order={row.order}
+                  data-vt={vt || undefined}
+                  hidden={row.hidden || undefined}
+                >
                   <td>
                     <div class="thumb">
                       {row.image ? (
-                        <PartPicture
-                          src={row.image}
-                          partNumber={row.partNumber}
-                          alt=""
-                          width={52}
-                          height={52}
-                          sizes="52px"
-                          widths={[52, 104]}
-                          transition={row.transition ?? false}
-                          class="photo"
-                          frameClass="frame"
-                        />
+                        <PhotoStage cutout>
+                          <PartPicture
+                            src={row.image}
+                            partNumber={row.partNumber}
+                            alt=""
+                            width={64}
+                            height={64}
+                            sizes="64px"
+                            widths={[64, 128]}
+                            transition={row.transition ?? false}
+                            fit="contain"
+                            class="photo"
+                            frameClass="frame"
+                          />
+                        </PhotoStage>
                       ) : (
-                        <span class="thumb-fallback">{row.packageType ?? (row.sample ? "Sample" : "")}</span>
+                        <PackageFallback packageType={row.packageType} partNumber={row.partNumber}>
+                          <span class="thumb-fallback">{row.packageType ?? (row.sample ? "Sample" : "")}</span>
+                        </PackageFallback>
                       )}
                     </div>
                   </td>
-                  <td>
-                    {row.href && !row.sample ? (
-                      <a class="part-link" href={row.href}>{row.partNumber}</a>
+                  <td class="part">
+                    {linked && row.href ? (
+                      <span class="part-line">
+                        <a class="part-link" href={row.href} data-astro-prefetch="hover">
+                          <span class:list={["part-id", (row.transition ?? false) && partChipClass(row.partNumber)]}>{row.partNumber}</span>
+                        </a>
+                        <svg class="row-chevron" width="16" height="16" aria-hidden="true">
+                          <use href="#chevron" />
+                        </svg>
+                      </span>
                     ) : (
                       <span class="part-link">{row.partNumber}</span>
+                    )}
+                    {linked && row.href && (
+                      <template class="row-preview-src">
+                        <div class="preview-layout">
+                          <div class="preview-photo">
+                            {row.image ? (
+                              <PhotoStage cutout>
+                                <PartPicture
+                                  src={row.image}
+                                  partNumber={row.partNumber}
+                                  alt={preview?.alt ?? ""}
+                                  width={128}
+                                  height={128}
+                                  sizes="128px"
+                                  widths={[128, 256]}
+                                  transition={false}
+                                  fit="contain"
+                                  class="preview-img"
+                                />
+                              </PhotoStage>
+                            ) : (
+                              <PackageFallback packageType={row.packageType} partNumber={row.partNumber}>
+                                <span class="thumb-fallback">{row.packageType ?? ""}</span>
+                              </PackageFallback>
+                            )}
+                          </div>
+                          <div class="preview-copy">
+                            <p class="preview-part">{row.partNumber}</p>
+                            <p class="preview-name">{row.name}</p>
+                            {figures.length > 0 && (
+                              <dl class="preview-figures">
+                                {figures.map((figure) => (
+                                  <>
+                                    <dt>{figure.label}</dt>
+                                    <dd>
+                                      {figure.value}
+                                      {figure.unit && <span class="preview-unit">&nbsp;{figure.unit}</span>}
+                                    </dd>
+                                  </>
+                                ))}
+                              </dl>
+                            )}
+                          </div>
+                        </div>
+                      </template>
                     )}
                   </td>
                   <td class="job">{row.name}</td>
@@ -137,7 +240,7 @@ function sortLabel(column: string, state: "ascending" | "descending" | "none") {
                     )}
                   </td>
                   <td class="num price">{priceLabel(row)}</td>
-                  <td class="num">
+                  <td class="add">
                     {!row.sample && typeof row.stockQty === "number" && (
                       <AddPart
                         client:visible
@@ -155,23 +258,28 @@ function sortLabel(column: string, state: "ascending" | "descending" | "none") {
           </tbody>
         </table>
       </div>
-      <div class="cat-cards">
-        {rows.filter((row) => row.href && !row.sample && typeof row.stockQty === "number").map((row) => (
-          <ProductCard
-            href={row.href!}
-            partNumber={row.partNumber}
-            name={row.name}
-            price={row.price}
-            breaks={row.breaks}
-            stockQty={row.stockQty!}
-            lowStockAt={row.lowStockAt}
-            restockOn={row.restockOn}
-            packageType={row.packageType ?? ""}
-            image={row.image}
-            transition={row.transition ?? false}
-          />
-        ))}
+      <div class="row-preview" data-row-preview aria-hidden="true">
+        <div class="row-preview-motion" data-preview-card></div>
       </div>
+      {cards && (
+        <div class="cat-cards">
+          {rows.filter((row) => row.href && !row.sample && typeof row.stockQty === "number").map((row) => (
+            <ProductCard
+              href={row.href!}
+              partNumber={row.partNumber}
+              name={row.name}
+              price={row.price}
+              breaks={row.breaks}
+              stockQty={row.stockQty!}
+              lowStockAt={row.lowStockAt}
+              restockOn={row.restockOn}
+              packageType={row.packageType ?? ""}
+              image={row.image}
+              transition={row.transition ?? false}
+            />
+          ))}
+        </div>
+      )}
     </>
   )}
 </div>
@@ -198,12 +306,13 @@ function sortLabel(column: string, state: "ascending" | "descending" | "none") {
   }
 
   .cat-table {
+    --list-stagger: 30ms;
     width: 100%;
     border-collapse: collapse;
     table-layout: fixed;
   }
 
-  .c-photo { width: 84px; }
+  .c-photo { width: var(--space-96); }
   .c-part { width: 22%; }
   .c-spec { width: 18%; }
   .c-stock { width: 88px; }
@@ -225,8 +334,9 @@ function sortLabel(column: string, state: "ascending" | "descending" | "none") {
   }
 
   .cat-table th.num,
-  .cat-table td.num {
-    text-align: right;
+  .cat-table td.num,
+  .cat-table td.add {
+    text-align: left;
   }
 
   .cat-table th a {
@@ -248,7 +358,12 @@ function sortLabel(column: string, state: "ascending" | "descending" | "none") {
   }
 
   .cat-table tbody tr {
-    transition: background-color var(--dur-1) var(--ease-out);
+    transition: background-color var(--dur-fast, var(--dur-1)) var(--ease-out);
+  }
+
+  .cat-table tbody tr.is-linked {
+    position: relative;
+    cursor: pointer;
   }
 
   .cat-table tbody tr:hover,
@@ -256,9 +371,26 @@ function sortLabel(column: string, state: "ascending" | "descending" | "none") {
     background: var(--color-blue-50);
   }
 
+  /* The part link covers the row. Add sits above it and keeps its own focus. */
+  a.part-link::after {
+    content: "";
+    position: absolute;
+    z-index: 1;
+    inset: 0;
+  }
+
+  a.part-link:focus-visible {
+    outline: none;
+  }
+
+  .cat-table tbody tr.is-linked:has(a.part-link:focus-visible) a.part-link::after {
+    outline: 2px solid var(--color-action);
+    outline-offset: -2px;
+  }
+
   .thumb {
-    width: 52px;
-    height: 52px;
+    width: var(--space-64);
+    height: var(--space-64);
     overflow: hidden;
     border-radius: var(--radius-control);
     background: var(--color-sunken);
@@ -296,6 +428,11 @@ function sortLabel(column: string, state: "ascending" | "descending" | "none") {
     text-align: center;
   }
 
+  .part-id {
+    display: inline-block;
+    max-width: 100%;
+  }
+
   .part-link {
     color: var(--color-ink);
     font-family: var(--font-part);
@@ -329,7 +466,7 @@ function sortLabel(column: string, state: "ascending" | "descending" | "none") {
   .stock-num {
     display: inline-flex;
     align-items: center;
-    justify-content: flex-end;
+    justify-content: flex-start;
     gap: var(--space-8);
     color: var(--color-ok);
     font-weight: var(--font-weight-num);
@@ -353,6 +490,8 @@ function sortLabel(column: string, state: "ascending" | "descending" | "none") {
   .stock-num.out .dot { background: var(--color-out); }
 
   :global(.catalog-add) {
+    position: relative;
+    z-index: 2;
     display: inline-flex;
     align-items: center;
     justify-content: center;
@@ -392,6 +531,224 @@ function sortLabel(column: string, state: "ascending" | "descending" | "none") {
     cursor: not-allowed;
   }
 
+  .row-chevron {
+    display: none;
+  }
+
+  /* motion.md #6. Chevron and photo scale only for a fine pointer. */
+  @media (hover: hover) and (pointer: fine) {
+    .part-line {
+      display: inline-grid;
+      grid-template-columns: minmax(0, max-content) var(--space-16);
+      column-gap: var(--space-8);
+      align-items: center;
+      max-width: 100%;
+    }
+
+    .part-line .part-link {
+      min-width: 0;
+    }
+
+    .row-chevron {
+      display: block;
+      width: var(--space-16);
+      height: var(--space-16);
+      color: var(--color-ink-muted);
+      opacity: 0;
+      transform: translateX(var(--space-4));
+      transition-property: opacity, transform;
+      transition-duration: var(--dur-fast, var(--dur-1));
+      transition-timing-function: var(--ease-out);
+    }
+
+    .cat-table tbody tr:hover .row-chevron,
+    .cat-table tbody tr:focus-within .row-chevron {
+      opacity: 1;
+      transform: translateX(0);
+    }
+
+    .thumb :global(img) {
+      transition: transform var(--dur-fast, var(--dur-1)) var(--ease-out);
+    }
+
+    .cat-table tbody tr:hover .thumb :global(img) {
+      transform: scale(1.06);
+    }
+  }
+
+  /* motion.md #7. The card is moved to the body so the panel cannot clip it. */
+  .row-preview {
+    display: none;
+  }
+
+  @media (min-width: 1200px) {
+    .row-preview {
+      --preview-x: 0px;
+      --preview-y: 0px;
+      --preview-gap: var(--space-16);
+      display: block;
+      position: fixed;
+      z-index: 30;
+      top: 0;
+      left: 0;
+      transform: translate3d(var(--preview-x), var(--preview-y), 0);
+      pointer-events: none;
+      visibility: hidden;
+    }
+
+    .row-preview.is-placed {
+      visibility: visible;
+    }
+
+    .row-preview-motion {
+      opacity: 0;
+      transform: scale(0.96);
+      transform-origin: top left;
+      transition-property: opacity, transform;
+      transition-duration: var(--dur-fast, var(--dur-1));
+      transition-timing-function: var(--ease-out);
+    }
+
+    .row-preview.is-on .row-preview-motion {
+      opacity: 1;
+      transform: scale(1);
+    }
+
+    .row-preview[data-side-x="left"][data-side-y="below"] .row-preview-motion {
+      transform-origin: top right;
+    }
+
+    .row-preview[data-side-x="right"][data-side-y="above"] .row-preview-motion {
+      transform-origin: bottom left;
+    }
+
+    .row-preview[data-side-x="left"][data-side-y="above"] .row-preview-motion {
+      transform-origin: bottom right;
+    }
+  }
+
+  .row-preview-motion {
+    width: max-content;
+    max-width: calc(var(--space-128) * 2 + var(--space-80));
+    padding: var(--space-16);
+    border-radius: var(--radius-card);
+    background: var(--color-surface);
+    box-shadow: var(--shadow-3), inset 0 0 0 1px var(--color-line);
+  }
+
+  .row-preview-motion :global(.preview-layout) {
+    display: grid;
+    grid-template-columns: var(--space-128) minmax(var(--space-96), calc(var(--space-128) + var(--space-32)));
+    gap: var(--space-16);
+    align-items: start;
+  }
+
+  .row-preview-motion :global(.preview-photo) {
+    width: var(--space-128);
+    height: var(--space-128);
+    overflow: hidden;
+    border-radius: var(--radius-control);
+    background: var(--color-sunken);
+    isolation: isolate;
+  }
+
+  .row-preview-motion :global(.preview-photo) :global(img),
+  .row-preview-motion :global(.preview-photo) :global(picture) {
+    display: block;
+    width: 100%;
+    height: 100%;
+  }
+
+  .row-preview-motion :global(.preview-photo) :global(img) {
+    object-fit: cover;
+    mix-blend-mode: multiply;
+  }
+
+  .row-preview-motion :global(.preview-part) {
+    margin: 0;
+    color: var(--color-ink);
+    font-family: var(--font-part);
+    font-size: var(--text-small);
+    font-weight: var(--font-weight-part);
+    font-variation-settings: normal;
+    font-variant-numeric: slashed-zero;
+    letter-spacing: var(--tracking-part);
+    line-height: var(--text-small--line-height);
+  }
+
+  .row-preview-motion :global(.preview-name) {
+    margin: var(--space-4) 0 0;
+    color: var(--color-ink-muted);
+    font-size: var(--text-caption);
+    line-height: var(--text-caption--line-height);
+  }
+
+  .row-preview-motion :global(.preview-figures) {
+    display: grid;
+    grid-template-columns: minmax(0, 1fr) auto;
+    gap: var(--space-4) var(--space-8);
+    margin: var(--space-12) 0 0;
+  }
+
+  .row-preview-motion :global(.preview-figures) :global(dt) {
+    margin: 0;
+    color: var(--color-ink-muted);
+    font-family: var(--font-label);
+    font-size: var(--text-label);
+    font-weight: var(--text-label--font-weight);
+    font-variation-settings: normal;
+    letter-spacing: var(--text-label--letter-spacing);
+    line-height: var(--text-label--line-height);
+    text-transform: uppercase;
+  }
+
+  .row-preview-motion :global(.preview-figures) :global(dd) {
+    margin: 0;
+    font-size: var(--text-small);
+    font-weight: var(--font-weight-num);
+    font-variant-numeric: tabular-nums;
+    font-variation-settings: "wdth" var(--wdth-num);
+    letter-spacing: var(--tracking-num);
+    line-height: var(--text-small--line-height);
+    text-align: right;
+    white-space: nowrap;
+  }
+
+  .row-preview-motion :global(.preview-unit) {
+    color: var(--color-ink-muted);
+    font-size: var(--text-caption);
+    font-weight: var(--text-label--font-weight);
+  }
+
+  /* motion.md #2, list side: first 8 rows rise once. Not replayed after the flag drops. */
+  @media (min-width: 900px) and (prefers-reduced-motion: no-preference) {
+    :global(html[data-list-enter="rise"]) .cat-table tbody > tr {
+      animation: cat-row-rise var(--dur-page, var(--dur-3)) var(--ease-out) both;
+      will-change: transform, opacity;
+    }
+
+    :global(html[data-list-enter="rise"]) .cat-table tbody > tr:nth-child(2) { animation-delay: calc(var(--list-stagger) * 1); }
+    :global(html[data-list-enter="rise"]) .cat-table tbody > tr:nth-child(3) { animation-delay: calc(var(--list-stagger) * 2); }
+    :global(html[data-list-enter="rise"]) .cat-table tbody > tr:nth-child(4) { animation-delay: calc(var(--list-stagger) * 3); }
+    :global(html[data-list-enter="rise"]) .cat-table tbody > tr:nth-child(5) { animation-delay: calc(var(--list-stagger) * 4); }
+    :global(html[data-list-enter="rise"]) .cat-table tbody > tr:nth-child(6) { animation-delay: calc(var(--list-stagger) * 5); }
+    :global(html[data-list-enter="rise"]) .cat-table tbody > tr:nth-child(7) { animation-delay: calc(var(--list-stagger) * 6); }
+    :global(html[data-list-enter="rise"]) .cat-table tbody > tr:nth-child(n + 8) { animation-delay: calc(var(--list-stagger) * 7); }
+
+    :global(html[data-list-enter="rise"]) .cat-table tbody > tr.is-settled {
+      animation: none;
+      opacity: 1;
+      transform: none;
+      will-change: auto;
+    }
+  }
+
+  @media (min-width: 900px) and (prefers-reduced-motion: reduce) {
+    :global(html[data-list-enter="fade"]) .cat-scroll {
+      animation: cat-list-fade var(--dur-1) var(--ease-out) both;
+    }
+  }
+
   @media (min-width: 900px) {
     .cat-panel {
       overflow: hidden;
@@ -407,6 +764,17 @@ function sortLabel(column: string, state: "ascending" | "descending" | "none") {
     .cat-cards {
       display: none;
     }
+
+    .cat-cards :global([class*="vt-part-"]) {
+      view-transition-name: none;
+    }
+  }
+
+  @media (max-width: 899px) {
+    /* When the narrow cards are in the DOM they own the morph name. The catalog grid does not render them. */
+    .cat-panel:has(.cat-cards) .cat-scroll :global([class*="vt-part-"]) {
+      view-transition-name: none;
+    }
   }
 
   @media (prefers-reduced-motion: reduce) {
@@ -421,5 +789,49 @@ function sortLabel(column: string, state: "ascending" | "descending" | "none") {
     :global(.catalog-add:active) {
       transform: none;
     }
+
+    .row-chevron,
+    .thumb :global(img),
+    .row-preview-motion {
+      transition: none;
+      transform: none;
+    }
+
+    .cat-table tbody tr:hover .row-chevron,
+    .cat-table tbody tr:focus-within .row-chevron {
+      opacity: 1;
+      transform: none;
+    }
+
+    .cat-table tbody tr:hover .thumb :global(img) {
+      transform: none;
+    }
+
+    .row-preview {
+      display: none;
+    }
+  }
+
+  @keyframes cat-row-rise {
+    from {
+      opacity: 0;
+      transform: translateY(var(--space-12));
+    }
+
+    to {
+      opacity: 1;
+      transform: translateY(0);
+    }
+  }
+
+  @keyframes cat-list-fade {
+    from { opacity: 0; }
+    to { opacity: 1; }
   }
 </style>
+
+<script>
+  import { bindCatalogList } from "../lib/catalog-list";
+
+  bindCatalogList();
+</script>

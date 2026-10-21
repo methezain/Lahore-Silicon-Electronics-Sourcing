@@ -154,13 +154,35 @@
   --shadow-2: 0 2px 4px oklch(0.228 0.047 254.7 / 0.05), 0 8px 24px -6px oklch(0.228 0.047 254.7 / 0.12);
   --shadow-3: 0 4px 8px oklch(0.228 0.047 254.7 / 0.06), 0 24px 48px -12px oklch(0.228 0.047 254.7 / 0.28);
 
-  /* 6. Motion */
+  /* Motion durations and easing. docs/motion.md.
+     dur-1, dur-2 and dur-3 stay for transitions not yet on the new scale. */
   --dur-1: 120ms;
   --dur-2: 200ms;
   --dur-3: 320ms;
-  --ease-out: cubic-bezier(0.2, 0.8, 0.2, 1);
+  --dur-instant: 80ms;
+  --dur-fast: 140ms;
+  --dur-base: 220ms;
+  --dur-slow: 360ms;
+  --dur-page: 420ms;
+  --ease-out: cubic-bezier(0.22, 1, 0.36, 1);
+  --ease-in-out: cubic-bezier(0.65, 0, 0.35, 1);
+  --ease-exit: cubic-bezier(0.4, 0, 1, 1);
   --default-transition-duration: var(--dur-1);
   --default-transition-timing-function: var(--ease-out);
+}
+
+/* Spring presets, stagger and rise. Seconds in CSS time where motion.ts uses seconds. */
+:root {
+  --spring-snappy-stiffness: 520;
+  --spring-snappy-damping: 42;
+  --spring-snappy-mass: 1;
+  --spring-smooth-duration: 0.4s;
+  --spring-smooth-bounce: 0;
+  --spring-flick-duration: 0.45s;
+  --spring-flick-bounce: 0.18;
+  --stagger: 30ms;
+  --stagger-max: 8;
+  --distance-rise: 12px;
 }
 
 /* Utilities inline the Astro variables. --font-sans above stays available to custom CSS. */

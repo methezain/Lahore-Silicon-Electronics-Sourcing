@@ -1,0 +1,196 @@
+---
+/**
+ * /home story. docs/pages.md (Home) and docs/motion.md item 26.
+ * Drawings come from the package set in src/components/illustrations/.
+ * A slot with no matching drawing keeps the package name.
+ */
+import PackageMark from "./illustrations/PackageMark.tsx";
+import { resolveKind } from "./illustrations/packages";
+import { storyPackages } from "../lib/home";
+import { lahoreDelivery, nationwideDelivery } from "../lib/shipping";
+
+interface Props {
+  parts: readonly { package_type: string; category: string }[];
+}
+
+const pieces = storyPackages(Astro.props.parts).map((slot) => ({
+  ...slot,
+  kind: resolveKind(slot.label),
+}));
+
+const count = pieces.length;
+const countLine =
+  count === 1 ? "1 package type is on this counter." : `${count} package types are on this counter.`;
+---
+
+{count > 0 && (
+  <section class="story home-reveal" id="story" aria-labelledby="story-title">
+    <div class="wrap">
+      <p class="eyebrow">Hall Road</p>
+      <h2 id="story-title">From Hall Road to your bench</h2>
+      <p class="story-lede">{countLine} {lahoreDelivery} {nationwideDelivery}</p>
+      <div class="stage-frame">
+        <ul class="stage">
+          {pieces.map(({ id, label, kind }) => (
+            <li class="piece" data-package={id}>
+              <div class="well" aria-hidden="true">
+                {kind ? <PackageMark kind={kind} /> : <span class="mark">{label}</span>}
+              </div>
+              <p class="cap">{label}</p>
+            </li>
+          ))}
+        </ul>
+      </div>
+    </div>
+  </section>
+)}
+
+<style>
+  .story {
+    padding: var(--space-56) 0 var(--space-16);
+  }
+
+  .wrap {
+    max-width: var(--page-max);
+    margin-inline: auto;
+    padding-inline: var(--gutter);
+  }
+
+  .eyebrow {
+    margin: 0;
+    color: var(--color-ink-muted);
+    font-family: var(--font-label);
+    font-size: var(--text-label);
+    font-weight: var(--text-label--font-weight);
+    font-variation-settings: normal;
+    line-height: var(--text-label--line-height);
+    letter-spacing: var(--text-label--letter-spacing);
+    text-transform: uppercase;
+  }
+
+  h2 {
+    max-width: 16ch;
+    margin: var(--space-12) 0 0;
+    color: var(--color-ink);
+    font-size: var(--text-display);
+    font-weight: var(--text-display--font-weight);
+    line-height: var(--text-display--line-height);
+    letter-spacing: var(--text-display--letter-spacing);
+    font-stretch: calc(var(--wdth-display) * 1%);
+    font-variation-settings: "wdth" var(--wdth-display);
+    text-wrap: balance;
+  }
+
+  .story-lede {
+    max-width: 42rem;
+    margin: var(--space-16) 0 0;
+    color: var(--color-ink-muted);
+    font-size: var(--text-body-lg);
+    font-weight: var(--text-body-lg--font-weight);
+    line-height: var(--text-body-lg--line-height);
+    letter-spacing: var(--text-body-lg--letter-spacing);
+    text-wrap: pretty;
+  }
+
+  .stage-frame {
+    overflow: clip;
+    margin-top: var(--space-32);
+  }
+
+  .stage {
+    display: grid;
+    grid-template-columns: repeat(3, minmax(0, 1fr));
+    gap: var(--space-12);
+    margin: 0;
+    padding: 0;
+    list-style: none;
+  }
+
+  .well {
+    position: relative;
+    display: grid;
+    place-items: center;
+    aspect-ratio: 1;
+    min-width: 0;
+    overflow: clip;
+    border-radius: var(--radius-card);
+    background: var(--color-sunken);
+    color: var(--color-ink);
+    box-shadow: inset 0 0 0 1px var(--color-line);
+  }
+
+  .mark {
+    padding: var(--space-8);
+    font-family: var(--font-part);
+    font-size: var(--text-caption);
+    font-weight: var(--font-weight-part);
+    font-variation-settings: normal;
+    letter-spacing: var(--tracking-part);
+    line-height: var(--text-caption--line-height);
+    text-align: center;
+    text-wrap: balance;
+  }
+
+  .cap {
+    position: relative;
+    z-index: 1;
+    margin: var(--space-8) 0 0;
+    color: var(--color-ink-muted);
+    font-family: var(--font-part);
+    font-size: var(--text-caption);
+    font-weight: var(--font-weight-part);
+    font-variation-settings: normal;
+    letter-spacing: var(--tracking-part);
+    line-height: var(--text-caption--line-height);
+    text-align: center;
+  }
+
+  .piece:nth-child(1) { --from-x: calc(var(--space-40) * -1); --from-y: var(--space-16); }
+  .piece:nth-child(2) { --from-x: calc(var(--space-24) * -1); --from-y: calc(var(--space-24) * -1); }
+  .piece:nth-child(3) { --from-x: calc(var(--space-12) * -1); --from-y: var(--space-32); }
+  .piece:nth-child(4) { --from-x: var(--space-12); --from-y: calc(var(--space-16) * -1); }
+  .piece:nth-child(5) { --from-x: var(--space-24); --from-y: var(--space-24); }
+  .piece:nth-child(6) { --from-x: var(--space-40); --from-y: var(--space-8); }
+
+  @media (min-width: 900px) {
+    .story {
+      padding: var(--space-96) 0 var(--space-24);
+    }
+
+    .stage {
+      grid-template-columns: repeat(6, minmax(0, 1fr));
+    }
+  }
+
+  @media (prefers-reduced-motion: no-preference) {
+    @supports (animation-timeline: view()) {
+      .stage-frame {
+        view-timeline-name: --packages;
+      }
+
+      .piece {
+        animation: piece-in linear both;
+        animation-timeline: --packages;
+        animation-range: 0% 22%;
+      }
+
+      .piece:nth-child(2) { animation-range: 2% 24%; }
+      .piece:nth-child(3) { animation-range: 4% 26%; }
+      .piece:nth-child(4) { animation-range: 6% 28%; }
+      .piece:nth-child(5) { animation-range: 8% 30%; }
+      .piece:nth-child(6) { animation-range: 10% 32%; }
+    }
+  }
+
+  @keyframes piece-in {
+    from {
+      opacity: 0;
+      transform: translate(var(--from-x, 0px), var(--from-y, var(--space-24)));
+    }
+
+    to {
+      opacity: 1;
+      transform: none;
+    }
+  }
+</style>

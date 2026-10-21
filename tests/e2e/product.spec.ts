@@ -1,7 +1,5 @@
-import { createRequire } from "node:module";
 import { expect, test } from "@playwright/test";
-
-const require = createRequire(import.meta.url);
+import { expectNoAxeViolations } from "./axe";
 
 test("product page buy panel, specs, and no horizontal overflow", async ({ page }, testInfo) => {
   await page.goto("/product/lm7805");
@@ -10,6 +8,14 @@ test("product page buy panel, specs, and no horizontal overflow", async ({ page 
   await expect(page.locator(".summary")).toHaveText("Turns 7–35 V into a steady 5 V at up to 1 A.");
   await expect(page.getByRole("navigation", { name: "Breadcrumb" })).toContainText("Catalog");
   await expect(page.getByRole("navigation", { name: "Breadcrumb" })).toContainText("Power");
+  const crumbGap = await page.evaluate(() => {
+    const header = document.querySelector(".site-header");
+    const crumb = document.querySelector(".crumb");
+    if (!(header instanceof HTMLElement) || !(crumb instanceof HTMLElement)) return -1;
+    return crumb.getBoundingClientRect().top - header.getBoundingClientRect().bottom;
+  });
+  expect(crumbGap).toBeGreaterThanOrEqual(14);
+  expect(crumbGap).toBeLessThanOrEqual(18);
   await expect(page.locator(".tab")).toContainText("LM7805");
   await expect(page.locator(".tab")).toContainText("Texas Instruments");
   await expect(page.locator(".price-line")).toContainText("48 in stock");
@@ -112,6 +118,17 @@ test("mobile sticky add bar and desktop keyboard focus", async ({ page }) => {
   const add = page.locator(".qty-row .buy-add");
 
   if (width < 900) {
+    const bar = page.locator(".buy-bar");
+    await expect(bar).toBeVisible();
+    const barBox = await bar.boundingBox();
+    const viewport = page.viewportSize();
+    expect(barBox).toBeTruthy();
+    expect(await page.evaluate(() => window.scrollY)).toBe(0);
+    expect(barBox!.y).toBeGreaterThanOrEqual(0);
+    expect(barBox!.y + barBox!.height).toBeLessThanOrEqual((viewport?.height ?? 0) + 1);
+    await expect(bar.locator(".unit-price")).toContainText("Rs");
+    await expect(bar.locator(".buy-add")).toHaveText("Add to cart · Rs 45");
+
     await page.locator(".qty-row .buy-add").evaluate((button) => {
       const header = document.querySelector(".site-header");
       const headerBottom = header instanceof HTMLElement ? header.getBoundingClientRect().height : 0;
@@ -130,7 +147,10 @@ test("mobile sticky add bar and desktop keyboard focus", async ({ page }) => {
     await expect(page.locator(".buy-bar")).toBeHidden();
   }
 
-  await page.locator(".qty-row").evaluate((el) => el.scrollIntoView({ block: "center" }));
+  await page.locator(".qty-row").evaluate((el) => {
+    document.documentElement.style.scrollBehavior = "auto";
+    el.scrollIntoView({ block: "center" });
+  });
   const qty = page.getByRole("complementary", { name: "Buy LM7805" }).getByRole("textbox", { name: "Quantity for LM7805" });
   await qty.focus();
   await page.keyboard.press("Tab");
@@ -181,30 +201,8 @@ test("reduced motion keeps the add control still", async ({ page }) => {
 
 test("axe finds no WCAG A/AA violations on the product page", async ({ page }) => {
   await page.goto("/product/lm7805");
-  await page.addScriptTag({ path: require.resolve("axe-core") });
   await expect(page.locator(".eta-lead")).not.toBeEmpty();
-  const violations = await page.evaluate(async () => {
-    const axe = (window as unknown as {
-      axe: {
-        run: (
-          context: Document,
-          options: { runOnly: { type: "tag"; values: string[] } },
-        ) => Promise<{
-          violations: { id: string; impact: string | null; help: string; nodes: { target: string[] }[] }[];
-        }>;
-      };
-    }).axe;
-    const result = await axe.run(document, {
-      runOnly: { type: "tag", values: ["wcag2a", "wcag2aa", "wcag21a", "wcag21aa"] },
-    });
-    return result.violations.map((violation) => ({
-      id: violation.id,
-      impact: violation.impact,
-      help: violation.help,
-      targets: violation.nodes.slice(0, 3).map((node) => node.target.join(" ")),
-    }));
-  });
-  expect(violations).toEqual([]);
+  await expectNoAxeViolations(page);
 });
 
 test("layout at the 900px switch", async ({ page }, testInfo) => {
