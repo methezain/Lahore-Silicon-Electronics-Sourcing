@@ -1,8 +1,10 @@
 /**
  * The only place a price is computed or formatted.
- * The product page, the cart, and POST /api/order all call this module.
+ * The product page, the cart, and the checkout action all call this module.
  * Prices are integer PKR. Quantity breaks apply only when a part has them.
  */
+
+import { emptyCart, priceChanged } from "./order";
 
 export type PriceBreak = {
   min_qty: number;
@@ -164,12 +166,12 @@ export function quoteOrder(
     return { ok: false, error: `The shop does not sell ${priced.missing[0]}.` };
   }
   if (priced.lines.length === 0) {
-    return { ok: false, error: "Cart cannot be empty." };
+    return { ok: false, error: emptyCart };
   }
   if (clientTotal !== priced.total) {
     return {
       ok: false,
-      error: `Order total does not match the catalog price. The total is ${formatPkr(priced.total)}.`,
+      error: priceChanged(formatPkr(priced.total)),
     };
   }
 

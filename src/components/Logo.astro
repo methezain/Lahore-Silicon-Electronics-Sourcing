@@ -1,10 +1,13 @@
 ---
+import { shopName } from "../lib/shop";
+
 interface Props {
   surface?: "light" | "navy";
   href?: string;
 }
 
 const { surface = "light", href } = Astro.props;
+const name = shopName();
 const classes = ["logo", surface === "navy" ? "logo-on-navy" : "logo-on-light"];
 ---
 
@@ -14,14 +17,14 @@ const classes = ["logo", surface === "navy" ? "logo-on-navy" : "logo-on-light"];
       <svg width="32" height="32" aria-hidden="true" focusable="false">
         <use href="#plug" />
       </svg>
-      <span>Lahore Silicon</span>
+      <span>{name}</span>
     </a>
   ) : (
     <p class:list={classes}>
       <svg width="32" height="32" aria-hidden="true" focusable="false">
         <use href="#plug" />
       </svg>
-      <span>Lahore Silicon</span>
+      <span>{name}</span>
     </p>
   )
 }

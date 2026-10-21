@@ -1,6 +1,6 @@
 import { readdirSync, readFileSync } from 'node:fs';
 import { describe, expect, it } from 'vitest';
-import { searchCatalog, type SearchPart, type SearchSpec } from '../../src/lib/catalog-search';
+import { exactPart, notStocked, searchCatalog, sourcingOffer, type SearchPart, type SearchSpec } from '../../src/lib/catalog-search';
 
 function catalog(): SearchPart[] {
   return readdirSync('src/content/components')
@@ -166,5 +166,17 @@ describe('searchCatalog words', () => {
 
   it('returns nothing for a blank query', () => {
     expect(searchCatalog(catalog(), '   ')).toEqual([]);
+  });
+});
+
+describe('exactPart', () => {
+  it('matches a normalized part number and misses a prefix', () => {
+    const parts = catalog();
+    expect(exactPart(parts, 'lm 7805')?.part_number).toBe('LM7805');
+    expect(exactPart(parts, 'LM-7805')?.part_number).toBe('LM7805');
+    expect(exactPart(parts, 'lm78')).toBeUndefined();
+    expect(exactPart(parts, 'nope')).toBeUndefined();
+    expect(notStocked('NOPE')).toBe("We don't stock NOPE.");
+    expect(sourcingOffer).toBe("Send the part number on WhatsApp and we'll check Hall Road.");
   });
 });

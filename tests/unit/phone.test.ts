@@ -1,9 +1,9 @@
 import { describe, expect, it } from 'vitest';
-import { normalizePkMobile, phoneRule } from '../../src/lib/phone';
+import { normalizePkMobile, phoneMessage, phoneRule } from '../../src/lib/phone';
 
 describe('normalizePkMobile', () => {
   it('keeps the rule text with the module', () => {
-    expect(phoneRule).toBe('Enter a Pakistani mobile number, 03XX XXXXXXX.');
+    expect(phoneRule).toBe('Enter a Pakistani mobile number, like 0300 1234567.');
   });
 
   it.each([
@@ -24,6 +24,11 @@ describe('normalizePkMobile', () => {
     'rejects %s',
     (raw) => {
       expect(normalizePkMobile(raw)).toBeUndefined();
+      expect(phoneMessage(raw)).toBe(phoneRule);
     },
   );
+
+  it('accepts the same mobiles the normalizer accepts', () => {
+    expect(phoneMessage('0300 1234567')).toBeNull();
+  });
 });

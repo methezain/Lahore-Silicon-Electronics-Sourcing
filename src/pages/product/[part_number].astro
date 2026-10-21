@@ -1,13 +1,23 @@
 ---
+/**
+ * Product page. docs/pages.md#product-productpart_number.
+ * Prerendered. The dispatch countdown is filled in the browser so it is not frozen at build time.
+ * Pinout, companions, and questions render only when those fields exist.
+ */
 import { getImage } from "astro:assets";
-import Layout from "../../layouts/Layout.astro";
 import { getCollection } from "astro:content";
-import PartPicture from "../../components/PartPicture.astro";
+import KeyFigures from "../../components/KeyFigures.astro";
+import ProductGallery from "../../components/ProductGallery.astro";
 import ProductPurchase from "../../components/ProductPurchase.tsx";
+import SpecTable from "../../components/SpecTable.astro";
+import Layout from "../../layouts/Layout.astro";
 import { partThumbSrc } from "../../lib/catalog";
-import { formatPkr, unitPrice } from "../../lib/money";
+import { cspSha256 } from "../../lib/csp";
+import { unitPrice } from "../../lib/money";
 import { productPhoto } from "../../lib/part-image";
-import { deliveryCost, returnRule, shippingWindows } from "../../lib/shipping";
+import { keyFigures, productMetaDescription } from "../../lib/product";
+import { pageTitle, shopName, whatsappHref } from "../../lib/shop";
+import { defectFact } from "../../lib/shipping";
 
 export const prerender = true;
 
@@ -21,9 +31,21 @@ export async function getStaticPaths() {
 
 const { component } = Astro.props;
 const { data } = component;
+const catalog = await getCollection("components");
+const photo = data.images?.[0];
 const unit = unitPrice({ price: data.price, breaks: data.breaks }, 1);
-const thumb = data.image ? await partThumbSrc(data.image) : undefined;
-const stockLabel = data.stock_qty > 0 ? `${data.stock_qty} in stock` : data.restock_on ? `Back on ${data.restock_on}` : "Out of stock";
+const thumb = photo ? await partThumbSrc(photo.src) : undefined;
+const figures = keyFigures(data.specs, data.key_specs);
+const askHref = whatsappHref(data.part_number);
+const photoAlt = photo?.alt ?? `${data.part_number}, ${data.package_type}`;
+const pinout = (data.pinout ?? []).map((row) => ({
+  label: row.pin,
+  value: row.note ? `${row.label}. ${row.note}` : row.label,
+}));
+const companions = (data.companions ?? []).flatMap((partNumber) => {
+  const match = catalog.find((entry) => entry.data.part_number === partNumber);
+  return match ? [{ partNumber: match.data.part_number, name: match.data.name }] : [];
+});
 
 const schemaLD: Record<string, unknown> = {
   "@context": "https://schema.org/",
@@ -35,88 +57,464 @@ const schemaLD: Record<string, unknown> = {
   brand: { "@type": "Brand", name: data.manufacturer },
   offers: {
     "@type": "Offer",
-    url: `https://lahoresilicon.com/product/${data.part_number.toLowerCase()}`,
+    url: new URL(`/product/${data.part_number.toLowerCase()}`, Astro.site ?? Astro.url).href,
     priceCurrency: data.currency,
     price: String(unit),
     availability: data.stock_qty > 0 ? "https://schema.org/InStock" : "https://schema.org/OutOfStock",
-    seller: { "@type": "Organization", name: "Lahore Silicon" },
+    seller: { "@type": "Organization", name: shopName() },
   },
 };
-if (data.image) {
-  const photo = await getImage({
-    src: data.image,
+if (photo) {
+  const rendered = await getImage({
+    src: photo.src,
     width: productPhoto.width,
     height: productPhoto.height,
     format: "webp",
   });
-  schemaLD.image = [new URL(photo.src, Astro.site ?? Astro.url).href];
+  schemaLD.image = [new URL(rendered.src, Astro.site ?? Astro.url).href];
 }
+const jsonLd = JSON.stringify(schemaLD);
+if (Astro.csp) Astro.csp.insertScriptHash(await cspSha256(jsonLd));
 ---
 
-<Layout title={`${data.part_number} — ${data.name}`} description={data.description}>
+<Layout title={pageTitle(`${data.part_number} ${data.name}`)} description={productMetaDescription(data.summary)}>
   <Fragment slot="head">
-    <script type="application/ld+json" is:inline set:html={JSON.stringify(schemaLD)} />
+    <script type="application/ld+json" is:inline set:html={jsonLd} />
   </Fragment>
 
-  <article class="product-screen" data-pagefind-body>
-    <p class="sr-only">{data.mpn}</p>
-    <div>
-      <div class="image-well">
-        {data.image ? (
-          <PartPicture
-            src={data.image}
-            partNumber={data.part_number}
-            alt={`${data.part_number}, ${data.package_type}`}
-            width={productPhoto.width}
-            height={productPhoto.height}
-            sizes={productPhoto.sizes}
-            widths={[...productPhoto.widths]}
-            priority
-            frameClass="image-frame"
-          />
-        ) : (
-          <p class="mono">{data.package_type}</p>
+  <article class="product-page" data-pagefind-body>
+    <nav class="crumb" aria-label="Breadcrumb">
+      <ol>
+        <li><a href="/#catalog">Catalog</a></li>
+        <li><a href={`/?category=${encodeURIComponent(data.category)}#catalog`}>{data.category}</a></li>
+        <li><span class="here" aria-current="page">{data.part_number}</span></li>
+      </ol>
+    </nav>
+
+    <div class="pdp">
+      <ProductGallery
+        partNumber={data.part_number}
+        manufacturer={data.manufacturer}
+        packageType={data.package_type}
+        image={photo?.src}
+        imageNote={photo?.note}
+        alt={photoAlt}
+      />
+
+      <aside class="buy-panel" aria-label={`Buy ${data.part_number}`}>
+        <div class="pn-line">
+          <span class="chip">{data.part_number}</span>
+          <span class="pkg">{data.package_type} · {data.mounting_type}</span>
+        </div>
+        <h1 class="title">{data.name}</h1>
+        <p class="summary">{data.summary}</p>
+        <ProductPurchase
+          client:load
+          partNumber={data.part_number}
+          name={data.name}
+          image={thumb}
+          price={data.price}
+          breaks={data.breaks}
+          min_qty={data.min_qty}
+          qty_multiple={data.qty_multiple}
+          stock_qty={data.stock_qty}
+          restock_on={data.restock_on}
+          low_stock_at={data.low_stock_at}
+          askHref={askHref}
+        />
+        <hr class="rule" />
+        <dl class="kv">
+          <div>
+            <dt>In the bag</dt>
+            <dd>{data.in_the_bag}</dd>
+          </div>
+          {data.logic_level && (
+            <div>
+              <dt>Logic</dt>
+              <dd>{data.logic_level}</dd>
+            </div>
+          )}
+          {data.not_included && (
+            <div>
+              <dt>Not included</dt>
+              <dd>{data.not_included}</dd>
+            </div>
+          )}
+          {data.mpn !== data.part_number && (
+            <div>
+              <dt>MPN</dt>
+              <dd class="mpn">{data.mpn}</dd>
+            </div>
+          )}
+          {data.datasheet && (
+            <div>
+              <dt>Datasheet</dt>
+              <dd>
+                <a class="doc" href={data.datasheet}>
+                  <svg width="16" height="16" aria-hidden="true" focusable="false"><use href="#doc" /></svg>
+                  Datasheet
+                </a>
+              </dd>
+            </div>
+          )}
+          <div>
+            <dt>Defects</dt>
+            <dd><a href="/shipping-and-payments#defects">{defectFact}</a></dd>
+          </div>
+        </dl>
+      </aside>
+    </div>
+
+    {figures.length > 0 && (
+      <section class="block" aria-labelledby="figures-heading">
+        <h2 id="figures-heading" class="heading">Key figures</h2>
+        <KeyFigures figures={figures} />
+      </section>
+    )}
+
+    <section class="block" aria-labelledby="specs-heading">
+      <h2 id="specs-heading" class="heading">Specifications</h2>
+      <SpecTable specs={data.specs} />
+      <p class="body copy">{data.description}</p>
+      {data.limits && <p class="limits">{data.limits}</p>}
+    </section>
+
+    {(pinout.length > 0 || companions.length > 0) && (
+      <div class:list={["block", "split", pinout.length > 0 && companions.length > 0 && "is-pair"]}>
+        {pinout.length > 0 && (
+          <section aria-labelledby="pinout-heading">
+            <h2 id="pinout-heading" class="heading">Pinout</h2>
+            <SpecTable specs={pinout} />
+          </section>
+        )}
+        {companions.length > 0 && (
+          <section aria-labelledby="companions-heading">
+            <h2 id="companions-heading" class="heading">You will also need</h2>
+            <ul class="panel">
+              {companions.map((part) => (
+                <li>
+                  <a class="companion" href={`/product/${part.partNumber.toLowerCase()}`}>
+                    <span class="pn">{part.partNumber}</span>
+                    <span class="job">{part.name}</span>
+                  </a>
+                </li>
+              ))}
+            </ul>
+          </section>
         )}
       </div>
-      {data.image_note && <p class="image-note caption">{data.image_note}</p>}
-    </div>
+    )}
 
-    <div class="product-facts">
-      <h1 class="title">{data.name}</h1>
-      <p class="part-number">{data.part_number}</p>
-      <hr class="copper-rule" />
-      <p class="price money">{formatPkr(unit)}</p>
-      <p>{stockLabel}</p>
-      <p>{shippingWindows}</p>
-      <p>{deliveryCost}</p>
-      <ProductPurchase
-        client:load
-        part_number={data.part_number}
-        name={data.name}
-        image={thumb}
-        min_qty={data.min_qty}
-        qty_multiple={data.qty_multiple}
-        stock_qty={data.stock_qty}
-      />
-      {data.datasheet && (
-        <p><a href={data.datasheet}>Datasheet</a></p>
-      )}
-      <p>{data.in_the_bag}</p>
-      {data.limits && <p>{data.limits}</p>}
-      <p><a href="/shipping-and-payments#defects">{returnRule}</a></p>
-    </div>
-  </article>
-
-  <section class="spec-block" aria-labelledby="specs-heading">
-    <h2 id="specs-heading" class="heading">Specifications</h2>
-    <dl class="spec-table">
-      {data.specs.map((spec, index) => (
-        <div class={index % 2 === 1 ? "spec-row is-sunken" : "spec-row"}>
-          <dt>{spec.label}</dt>
-          <dd>{spec.unit ? `${spec.value} ${spec.unit}` : spec.value}</dd>
+    {data.faq && data.faq.length > 0 && (
+      <section class="block" aria-labelledby="questions-heading">
+        <h2 id="questions-heading" class="heading">Questions</h2>
+        <div class="panel">
+          {data.faq.map((item) => (
+            <div class="qa">
+              <h3 class="q">{item.q}</h3>
+              <p class="a">{item.a}</p>
+            </div>
+          ))}
         </div>
-      ))}
-    </dl>
-    <p class="body">{data.description}</p>
-  </section>
+      </section>
+    )}
+  </article>
 </Layout>
+
+<style>
+  .product-page {
+    max-width: var(--page-max);
+    margin-inline: auto;
+    padding: var(--header-clearance) var(--gutter) var(--space-56);
+  }
+
+  .crumb ol {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: center;
+    gap: var(--space-8);
+    margin: 0 0 var(--space-16);
+    padding: 0;
+    list-style: none;
+    color: var(--color-ink-muted);
+    font-size: var(--text-caption);
+    line-height: var(--text-caption--line-height);
+  }
+
+  .crumb li {
+    display: inline-flex;
+    align-items: center;
+    gap: var(--space-8);
+    min-width: 0;
+  }
+
+  .crumb li + li::before {
+    content: "/";
+    color: var(--color-ink-muted);
+  }
+
+  .crumb a {
+    color: var(--color-link);
+    text-decoration: underline;
+    text-underline-offset: 2px;
+  }
+
+  .here {
+    color: var(--color-ink);
+    font-family: var(--font-part);
+    font-weight: var(--font-weight-part);
+    font-variation-settings: normal;
+    font-variant-numeric: slashed-zero;
+    letter-spacing: var(--tracking-part);
+    overflow-wrap: anywhere;
+  }
+
+  .pdp {
+    display: grid;
+    gap: var(--space-24);
+    align-items: start;
+  }
+
+  .buy-panel {
+    display: flex;
+    flex-direction: column;
+    gap: var(--space-16);
+    min-width: 0;
+    padding: var(--space-20);
+    border-radius: var(--radius-panel);
+    background: var(--color-surface);
+    box-shadow: var(--shadow-2), inset 0 0 0 1px var(--color-line);
+  }
+
+  .pn-line {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: center;
+    gap: var(--space-8);
+  }
+
+  .chip {
+    display: inline-flex;
+    align-items: center;
+    max-width: 100%;
+    padding: var(--space-4) var(--space-8);
+    border-radius: var(--radius-chip);
+    background: var(--color-sunken);
+    color: var(--color-ink);
+    font-family: var(--font-part);
+    font-size: var(--text-small);
+    font-weight: var(--font-weight-part);
+    font-variation-settings: normal;
+    font-variant-numeric: slashed-zero;
+    letter-spacing: var(--tracking-part);
+    line-height: var(--text-small--line-height);
+    overflow-wrap: anywhere;
+  }
+
+  .pkg {
+    color: var(--color-ink-muted);
+    font-size: var(--text-caption);
+    line-height: var(--text-caption--line-height);
+  }
+
+  .summary {
+    margin: 0;
+    max-width: var(--measure);
+    color: var(--color-ink);
+    font-size: var(--text-body);
+    line-height: var(--text-body--line-height);
+    text-wrap: pretty;
+  }
+
+  .rule {
+    width: 100%;
+    height: 1px;
+    margin: 0;
+    border: 0;
+    background: var(--color-line);
+  }
+
+  .kv {
+    display: grid;
+    gap: var(--space-12);
+    margin: 0;
+  }
+
+  .kv div {
+    display: grid;
+    grid-template-columns: minmax(0, 1fr) minmax(0, 1.4fr);
+    gap: var(--space-16);
+    align-items: center;
+  }
+
+  .kv dt {
+    margin: 0;
+    color: var(--color-ink-muted);
+    font-size: var(--text-small);
+    line-height: var(--text-small--line-height);
+  }
+
+  .kv dd {
+    margin: 0;
+    color: var(--color-ink);
+    font-size: var(--text-small);
+    font-weight: var(--font-weight-strong);
+    line-height: var(--text-small--line-height);
+    text-align: right;
+    text-wrap: pretty;
+    overflow-wrap: anywhere;
+  }
+
+  .kv a {
+    color: var(--color-link);
+    text-decoration: underline;
+    text-underline-offset: 2px;
+  }
+
+  .doc {
+    display: inline-flex;
+    align-items: center;
+    justify-content: flex-end;
+    gap: var(--space-8);
+  }
+
+  .mpn {
+    font-family: var(--font-part);
+    font-weight: var(--font-weight-part);
+    font-variation-settings: normal;
+    font-variant-numeric: slashed-zero;
+    letter-spacing: var(--tracking-part);
+  }
+
+  .block {
+    margin-top: var(--space-56);
+  }
+
+  .block .heading {
+    margin-bottom: var(--space-16);
+    color: var(--color-ink);
+  }
+
+  .copy {
+    margin: var(--space-24) 0 0;
+    color: var(--color-ink);
+  }
+
+  .limits {
+    margin: var(--space-12) 0 0;
+    color: var(--color-ink-muted);
+    font-size: var(--text-caption);
+    line-height: var(--text-caption--line-height);
+    text-wrap: pretty;
+  }
+
+  .split.is-pair {
+    display: grid;
+    gap: var(--space-32);
+  }
+
+  .panel {
+    margin: 0;
+    padding: 0;
+    overflow: hidden;
+    list-style: none;
+    border-radius: var(--radius-panel);
+    background: var(--color-surface);
+    box-shadow: inset 0 0 0 1px var(--color-line);
+  }
+
+  .panel > li + li,
+  .qa + .qa {
+    border-top: 1px solid var(--color-line);
+  }
+
+  .companion {
+    display: flex;
+    flex-direction: column;
+    gap: var(--space-4);
+    padding: var(--space-12) var(--space-16);
+    color: var(--color-ink);
+    text-decoration: none;
+  }
+
+  .companion:hover .job,
+  .companion:focus-visible .job {
+    color: var(--color-link);
+  }
+
+  .pn {
+    color: var(--color-link);
+    font-family: var(--font-part);
+    font-size: var(--text-small);
+    font-weight: var(--font-weight-part);
+    font-variation-settings: normal;
+    font-variant-numeric: slashed-zero;
+    letter-spacing: var(--tracking-part);
+    line-height: var(--text-small--line-height);
+    text-decoration: underline;
+    text-underline-offset: 2px;
+    overflow-wrap: anywhere;
+  }
+
+  .job {
+    color: var(--color-ink);
+    font-size: var(--text-small);
+    line-height: var(--text-small--line-height);
+    text-wrap: pretty;
+  }
+
+  .qa {
+    padding: var(--space-16);
+  }
+
+  .q {
+    margin: 0;
+    color: var(--color-ink);
+    font-size: var(--text-small);
+    font-weight: var(--font-weight-strong);
+    line-height: var(--text-small--line-height);
+    text-wrap: pretty;
+  }
+
+  .a {
+    margin: var(--space-8) 0 0;
+    color: var(--color-ink-muted);
+    font-size: var(--text-small);
+    line-height: var(--text-small--line-height);
+    text-wrap: pretty;
+  }
+
+  @media (min-width: 900px) {
+    .product-page {
+      padding-bottom: var(--space-96);
+    }
+
+    .pdp {
+      grid-template-columns: 1.15fr 0.85fr;
+      gap: var(--space-32);
+    }
+
+    /* Buy panel padding is 28px in design-system.md section 9. It is not on the spacing scale. */
+    .buy-panel {
+      position: sticky;
+      top: var(--space-96);
+      padding: 28px;
+      border-radius: var(--radius-frame);
+    }
+
+    .block {
+      margin-top: var(--space-96);
+    }
+
+    .split.is-pair {
+      grid-template-columns: minmax(0, 1.3fr) minmax(0, 0.7fr);
+      align-items: start;
+    }
+  }
+
+  @media (max-width: 899px) {
+    .product-page :focus {
+      scroll-margin-bottom: calc(var(--space-80) + env(safe-area-inset-bottom, 0px));
+    }
+  }
+</style>

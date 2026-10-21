@@ -1,7 +1,7 @@
 import { useEffect, useRef, useState } from "preact/hooks";
 import { createPortal } from "preact/compat";
 import "./search-dialog.css";
-import { searchCatalog, type SearchPart } from "../lib/catalog-search";
+import { searchCatalog, sourcingOffer, type SearchPart } from "../lib/catalog-search";
 import { formatPkr } from "../lib/money";
 import { stockLabel, stockLevel } from "../lib/stock";
 
@@ -281,7 +281,7 @@ export default function SiteSearch({ parts, categories, whatsappBase }: Props) {
               <p class="search-miss-copy" role="status">{status}</p>
               {whatsapp && (
                 <a class="search-source" href={sourcingHref(whatsapp, trimmed)} target="_blank" rel="noopener noreferrer">
-                  Send the part number on WhatsApp and we'll check Hall Road.
+                  {sourcingOffer}
                 </a>
               )}
               <p class="search-cats-label" id="search-categories">Categories</p>
@@ -306,7 +306,7 @@ export default function SiteSearch({ parts, categories, whatsappBase }: Props) {
         id="search-open"
         class="search-trigger"
         type="button"
-        aria-label="Search parts"
+        aria-label="Search part number or job"
         aria-keyshortcuts="/"
         aria-haspopup="dialog"
         aria-expanded={open}

@@ -52,7 +52,13 @@ test('search dialog finds a part, misses cleanly, and traps focus', async ({ pag
 
   await search.fill('TIP120');
   await expect(dialog.getByText('We don\'t stock "TIP120".')).toBeVisible();
-  await expect(dialog.getByRole('link', { name: /WhatsApp/ })).toHaveCount(0);
+  const shopWhatsApp = page.getByRole('contentinfo').getByRole('link', { name: /WhatsApp/ });
+  const sourcing = dialog.getByRole('link', { name: 'Send the part number on WhatsApp and we\'ll check Hall Road.' });
+  if (await shopWhatsApp.count()) {
+    await expect(sourcing).toBeVisible();
+  } else {
+    await expect(dialog.getByRole('link', { name: /WhatsApp/ })).toHaveCount(0);
+  }
   await expect(dialog.getByRole('link', { name: 'Power 3' })).toHaveAttribute('href', '/?category=Power#catalog');
   await expect(dialog.getByRole('link', { name: 'Boards 2' })).toBeVisible();
   await expect(dialog.getByRole('link', { name: 'ICs 1' })).toBeVisible();
@@ -78,7 +84,7 @@ test('search dialog finds a part, misses cleanly, and traps focus', async ({ pag
 
   await page.locator('.search-dialog').click({ position: { x: 2, y: 2 } });
   await expect(dialog).toBeHidden();
-  await expect(page.getByRole('button', { name: 'Search parts' })).toBeFocused();
+  await expect(page.locator('#search-open')).toBeFocused();
 
   await page.keyboard.press('/');
   await search.fill('lm 7805');
@@ -90,7 +96,7 @@ test('search dialog finds a part, misses cleanly, and traps focus', async ({ pag
 test('slash does not open search from a field or while the cart is open', async ({ page }) => {
   await page.goto('/');
   await page.locator('#search-open[data-ready="true"]').waitFor();
-  await page.getByRole('button', { name: /Cart, \d+ parts?/ }).click();
+  await page.getByRole('button', { name: /Cart \d+ parts?/ }).click();
   await expect(page.getByRole('dialog', { name: 'Cart' })).toBeVisible();
   await page.keyboard.press('/');
   await expect(page.getByRole('dialog', { name: 'Search parts' })).toHaveCount(0);

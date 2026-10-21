@@ -1,6 +1,11 @@
 /** Pakistani mobile numbers, stored as E.164 `+92` and 10 digits. */
 
-export const phoneRule = "Enter a Pakistani mobile number, 03XX XXXXXXX.";
+export const phoneRule = "Enter a Pakistani mobile number, like 0300 1234567.";
+
+/** Empty and impossible numbers use the same sentence. */
+export function phoneMessage(value: string): string | null {
+  return normalizePkMobile(value) ? null : phoneRule;
+}
 
 /**
  * Accepts `03XXXXXXXXX`, `3XXXXXXXXX`, and the same number already written with country code `92`.

@@ -1,0 +1,547 @@
+---
+/**
+ * Home hero. docs/pages.md#home- and docs/design-system.md section 9.
+ * Words: docs/copy.md. Windows: src/lib/shipping.ts. Chip: src/lib/clock.ts.
+ * Desktop: search docks into the frame. Mobile: search sits inside the frame, deck hidden.
+ */
+import type { ImageMetadata } from "astro";
+import { dispatchClock } from "../lib/clock";
+import { defectFact, lahoreWindow, nationwideWindow } from "../lib/shipping";
+import type { PriceBreak } from "../lib/money";
+import PartPicture from "./PartPicture.astro";
+import ProductCard from "./ProductCard.astro";
+
+export interface HeroCard {
+  href: string;
+  partNumber: string;
+  name: string;
+  price: number;
+  breaks?: readonly PriceBreak[];
+  stockQty: number;
+  restockOn?: string;
+  packageType: string;
+  voltage?: string;
+  image?: ImageMetadata;
+}
+
+interface Props {
+  front: HeroCard | null;
+  behind: HeroCard[];
+}
+
+const { front, behind } = Astro.props;
+const clock = dispatchClock();
+const facts = [
+  { label: "Lahore", value: lahoreWindow },
+  { label: "Nationwide", value: nationwideWindow },
+  { label: "Defects", value: defectFact },
+];
+
+const layers = [
+  behind[1] ? { card: behind[1], depth: "back-2" } : null,
+  behind[0] ? { card: behind[0], depth: "back-1" } : null,
+].filter((layer) => layer !== null);
+
+const backPhoto = {
+  width: 640,
+  height: 480,
+  sizes: "(min-width: 900px) 340px, 40vw",
+  widths: [480, 768],
+};
+---
+
+<section class="home-hero" aria-labelledby="hero-title">
+  <div class="hero-grid">
+    <div class="intro">
+      {clock.chip && (
+        <p class="status">
+          <span class:list={["dot", clock.kind]} aria-hidden="true"></span>
+          {clock.within ? (
+            <>Dispatching today · order within <strong>{clock.within}</strong></>
+          ) : (
+            clock.chip
+          )}
+        </p>
+      )}
+      <h1 id="hero-title">Parts from Hall Road, <em>counted</em> before you pay.</h1>
+      <p class="lede">Regulators, boards, sensors and relays. Every price is the price at checkout. Every stock number is a real count.</p>
+      <dl class="facts">
+        {facts.map((fact) => (
+          <div>
+            <dt>{fact.label}</dt>
+            <dd>{fact.value}</dd>
+          </div>
+        ))}
+      </dl>
+    </div>
+    {front && (
+      <div class="deck">
+        {layers.map((layer) => (
+          <div class:list={["back", layer.depth]} aria-hidden="true">
+            <div class="back-card">
+              <div class="well">
+                {layer.card.image ? (
+                  <PartPicture
+                    src={layer.card.image}
+                    partNumber={layer.card.partNumber}
+                    alt=""
+                    width={backPhoto.width}
+                    height={backPhoto.height}
+                    sizes={backPhoto.sizes}
+                    widths={backPhoto.widths}
+                    transition={false}
+                    class="photo"
+                    frameClass="frame"
+                  />
+                ) : (
+                  <span class="fallback">{layer.card.packageType}</span>
+                )}
+              </div>
+            </div>
+          </div>
+        ))}
+        <div class="front">
+          <ProductCard
+            href={front.href}
+            partNumber={front.partNumber}
+            name={front.name}
+            price={front.price}
+            breaks={front.breaks}
+            stockQty={front.stockQty}
+            restockOn={front.restockOn}
+            packageType={front.packageType}
+            image={front.image}
+            variant="hero"
+            detail={front.voltage}
+            showMeter={true}
+            priority={true}
+            transition={false}
+          />
+        </div>
+      </div>
+    )}
+  </div>
+  <button
+    id="hero-search"
+    class="dock"
+    type="button"
+    data-search-open
+    aria-haspopup="dialog"
+    aria-controls="search-dialog"
+  >
+    <span class="dock-inner">
+      <svg width="20" height="20" aria-hidden="true" focusable="false">
+        <use href="#search" />
+      </svg>
+      <span class="query">LM7805, ESP32, "5 V regulator"</span>
+      <span class="face">Search</span>
+    </span>
+  </button>
+</section>
+
+<style>
+  .home-hero {
+    position: relative;
+    margin: var(--space-12) var(--inset) 0;
+    overflow: hidden;
+    border-radius: var(--radius-frame);
+    background: var(--color-navy);
+    color: var(--color-on-navy);
+    isolation: isolate;
+  }
+
+  .home-hero::before {
+    content: "";
+    position: absolute;
+    inset: 0;
+    z-index: 0;
+    pointer-events: none;
+    background-image:
+      linear-gradient(color-mix(in oklch, var(--color-on-navy) 4.5%, transparent) 1px, transparent 1px),
+      linear-gradient(90deg, color-mix(in oklch, var(--color-on-navy) 4.5%, transparent) 1px, transparent 1px);
+    background-size: var(--space-40) var(--space-40);
+    mask-image: radial-gradient(120% 90% at 85% 40%, var(--color-ink) 20%, transparent 70%);
+  }
+
+  .hero-grid {
+    position: relative;
+    z-index: 1;
+    display: grid;
+    gap: var(--space-40);
+    padding: var(--space-40) var(--space-20) var(--space-96);
+  }
+
+  .intro {
+    min-width: 0;
+    animation: hero-in var(--dur-3) var(--ease-out);
+  }
+
+  .status {
+    display: inline-flex;
+    align-items: center;
+    flex-wrap: wrap;
+    gap: var(--space-8);
+    max-width: 100%;
+    margin: 0;
+    padding: var(--space-8) var(--space-12) var(--space-8) var(--space-8);
+    border-radius: var(--radius-pill);
+    background: var(--color-navy-raised);
+    box-shadow: inset 0 0 0 1px var(--color-navy-line);
+    color: var(--color-on-navy);
+    font-size: var(--text-caption);
+    line-height: var(--text-caption--line-height);
+  }
+
+  .status strong {
+    font-weight: var(--font-weight-num);
+    font-variant-numeric: tabular-nums;
+  }
+
+  .dot {
+    flex: none;
+    width: var(--space-8);
+    height: var(--space-8);
+    border-radius: var(--radius-pill);
+    background: var(--color-signal);
+  }
+
+  .dot.today {
+    background: var(--color-ok);
+    box-shadow: 0 0 0 var(--space-2) color-mix(in oklch, var(--color-ok) 28%, transparent);
+  }
+
+  h1 {
+    margin: var(--space-20) 0 0;
+    color: var(--color-on-navy);
+    font-size: var(--text-display-xl);
+    font-weight: var(--text-display-xl--font-weight);
+    line-height: var(--text-display-xl--line-height);
+    letter-spacing: var(--text-display-xl--letter-spacing);
+    font-stretch: calc(var(--wdth-display-xl) * 1%);
+    font-variation-settings: "wdth" var(--wdth-display-xl);
+    text-wrap: balance;
+  }
+
+  h1 em {
+    font-style: normal;
+    color: var(--color-signal);
+  }
+
+  .lede {
+    max-width: 34rem;
+    margin: var(--space-20) 0 0;
+    color: var(--color-on-navy-muted);
+    font-size: var(--text-body-lg);
+    font-weight: var(--text-body-lg--font-weight);
+    line-height: var(--text-body-lg--line-height);
+    letter-spacing: var(--text-body-lg--letter-spacing);
+    text-wrap: pretty;
+  }
+
+  .facts {
+    display: grid;
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+    gap: var(--space-16) var(--space-24);
+    margin: var(--space-24) 0 0;
+  }
+
+  .facts div {
+    display: flex;
+    flex-direction: column;
+    gap: var(--space-2);
+    min-width: 0;
+  }
+
+  dt {
+    margin: 0;
+    color: var(--color-on-navy-muted);
+    font-family: var(--font-label);
+    font-size: var(--text-label);
+    font-weight: var(--text-label--font-weight);
+    font-variation-settings: normal;
+    line-height: var(--text-label--line-height);
+    letter-spacing: var(--text-label--letter-spacing);
+    text-transform: uppercase;
+  }
+
+  dd {
+    margin: 0;
+    color: var(--color-on-navy);
+    font-size: var(--text-small);
+    font-weight: var(--font-weight-strong);
+    line-height: var(--text-small--line-height);
+    text-wrap: pretty;
+  }
+
+  .deck {
+    position: relative;
+    z-index: 1;
+    width: 100%;
+    max-width: 30rem;
+    min-width: 0;
+    justify-self: end;
+    padding-top: var(--space-80);
+  }
+
+  .back,
+  .front {
+    width: 88%;
+    margin-inline: auto;
+  }
+
+  .back {
+    position: absolute;
+    right: 0;
+    bottom: 0;
+    left: 0;
+    pointer-events: none;
+  }
+
+  .back-2 {
+    z-index: 0;
+    transform: translate(-14%, calc(var(--space-80) * -1)) rotate(-6deg) scale(0.9);
+    opacity: 0.55;
+    filter: saturate(0.6);
+  }
+
+  .back-1 {
+    z-index: 1;
+    transform: translate(-6%, calc(var(--space-40) * -1)) rotate(-3deg) scale(0.95);
+    opacity: 0.8;
+  }
+
+  .front {
+    position: relative;
+    z-index: 2;
+  }
+
+  .back-card {
+    padding: var(--space-16);
+    border-radius: var(--radius-card);
+    background: var(--color-surface);
+  }
+
+  .well {
+    position: relative;
+    aspect-ratio: 4 / 3;
+    overflow: hidden;
+    border-radius: var(--radius-control);
+    background: var(--color-sunken);
+  }
+
+  .well :global(picture),
+  .well :global(img) {
+    display: block;
+    width: 100%;
+    height: 100%;
+  }
+
+  .well :global(picture) {
+    position: absolute;
+    inset: 0;
+  }
+
+  .well :global(img) {
+    object-fit: cover;
+    mix-blend-mode: multiply;
+  }
+
+  .fallback {
+    display: grid;
+    place-items: center;
+    height: 100%;
+    padding: var(--space-8);
+    color: var(--color-ink);
+    font-family: var(--font-part);
+    font-size: var(--text-caption);
+    font-weight: var(--font-weight-part);
+    font-variation-settings: normal;
+    letter-spacing: var(--tracking-part);
+    text-align: center;
+  }
+
+  .dock {
+    position: absolute;
+    bottom: 0;
+    left: 0;
+    z-index: 2;
+    display: block;
+    width: min(100%, 40rem);
+    margin: 0;
+    padding: var(--space-12) var(--space-12) 0 0;
+    border: 0;
+    border-top-right-radius: var(--radius-frame);
+    background: var(--color-canvas);
+    color: var(--color-ink);
+    font: inherit;
+    text-align: left;
+    cursor: pointer;
+  }
+
+  .dock::before,
+  .dock::after {
+    content: "";
+    position: absolute;
+    width: var(--radius-frame);
+    height: var(--radius-frame);
+    background: radial-gradient(
+      circle at 100% 0,
+      transparent calc(var(--radius-frame) - 0.5px),
+      var(--color-canvas) var(--radius-frame)
+    );
+  }
+
+  .dock::before {
+    top: calc(var(--radius-frame) * -1);
+    left: 0;
+  }
+
+  .dock::after {
+    bottom: 0;
+    left: 100%;
+  }
+
+  .dock:focus-visible {
+    outline: none;
+  }
+
+  .dock-inner {
+    display: flex;
+    align-items: center;
+    gap: var(--space-8);
+    height: 72px;
+    padding: 0 var(--space-8) 0 var(--space-20);
+    border-radius: var(--radius-panel);
+    background: var(--color-surface);
+    box-shadow: var(--shadow-1), inset 0 0 0 1px var(--color-line);
+  }
+
+  .dock:focus-visible .dock-inner,
+  .dock:hover .dock-inner {
+    box-shadow: var(--shadow-1), inset 0 0 0 2px var(--color-action);
+  }
+
+  .dock svg {
+    flex: none;
+    color: var(--color-ink-muted);
+  }
+
+  .query {
+    flex: 1;
+    min-width: 0;
+    overflow: hidden;
+    color: var(--color-ink-muted);
+    font-size: var(--text-body);
+    line-height: var(--text-body--line-height);
+    text-overflow: ellipsis;
+    white-space: nowrap;
+  }
+
+  .face {
+    display: inline-flex;
+    flex: none;
+    align-items: center;
+    justify-content: center;
+    height: 44px;
+    padding: 0 var(--space-20);
+    border-radius: var(--radius-pill);
+    background: var(--color-action);
+    color: var(--color-surface);
+    font-size: var(--text-small);
+    font-weight: var(--font-weight-strong);
+    line-height: 1;
+  }
+
+  .dock:hover .face {
+    background: var(--color-action-hover);
+  }
+
+  .dock:active .face {
+    transform: scale(0.97);
+  }
+
+  @keyframes hero-in {
+    from {
+      opacity: 0;
+      transform: translateY(var(--space-8));
+    }
+    to {
+      opacity: 1;
+      transform: none;
+    }
+  }
+
+  @media (min-width: 900px) {
+    .hero-grid {
+      grid-template-columns: 1.05fr 0.95fr;
+      align-items: center;
+      padding: var(--space-80) var(--space-56) calc(var(--space-128) + var(--space-24));
+    }
+
+    .facts {
+      display: flex;
+      flex-wrap: wrap;
+      gap: var(--space-8) var(--space-24);
+    }
+
+    .query {
+      font-size: var(--text-body-lg);
+      line-height: var(--text-body-lg--line-height);
+    }
+  }
+
+  @media (max-width: 899px) {
+    .deck {
+      display: none;
+    }
+
+    .dock {
+      position: relative;
+      width: auto;
+      margin: calc(var(--space-80) * -1) var(--space-20) 0;
+      padding: 0 0 var(--space-16);
+      border-radius: 0;
+      background: transparent;
+    }
+
+    .dock::before,
+    .dock::after {
+      display: none;
+    }
+
+    .dock-inner {
+      height: var(--space-56);
+      padding-left: var(--space-16);
+      box-shadow: none;
+    }
+
+    .face {
+      display: none;
+    }
+  }
+
+  @media (prefers-reduced-motion: reduce) {
+    .intro {
+      animation: none;
+    }
+
+    .back-2,
+    .back-1 {
+      transform: none;
+      filter: none;
+      opacity: 1;
+    }
+
+    .back-2 {
+      bottom: var(--space-80);
+    }
+
+    .back-1 {
+      bottom: var(--space-40);
+    }
+
+    .dock:active .face {
+      transform: none;
+    }
+  }
+</style>

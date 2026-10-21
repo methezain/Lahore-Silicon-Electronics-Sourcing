@@ -1,114 +1,212 @@
 ---
-import Layout from '../layouts/Layout.astro';
-import { catalogScriptJson, loadCatalog } from '../lib/catalog';
-import { formatPkr } from '../lib/money';
-import { paymentMethods, shopPhone, whatsappHref } from '../lib/shop';
-import { deliveryCost, shippingWindows } from '../lib/shipping';
+/**
+ * Checkout. docs/pages.md#checkout-checkout, docs/commerce.md (Checkout, Payment).
+ * The form posts to the placeOrder action. The script enhances it and maps field errors.
+ */
+import "./checkout.css";
+import { actions, isInputError } from "astro:actions";
+import { env } from "cloudflare:workers";
+import Layout from "../layouts/Layout.astro";
+import { catalogScriptJson, loadCatalog } from "../lib/catalog";
+import { formatPkr } from "../lib/money";
+import { checkNotComplete } from "../lib/order";
+import { checkoutCookie, isOrderKey } from "../lib/order-key";
+import { pageTitle, paymentMethods, paymentSentOnWhatsApp, shopPhone, whatsappHref } from "../lib/shop";
+import { deliveryCost, returnRule } from "../lib/shipping";
+
+export const prerender = false;
+
+const sitekey = (env?.PUBLIC_TURNSTILE_SITEKEY || import.meta.env.PUBLIC_TURNSTILE_SITEKEY || "").trim();
+Astro.csp?.insertScriptResource("https://challenges.cloudflare.com");
+Astro.csp?.insertDirective("frame-src https://challenges.cloudflare.com");
+Astro.csp?.insertDirective("connect-src 'self' https://challenges.cloudflare.com");
+
+const actionResult = Astro.getActionResult(actions.placeOrder);
+if (actionResult?.data?.id) return Astro.redirect(`/order-success/${actionResult.data.id}`);
+const submittedFields = actionResult?.error && isInputError(actionResult.error) ? actionResult.error.fields : {};
+const submittedMessage = actionResult?.error && !isInputError(actionResult.error) ? actionResult.error.message : "";
+const turnstileProblem = submittedMessage === checkNotComplete ? submittedMessage : "";
+const formProblem = turnstileProblem ? "" : submittedMessage || submittedFields.address_line_2?.[0] || submittedFields.items?.[0] || submittedFields.total?.[0] || submittedFields.idempotency_key?.[0] || "";
+const existingSession = Astro.cookies.get(checkoutCookie)?.value;
+const session = existingSession && isOrderKey(existingSession) ? existingSession : crypto.randomUUID();
+const orderKey = crypto.randomUUID();
+if (session !== existingSession) {
+  Astro.cookies.set(checkoutCookie, session, {
+    httpOnly: true,
+    secure: Astro.url.protocol === "https:",
+    sameSite: "lax",
+    path: "/",
+    maxAge: 60 * 60 * 24,
+  });
+}
 
 const methods = paymentMethods();
-const catalogJson = catalogScriptJson(await loadCatalog());
+const catalog = await loadCatalog();
+const catalogJson = catalogScriptJson(catalog);
 const phone = shopPhone();
-const wa = whatsappHref('Hi, I need help with my order');
+const wa = whatsappHref("Hi, I need help with my order");
 const description = methods.length > 0
-  ? `Complete your sourcing order. Advance payment via ${methods.map((method) => method.label).join(', ')}.`
-  : 'Complete your sourcing order. Advance payment is required before parts are procured.';
+  ? `Pay the total on this page by ${methods.map((method) => method.label).join(", ")}.`
+  : paymentSentOnWhatsApp;
 ---
 
-<Layout title="Checkout — Lahore Silicon" description={description}>
-  <div class="page" id="checkout-container">
-    <p class="label">Guest checkout</p>
-    <h1 class="display">Checkout</h1>
+<Layout title={pageTitle("Checkout")} description={description}>
+  <div class="checkout-page">
+    <p class="eyebrow">Guest checkout</p>
+    <h1 class="title">Checkout</h1>
     <p class="lede">
       {methods.length > 0
-        ? 'Pay the total shown here, then paste the transaction id. Nothing new is added on this page.'
-        : 'Paste the payment reference. Account details are not published on this page, and the total does not change here.'}
+        ? "Pay the total shown here, then paste the transaction id."
+        : paymentSentOnWhatsApp}
     </p>
 
     <div class="checkout-grid">
-      <form id="checkout-form" class="panel stack">
-        <h2 class="heading">Where it ships</h2>
-        <div class="field">
-          <label for="field-name">Name, required</label>
-          <input type="text" name="name" id="field-name" aria-required="true" autocomplete="name" />
-          <p id="field-name-error" class="error hidden" role="alert"></p>
-        </div>
-        <div class="field">
-          <label for="field-phone">Phone, required</label>
-          <div class="phone-field">
-            <span>+92</span>
-            <input type="tel" name="phone" id="field-phone" inputmode="numeric" autocomplete="tel" aria-required="true" placeholder="3XX XXXXXXX" aria-describedby="field-phone-help field-phone-error" />
+      <form id="checkout-form" class="checkout-form" method="POST" action={actions.placeOrder} novalidate>
+        <section class="step" aria-labelledby="step-contact">
+          <div class="step-head">
+            <p class="step-k">Step 1</p>
+            <h2 id="step-contact" class="heading">Contact</h2>
           </div>
-          <p id="field-phone-help" class="caption">We use this if the courier cannot find the address.</p>
-          <p id="field-phone-error" class="error hidden" role="alert"></p>
-        </div>
-        <div class="field">
-          <label for="field-destination">City or area, required</label>
-          <input type="text" name="destination" id="field-destination" aria-required="true" autocomplete="address-level2" aria-describedby="field-destination-error" />
-          <p id="field-destination-error" class="error hidden" role="alert"></p>
-        </div>
-        <div class="field">
-          <label for="field-address">Address, required</label>
-          <textarea name="address" id="field-address" aria-required="true" rows="3"></textarea>
-          <p id="field-address-error" class="error hidden" role="alert"></p>
-        </div>
-        <details>
-          <summary>Add an apartment, floor, or landmark</summary>
-          <div class="field mt-12">
-            <label for="field-address-2">Address line 2, optional</label>
-            <input type="text" name="address_line_2" id="field-address-2" autocomplete="address-line2" />
+          <div class="field">
+            <label for="field-name">Name</label>
+            <input class="control" type="text" name="name" id="field-name" autocomplete="name" aria-required="true" aria-invalid={submittedFields.name?.[0] ? "true" : undefined} aria-describedby="field-name-error" />
+            <p id="field-name-error" class="field-error" role="alert" hidden={!submittedFields.name?.[0]}>{submittedFields.name?.[0]}</p>
           </div>
-        </details>
-        <div class="field">
-          <label for="field-payment-ref">Payment reference, required</label>
-          <input type="text" name="payment_ref" id="field-payment-ref" aria-required="true" class="mono" />
-          <p id="field-payment-error" class="error hidden" role="alert"></p>
-          <p class="caption">{methods.length > 0 ? "Pay the total on this page, then paste the transaction id." : "Advance payment is required before the part is bought. Account details are not published on this page."}</p>
-        </div>
-        <button type="submit" id="submit-btn" class="btn-ink">Place order</button>
-        <p id="error-msg" class="error hidden" role="alert"></p>
+          <div class="field">
+            <label for="field-phone">Phone</label>
+            <div class="phone" data-invalid={submittedFields.phone?.[0] ? "true" : undefined}>
+              <span class="dial" aria-hidden="true">+92</span>
+              <input type="tel" name="phone" id="field-phone" inputmode="numeric" autocomplete="tel" aria-required="true" placeholder="300 1234567" aria-invalid={submittedFields.phone?.[0] ? "true" : undefined} aria-describedby="field-phone-help field-phone-error" />
+            </div>
+            <p id="field-phone-help" class="hint">We use this if the courier cannot find the address.</p>
+            <p id="field-phone-error" class="field-error" role="alert" hidden={!submittedFields.phone?.[0]}>{submittedFields.phone?.[0]}</p>
+          </div>
+        </section>
+
+        <section class="step" aria-labelledby="step-delivery">
+          <div class="step-head">
+            <p class="step-k">Step 2</p>
+            <h2 id="step-delivery" class="heading">Delivery</h2>
+          </div>
+          <p class="hint">{deliveryCost}</p>
+          <div class="field">
+            <label for="field-destination">City or area</label>
+            <input class="control" type="text" name="destination" id="field-destination" autocomplete="address-level2" aria-required="true" aria-invalid={submittedFields.destination?.[0] ? "true" : undefined} aria-describedby="field-destination-error" />
+            <p id="field-destination-error" class="field-error" role="alert" hidden={!submittedFields.destination?.[0]}>{submittedFields.destination?.[0]}</p>
+          </div>
+          <div class="field">
+            <label for="field-address">Address</label>
+            <textarea class="control" name="address" id="field-address" rows="3" autocomplete="street-address" aria-required="true" aria-invalid={submittedFields.address?.[0] ? "true" : undefined} aria-describedby="field-address-error"></textarea>
+            <p id="field-address-error" class="field-error" role="alert" hidden={!submittedFields.address?.[0]}>{submittedFields.address?.[0]}</p>
+          </div>
+          <details class="line2" id="line2" open={Boolean(submittedFields.address_line_2?.[0])}>
+            <summary>Add an apartment, floor, or landmark</summary>
+            <div class="field">
+              <label for="field-address-2">Address line 2, optional</label>
+              <input class="control" type="text" name="address_line_2" id="field-address-2" autocomplete="address-line2" />
+            </div>
+          </details>
+        </section>
+
+        <section class="step" aria-labelledby="step-payment">
+          <div class="step-head">
+            <p class="step-k">Step 3</p>
+            <h2 id="step-payment" class="heading">Payment</h2>
+          </div>
+          {methods.length > 0 ? (
+            <>
+              <p class="pay-due">
+                <span>Pay</span>
+                <span id="pay-total" class="pay-amount money">{formatPkr(0)}</span>
+              </p>
+              <p class="hint">Transfer this amount, then paste the transaction id.</p>
+              <fieldset class="methods">
+                <legend>Payment method</legend>
+                <div class="method-list">
+                  {methods.map((method, i) => (
+                    <label class="method">
+                      <input type="radio" name="payment_method" value={method.id} checked={i === 0} />
+                      <span>{method.label}</span>
+                    </label>
+                  ))}
+                </div>
+              </fieldset>
+              {methods.map((method, i) => (
+                <div class="method-panel" data-method={method.id} hidden={i > 0}>
+                  {method.lines.map((row) => (
+                    <div class="pay-line">
+                      <span class="pay-label">{row.label}</span>
+                      <span class="pay-value">{row.value}</span>
+                      <button class="copy-btn" type="button" data-copy={row.value} data-label={row.label} aria-label={`Copy ${row.label}`}>Copy</button>
+                    </div>
+                  ))}
+                </div>
+              ))}
+              <p id="copy-status" class="sr-only" aria-live="polite"></p>
+            </>
+          ) : (
+            <p class="hint">
+              {wa ? (
+                <a href={wa} target="_blank" rel="noopener noreferrer">{paymentSentOnWhatsApp}</a>
+              ) : (
+                paymentSentOnWhatsApp
+              )}
+            </p>
+          )}
+          <div class="field">
+            <label for="field-payment-ref">Payment reference</label>
+            <input class="control" type="text" name="payment_ref" id="field-payment-ref" autocomplete="off" aria-required="true" aria-invalid={submittedFields.payment_ref?.[0] ? "true" : undefined} aria-describedby="field-payment-error" />
+            <p id="field-payment-error" class="field-error" role="alert" hidden={!submittedFields.payment_ref?.[0]}>{submittedFields.payment_ref?.[0]}</p>
+          </div>
+        </section>
+
+        <p class="form-return"><a href="/shipping-and-payments#returns">{returnRule}</a></p>
+        {sitekey ? (
+          <div id="checkout-turnstile" class="turnstile" data-sitekey={sitekey}></div>
+        ) : (
+          <div id="checkout-turnstile" class="turnstile" hidden></div>
+        )}
+        <input type="hidden" name="items" id="checkout-items" value="[]" />
+        <input type="hidden" name="total" id="checkout-total" value="0" />
+        <input type="hidden" name="idempotency_key" id="checkout-key" value={orderKey} />
+        <input type="hidden" name="cf-turnstile-response" id="checkout-turnstile-token" value="" />
+        <p id="turnstile-error" class="field-error" role="alert" hidden={!turnstileProblem}>{turnstileProblem}</p>
+        <p id="cart-problem" class="form-error" role="alert" hidden></p>
+        <button type="submit" id="submit-btn" class="place" disabled>Place order</button>
+        <p id="error-msg" class="form-error" role="alert" hidden={!formProblem}>{formProblem}</p>
+        <p class="guest">Guest checkout. No account needed.</p>
       </form>
 
-      <aside class="stack summary">
-        <div class="panel stack">
-          <h2 class="heading">Order</h2>
-          <div id="summary-items" class="stack"></div>
-          <div class="summary-row"><span>Merchandise</span><span id="summary-merchandise" class="money mono">{formatPkr(0)}</span></div>
-          <div>
-            <p>Shipping</p>
-            <p class="caption">{deliveryCost}</p>
-            <p class="caption">{shippingWindows}</p>
-          </div>
-          <div class="summary-row"><span>Total</span><span id="summary-total" class="price money">{formatPkr(0)}</span></div>
-        </div>
-        {methods.length > 0 && (
-          <div class="panel ink-panel stack">
-            <h2 class="heading">Pay this total</h2>
-            <p class="caption">Transfer the amount above, then paste the transaction id.</p>
-            {methods.length > 1 && (
-              <div class="actions">
-                {methods.map((method, i) => (
-                  <button class:list={["payment-tab btn-quiet", { "is-selected": i === 0 }]} data-tab={method.id} type="button">
-                    {method.label}
-                  </button>
-                ))}
+      <aside class="summary" aria-label="Order summary">
+        <details class="summary-details">
+          <summary class="summary-toggle" id="summary-toggle">
+            <span id="summary-toggle-label">Show order · {formatPkr(0)}</span>
+          </summary>
+          <div class="summary-panel" id="order-panel">
+            <h2 class="summary-title">Order</h2>
+            <div id="summary-items" class="lines"></div>
+            <div class="totals" id="summary-totals" hidden>
+              <div class="sum-row">
+                <span>Merchandise</span>
+                <span id="summary-merchandise" class="money">{formatPkr(0)}</span>
               </div>
+              <div class="sum-delivery">
+                <span class="sum-k">Delivery</span>
+                <p class="sum-rule">{deliveryCost}</p>
+              </div>
+              <div class="sum-row sum-total">
+                <span>Total</span>
+                <span id="summary-total" class="money">{formatPkr(0)}</span>
+              </div>
+            </div>
+            <p class="sum-return"><a href="/shipping-and-payments#returns">{returnRule}</a></p>
+            {wa && phone && (
+              <p class="sum-help">
+                <a href={wa} target="_blank" rel="noopener noreferrer">WhatsApp {phone.display}</a>
+              </p>
             )}
-            {methods.map((method, i) => (
-              <div id={method.id} class:list={["payment-panel stack", { hidden: i > 0 }]}>
-                {method.lines.map((row) => (
-                  <div class="pay-row">
-                    <span class="caption">{row.label}</span>
-                    <span class="mono">{row.value}</span>
-                    <button class="copy-btn btn-quiet" type="button" data-copy={row.value}>Copy</button>
-                  </div>
-                ))}
-              </div>
-            ))}
           </div>
-        )}
-        {wa && phone && (
-          <a class="caption" href={wa} target="_blank" rel="noopener noreferrer">WhatsApp {phone.display}</a>
-        )}
+        </details>
       </aside>
     </div>
   </div>
@@ -116,35 +214,166 @@ const description = methods.length > 0
 </Layout>
 
 <script>
-  import { cartStore } from '../store/cartStore';
-  import { formatPkr, priceCart, type CatalogPrice } from '../lib/money';
-  import { orderNotSaved } from '../lib/order';
-  import { normalizePkMobile, phoneRule } from '../lib/phone';
+  import { actions, isInputError } from "astro:actions";
+  import { cartStore } from "../store/cartStore";
+  import { formatPkr, priceCart, type CatalogPrice } from "../lib/money";
+  import {
+    addressLine2Rule,
+    addressMessage,
+    checkNotComplete,
+    cityMessage,
+    nameMessage,
+    onlyInStock,
+    orderNotSaved,
+    paymentRefMessage,
+    placeOrderLabel,
+    placingOrder,
+    showOrderLabel,
+  } from "../lib/order";
+  import { checkoutKeyStorage, isOrderKey, turnstileAction } from "../lib/order-key";
+  import { phoneMessage } from "../lib/phone";
 
-  // ===== Order summary =====
-  const itemsContainer = document.getElementById('summary-items');
-  const totalEl = document.getElementById('summary-total');
-  const merchandiseEl = document.getElementById('summary-merchandise');
-  const nameInput = document.getElementById('field-name') as HTMLInputElement | null;
-  const nameError = document.getElementById('field-name-error');
-  const addressInput = document.getElementById('field-address') as HTMLTextAreaElement | null;
-  const addressError = document.getElementById('field-address-error');
-  const paymentInput = document.getElementById('field-payment-ref') as HTMLInputElement | null;
-  const paymentError = document.getElementById('field-payment-error');
-  const phoneInput = document.getElementById('field-phone') as HTMLInputElement | null;
-  const phoneError = document.getElementById('field-phone-error');
-  const destinationInput = document.getElementById('field-destination') as HTMLInputElement | null;
-  const destinationError = document.getElementById('field-destination-error');
-  const submitBtn = document.getElementById('submit-btn') as HTMLButtonElement;
-  const form = document.getElementById('checkout-form') as HTMLFormElement;
-  const errorMsg = document.getElementById('error-msg');
+  type CheckoutPart = CatalogPrice & {
+    image?: string;
+    package_type?: string;
+    stock_qty?: number;
+  };
 
-  function readCatalog(): CatalogPrice[] {
+  const itemsContainer = document.getElementById("summary-items");
+  const totalsEl = document.getElementById("summary-totals");
+  const totalEl = document.getElementById("summary-total");
+  const merchandiseEl = document.getElementById("summary-merchandise");
+  const payTotalEl = document.getElementById("pay-total");
+  const toggleLabel = document.getElementById("summary-toggle-label");
+  const nameInput = document.getElementById("field-name") as HTMLInputElement | null;
+  const nameError = document.getElementById("field-name-error");
+  const addressInput = document.getElementById("field-address") as HTMLTextAreaElement | null;
+  const addressError = document.getElementById("field-address-error");
+  const paymentInput = document.getElementById("field-payment-ref") as HTMLInputElement | null;
+  const paymentError = document.getElementById("field-payment-error");
+  const phoneInput = document.getElementById("field-phone") as HTMLInputElement | null;
+  const phoneError = document.getElementById("field-phone-error");
+  const destinationInput = document.getElementById("field-destination") as HTMLInputElement | null;
+  const destinationError = document.getElementById("field-destination-error");
+  const line2Input = document.getElementById("field-address-2") as HTMLInputElement | null;
+  const line2Details = document.getElementById("line2");
+  const submitBtn = document.getElementById("submit-btn") as HTMLButtonElement | null;
+  const form = document.getElementById("checkout-form") as HTMLFormElement | null;
+  const errorMsg = document.getElementById("error-msg");
+  const cartProblem = document.getElementById("cart-problem");
+  const copyStatus = document.getElementById("copy-status");
+  const turnstileBox = document.getElementById("checkout-turnstile");
+  const turnstileError = document.getElementById("turnstile-error");
+  const turnstileSitekey = turnstileBox?.dataset.sitekey ?? "";
+
+  let submitting = false;
+  let currentTotal = 0;
+  let pageKey = "";
+  let turnstileWidgetId: string | undefined;
+  let turnstileToken = "";
+
+  const itemsInput = document.getElementById("checkout-items");
+  const totalInput = document.getElementById("checkout-total");
+  const keyInput = document.getElementById("checkout-key");
+  const turnstileInput = document.getElementById("checkout-turnstile-token");
+
+  function writeTurnstileToken(token: string) {
+    turnstileToken = token;
+    if (turnstileInput instanceof HTMLInputElement) turnstileInput.value = token;
+    document.querySelectorAll('input[name="cf-turnstile-response"]').forEach((input) => {
+      if (input instanceof HTMLInputElement) input.value = token;
+    });
+  }
+
+  function writeOrderFields(lines: { part_number: string; quantity: number }[], total: number) {
+    if (itemsInput instanceof HTMLInputElement) {
+      itemsInput.value = JSON.stringify(lines.map((line) => ({
+        part_number: line.part_number,
+        quantity: line.quantity,
+      })));
+    }
+    if (totalInput instanceof HTMLInputElement) totalInput.value = String(total);
+    if (keyInput instanceof HTMLInputElement) keyInput.value = checkoutKey();
+  }
+
+  function checkoutKey(): string {
+    if (isOrderKey(pageKey)) return pageKey;
     try {
-      const node = document.getElementById('catalog-prices');
+      const stored = sessionStorage.getItem(checkoutKeyStorage);
+      if (stored && isOrderKey(stored)) {
+        pageKey = stored;
+        return stored;
+      }
+    } catch {
+      // sessionStorage can throw. The page still keeps one key in memory.
+    }
+    pageKey = crypto.randomUUID();
+    try {
+      sessionStorage.setItem(checkoutKeyStorage, pageKey);
+    } catch {
+      // The in-memory key still covers a retry on this page.
+    }
+    return pageKey;
+  }
+
+  function clearCheckoutKey(): void {
+    pageKey = "";
+    try {
+      sessionStorage.removeItem(checkoutKeyStorage);
+    } catch {
+      // The navigation still leaves this page.
+    }
+  }
+
+  function resetTurnstile(): void {
+    writeTurnstileToken("");
+    if (turnstileBox) delete turnstileBox.dataset.state;
+    if (turnstileWidgetId !== undefined) window.turnstile?.reset(turnstileWidgetId);
+  }
+
+  function mountTurnstile(): void {
+    if (!(turnstileBox instanceof HTMLElement) || !turnstileSitekey || !window.turnstile) return;
+    if (turnstileWidgetId !== undefined) return;
+    const box = turnstileBox;
+    turnstileWidgetId = window.turnstile.render(box, {
+      sitekey: turnstileSitekey,
+      action: turnstileAction,
+      size: "flexible",
+      theme: "light",
+      callback: (token) => {
+        writeTurnstileToken(token);
+        box.dataset.state = "passed";
+        showNote(turnstileError, null);
+      },
+      "expired-callback": () => {
+        writeTurnstileToken("");
+        box.dataset.state = "expired";
+      },
+      "error-callback": () => {
+        writeTurnstileToken("");
+        box.dataset.state = "error";
+      },
+    });
+  }
+
+  if (turnstileSitekey && turnstileBox) {
+    if (window.turnstile) {
+      mountTurnstile();
+    } else {
+      const script = document.createElement("script");
+      script.src = "https://challenges.cloudflare.com/turnstile/v0/api.js?render=explicit";
+      script.async = true;
+      script.addEventListener("load", mountTurnstile, { once: true });
+      document.head.appendChild(script);
+    }
+  }
+
+  function readCatalog(): CheckoutPart[] {
+    try {
+      const node = document.getElementById("catalog-prices");
       if (!node?.textContent) return [];
       const parsed = JSON.parse(node.textContent) as unknown;
-      return Array.isArray(parsed) ? parsed as CatalogPrice[] : [];
+      return Array.isArray(parsed) ? parsed as CheckoutPart[] : [];
     } catch {
       return [];
     }
@@ -152,244 +381,310 @@ const description = methods.length > 0
 
   const catalog = readCatalog();
 
-  function setTotals(amount: number) {
-    const label = formatPkr(amount);
-    if (totalEl) totalEl.textContent = label;
-    if (merchandiseEl) merchandiseEl.textContent = label;
+  function showNote(el: HTMLElement | null, message: string | null) {
+    if (!el) return;
+    if (!message) {
+      el.textContent = "";
+      el.hidden = true;
+      return;
+    }
+    el.textContent = message;
+    el.hidden = false;
   }
 
   function showFieldError(input: HTMLElement | null, errorEl: HTMLElement | null, message: string | null) {
-    if (!errorEl) return;
+    showNote(errorEl, message);
+    const phoneWrap = input?.closest(".phone");
     if (!message) {
-      errorEl.textContent = '';
-      errorEl.classList.add('hidden');
-      input?.removeAttribute('aria-invalid');
+      input?.removeAttribute("aria-invalid");
+      phoneWrap?.removeAttribute("data-invalid");
       return;
     }
-    errorEl.textContent = message;
-    errorEl.classList.remove('hidden');
-    input?.setAttribute('aria-invalid', 'true');
+    input?.setAttribute("aria-invalid", "true");
+    if (phoneWrap instanceof HTMLElement) phoneWrap.dataset.invalid = "true";
   }
 
-  function phoneMessage(): string | null {
-    const value = phoneInput?.value ?? '';
-    if (!value.trim()) return phoneRule;
-    return normalizePkMobile(value) ? null : phoneRule;
-  }
-
-  function nameMessage(): string | null {
-    return (nameInput?.value.trim().length ?? 0) >= 2 ? null : "Name must be at least 2 characters";
-  }
-  function addressMessage(): string | null {
-    return (addressInput?.value.trim().length ?? 0) >= 10 ? null : "Please provide a complete address";
-  }
-  function paymentMessage(): string | null {
-    return (paymentInput?.value.trim().length ?? 0) >= 5 ? null : "Payment Reference is too short";
-  }
-  function destinationMessage(): string | null {
-    const value = destinationInput?.value.trim() ?? '';
-    return value.length >= 2 ? null : 'Enter the city or area.';
-  }
-
-  function setSubmitEnabled(enabled: boolean) {
-    if (!submitBtn) return;
+  function setButton(enabled: boolean) {
+    if (!submitBtn || submitting) return;
     submitBtn.disabled = !enabled;
+    submitBtn.textContent = placeOrderLabel(formatPkr(currentTotal));
+  }
+
+  function setTotals(amount: number) {
+    currentTotal = amount;
+    const label = formatPkr(amount);
+    if (totalEl) totalEl.textContent = label;
+    if (merchandiseEl) merchandiseEl.textContent = label;
+    if (payTotalEl) payTotalEl.textContent = label;
+    if (toggleLabel) toggleLabel.textContent = showOrderLabel(label);
+    if (submitBtn && !submitting) submitBtn.textContent = placeOrderLabel(label);
+  }
+
+  function lineNote(text: string) {
+    const note = document.createElement("p");
+    note.className = "line-note";
+    note.textContent = text;
+    return note;
   }
 
   const renderSummary = () => {
-    const items = Object.values(cartStore.get());
-    if (!itemsContainer || !totalEl) return;
+    const stored = Object.values(cartStore.get());
+    if (!itemsContainer) return;
     itemsContainer.replaceChildren();
 
-    if (items.length === 0) {
-      const empty = document.createElement('p');
-      empty.className = 'caption';
-      empty.textContent = 'Your cart is empty.';
+    if (stored.length === 0) {
+      const empty = document.createElement("p");
+      empty.className = "empty";
+      empty.appendChild(document.createTextNode("Your cart is empty. "));
+      const link = document.createElement("a");
+      link.href = "/#catalog";
+      link.textContent = "Browse the catalog";
+      empty.appendChild(link);
+      empty.appendChild(document.createTextNode("."));
       itemsContainer.appendChild(empty);
+      if (totalsEl) totalsEl.hidden = true;
       setTotals(0);
-      setSubmitEnabled(false);
+      writeOrderFields([], 0);
+      showNote(cartProblem, null);
+      setButton(false);
       return;
     }
 
-    const priced = priceCart(catalog, items);
+    const priced = priceCart(catalog, stored);
+    const problems: string[] = [];
+
     for (const line of priced.lines) {
-      const row = document.createElement('div');
-      row.className = 'summary-row';
+      const part = catalog.find((entry) => entry.part_number === line.part_number);
+      const row = document.createElement("div");
+      row.className = "line";
 
-      const copy = document.createElement('div');
-      copy.className = 'summary-copy';
+      const photo = document.createElement("div");
+      photo.className = "line-photo";
+      if (part?.image) {
+        const img = document.createElement("img");
+        img.src = part.image;
+        img.alt = "";
+        img.width = 64;
+        img.height = 64;
+        photo.appendChild(img);
+      } else {
+        const fallback = document.createElement("span");
+        fallback.className = "line-fallback";
+        fallback.textContent = part?.package_type ?? "";
+        photo.appendChild(fallback);
+      }
 
-      const title = document.createElement('p');
-      title.className = 'mono';
-      title.textContent = `${line.quantity}× ${line.part_number}`;
+      const copy = document.createElement("div");
+      copy.className = "line-copy";
+      const title = document.createElement("p");
+      title.className = "line-part";
+      title.textContent = line.part_number;
+      const job = document.createElement("p");
+      job.className = "line-job";
+      job.textContent = line.name;
+      const qty = document.createElement("p");
+      qty.className = "line-qty";
+      qty.textContent = `${line.quantity} × ${formatPkr(line.price)}`;
+      copy.appendChild(title);
+      copy.appendChild(job);
+      copy.appendChild(qty);
 
-      const name = document.createElement('p');
-      name.className = 'caption';
-      name.textContent = line.name;
-
-      const amount = document.createElement('span');
-      amount.className = 'money';
+      const amount = document.createElement("p");
+      amount.className = "line-total money";
       amount.textContent = formatPkr(line.line_total);
 
-      copy.appendChild(title);
-      copy.appendChild(name);
+      row.appendChild(photo);
       row.appendChild(copy);
       row.appendChild(amount);
       itemsContainer.appendChild(row);
+
+      if (typeof part?.stock_qty === "number" && line.quantity > part.stock_qty) {
+        const message = onlyInStock(line.part_number, part.stock_qty);
+        problems.push(message);
+        itemsContainer.appendChild(lineNote(message));
+      }
     }
 
     for (const partNumber of priced.missing) {
-      const note = document.createElement('p');
-      note.className = 'error';
-      note.textContent = `The shop does not sell ${partNumber}.`;
-      itemsContainer.appendChild(note);
+      const message = `The shop no longer sells ${partNumber}.`;
+      problems.push(message);
+      itemsContainer.appendChild(lineNote(message));
     }
     for (const partNumber of priced.invalid) {
-      const note = document.createElement('p');
-      note.className = 'error';
-      note.textContent = `${partNumber}: quantity must be a positive integer.`;
-      itemsContainer.appendChild(note);
+      const message = `${partNumber}: quantity must be a positive integer.`;
+      problems.push(message);
+      itemsContainer.appendChild(lineNote(message));
     }
 
+    if (totalsEl) totalsEl.hidden = false;
     setTotals(priced.total);
-    setSubmitEnabled(priced.lines.length > 0 && priced.missing.length === 0 && priced.invalid.length === 0);
+    writeOrderFields(priced.lines, priced.total);
+    showNote(cartProblem, problems[0] ?? null);
+    setButton(priced.lines.length > 0 && problems.length === 0);
   };
 
   cartStore.subscribe(renderSummary);
 
-  phoneInput?.addEventListener('blur', () => {
-    if (!phoneInput.value.trim()) {
-      showFieldError(phoneInput, phoneError, null);
-      return;
-    }
-    showFieldError(phoneInput, phoneError, phoneMessage());
-  });
-  destinationInput?.addEventListener('blur', () => {
-    if (!destinationInput.value.trim()) {
-      showFieldError(destinationInput, destinationError, null);
-      return;
-    }
-    showFieldError(destinationInput, destinationError, destinationMessage());
-  });
-  nameInput?.addEventListener('blur', () => {
-    if (!nameInput.value.trim()) { showFieldError(nameInput, nameError, null); return; }
-    showFieldError(nameInput, nameError, nameMessage());
-  });
-  addressInput?.addEventListener('blur', () => {
-    if (!addressInput.value.trim()) { showFieldError(addressInput, addressError, null); return; }
-    showFieldError(addressInput, addressError, addressMessage());
-  });
-  paymentInput?.addEventListener('blur', () => {
-    if (!paymentInput.value.trim()) { showFieldError(paymentInput, paymentError, null); return; }
-    showFieldError(paymentInput, paymentError, paymentMessage());
-  });
+  function bindField(input: HTMLElement | null, errorEl: HTMLElement | null, message: () => string | null) {
+    if (!input) return;
+    const check = () => showFieldError(input, errorEl, message());
+    input.addEventListener("blur", check);
+    input.addEventListener("input", () => {
+      if (errorEl && !errorEl.hidden) check();
+    });
+  }
 
-  document.querySelectorAll('.payment-tab').forEach((tab) => {
-    tab.addEventListener('click', () => {
-      if (!(tab instanceof HTMLElement)) return;
-      const targetId = tab.dataset.tab;
-      document.querySelectorAll('.payment-tab').forEach((other) => {
-        other.classList.toggle('is-selected', other === tab);
+  bindField(nameInput, nameError, () => nameMessage(nameInput?.value ?? ""));
+  bindField(phoneInput, phoneError, () => phoneMessage(phoneInput?.value ?? ""));
+  bindField(destinationInput, destinationError, () => cityMessage(destinationInput?.value ?? ""));
+  bindField(addressInput, addressError, () => addressMessage(addressInput?.value ?? ""));
+  bindField(paymentInput, paymentError, () => paymentRefMessage(paymentInput?.value ?? ""));
+
+  document.querySelectorAll('input[name="payment_method"]').forEach((input) => {
+    input.addEventListener("change", () => {
+      if (!(input instanceof HTMLInputElement)) return;
+      document.querySelectorAll(".method-panel").forEach((panel) => {
+        if (!(panel instanceof HTMLElement)) return;
+        panel.hidden = panel.dataset.method !== input.value;
       });
-      document.querySelectorAll('.payment-panel').forEach((panel) => {
-        panel.classList.add('hidden');
-      });
-      if (targetId) document.getElementById(targetId)?.classList.remove('hidden');
     });
   });
 
-  document.querySelectorAll('.copy-btn').forEach((btn) => {
-    btn.addEventListener('click', async () => {
-      if (!(btn instanceof HTMLElement)) return;
-      const text = btn.dataset.copy ?? '';
+  document.querySelectorAll(".copy-btn").forEach((btn) => {
+    if (!(btn instanceof HTMLButtonElement)) return;
+    let timer = 0;
+    btn.addEventListener("click", async () => {
+      const text = btn.dataset.copy ?? "";
       try {
         await navigator.clipboard.writeText(text);
-        btn.textContent = '✓ Copied';
-        btn.classList.add('is-copied');
-        window.setTimeout(() => {
-          btn.textContent = 'Copy';
-          btn.classList.remove('is-copied');
-        }, 2000);
       } catch {
-        /* clipboard can be denied */
+        return;
       }
+      btn.textContent = "Copied";
+      btn.setAttribute("aria-label", "Copied");
+      if (copyStatus) copyStatus.textContent = "Copied";
+      window.clearTimeout(timer);
+      timer = window.setTimeout(() => {
+        btn.textContent = "Copy";
+        btn.setAttribute("aria-label", `Copy ${btn.dataset.label ?? ""}`.trim());
+        if (copyStatus) copyStatus.textContent = "";
+      }, 2000);
     });
   });
 
-  // ===== Form submission =====
-  if (form) {
-    form.addEventListener('submit', async (e) => {
-      e.preventDefault();
-      if (!submitBtn) return;
-      submitBtn.disabled = true;
-      submitBtn.innerText = 'Processing...';
-      if (errorMsg) errorMsg.classList.add('hidden');
+  const summaryDetails = document.querySelector(".summary-details");
+  const desktop = window.matchMedia("(min-width: 900px)");
+  function syncSummary(force: boolean) {
+    if (!(summaryDetails instanceof HTMLDetailsElement)) return;
+    if (desktop.matches) summaryDetails.open = true;
+    else if (force) summaryDetails.open = false;
+  }
+  desktop.addEventListener("change", () => syncSummary(true));
+  syncSummary(false);
 
-      const formData = new FormData(form);
+  if (form && submitBtn) {
+    form.addEventListener("submit", async (event) => {
+      event.preventDefault();
+      if (submitting) return;
+      showNote(errorMsg, null);
+      showNote(turnstileError, null);
+
       const priced = priceCart(catalog, Object.values(cartStore.get()));
-      if (priced.missing.length > 0 || priced.invalid.length > 0 || priced.lines.length === 0) {
-        const message = priced.missing.length > 0
-          ? `The shop does not sell ${priced.missing[0]}.`
-          : priced.invalid.length > 0
-            ? 'Quantity must be a positive integer.'
-            : 'Cart cannot be empty.';
-        if (errorMsg) { errorMsg.textContent = message; errorMsg.classList.remove('hidden'); }
-        submitBtn.innerText = 'Place order';
+      const stockProblem = priced.lines.flatMap((line) => {
+        const part = catalog.find((entry) => entry.part_number === line.part_number);
+        if (typeof part?.stock_qty === "number" && line.quantity > part.stock_qty) {
+          return [onlyInStock(line.part_number, part.stock_qty)];
+        }
+        return [];
+      });
+      if (priced.lines.length === 0 || priced.missing.length > 0 || priced.invalid.length > 0 || stockProblem.length > 0) {
         renderSummary();
+        cartProblem?.focus();
         return;
       }
+
       const problems = [
-        [nameInput, nameError, nameMessage()],
-        [phoneInput, phoneError, phoneMessage()],
-        [destinationInput, destinationError, destinationMessage()],
-        [addressInput, addressError, addressMessage()],
-        [paymentInput, paymentError, paymentMessage()],
+        [nameInput, nameError, nameMessage(nameInput?.value ?? "")],
+        [phoneInput, phoneError, phoneMessage(phoneInput?.value ?? "")],
+        [destinationInput, destinationError, cityMessage(destinationInput?.value ?? "")],
+        [addressInput, addressError, addressMessage(addressInput?.value ?? "")],
+        [paymentInput, paymentError, paymentRefMessage(paymentInput?.value ?? "")],
       ] as const;
       let firstInvalid: HTMLElement | null = null;
       for (const [input, errorEl, message] of problems) {
         showFieldError(input, errorEl, message);
         if (message && !firstInvalid && input) firstInvalid = input;
       }
+      const line2 = (line2Input?.value ?? "").trim();
+      if (line2.length > 120) {
+        if (line2Details instanceof HTMLDetailsElement) line2Details.open = true;
+        showNote(errorMsg, addressLine2Rule);
+        line2Input?.focus();
+        return;
+      }
       if (firstInvalid) {
-        submitBtn.innerText = 'Place order';
-        renderSummary();
         firstInvalid.focus();
         return;
       }
-      const line2 = String(formData.get('address_line_2') ?? '').trim();
-      const payload = {
-        name: formData.get('name'),
-        phone: normalizePkMobile(String(formData.get('phone') ?? '')),
-        address: formData.get('address'),
-        destination: String(formData.get('destination') ?? '').trim(),
-        address_line_2: line2 || undefined,
-        payment_ref: formData.get('payment_ref'),
-        items: priced.lines.map((line) => ({
-          part_number: line.part_number,
-          name: line.name,
-          price: line.price,
-          quantity: line.quantity,
-        })),
-        total: priced.total,
-      };
+
+      if (!turnstileToken && turnstileWidgetId !== undefined) {
+        writeTurnstileToken(window.turnstile?.getResponse(turnstileWidgetId) ?? "");
+      }
+      if (!turnstileToken) {
+        showNote(turnstileError, checkNotComplete);
+        return;
+      }
+
+      writeOrderFields(priced.lines, priced.total);
+      writeTurnstileToken(turnstileToken);
+
+      submitting = true;
+      submitBtn.disabled = true;
+      submitBtn.textContent = placingOrder;
 
       try {
-        const res = await fetch('/api/order', {
-          method: 'POST',
-          headers: { 'Content-Type': 'application/json' },
-          body: JSON.stringify(payload),
-        });
-        const data = await res.json() as { id?: string; error?: string };
-        if (res.ok) {
+        const { data, error } = await actions.placeOrder(new FormData(form));
+        if (data?.id) {
+          clearCheckoutKey();
           cartStore.set({});
           window.location.href = `/order-success/${data.id}`;
-        } else {
-          throw new Error(data.error || orderNotSaved);
+          return;
         }
-      } catch (err: any) {
-        if (errorMsg) { errorMsg.innerText = err.message; errorMsg.classList.remove('hidden'); }
-        if (submitBtn) { submitBtn.disabled = false; submitBtn.innerText = 'Place order'; }
+        if (error && isInputError(error)) {
+          const serverFields = [
+            [nameInput, nameError, error.fields.name?.[0] ?? null],
+            [phoneInput, phoneError, error.fields.phone?.[0] ?? null],
+            [destinationInput, destinationError, error.fields.destination?.[0] ?? null],
+            [addressInput, addressError, error.fields.address?.[0] ?? null],
+            [paymentInput, paymentError, error.fields.payment_ref?.[0] ?? null],
+          ] as const;
+          let invalid: HTMLElement | null = null;
+          for (const [input, errorEl, message] of serverFields) {
+            if (!message) continue;
+            showFieldError(input, errorEl, message);
+            if (!invalid && input) invalid = input;
+          }
+          const line2Message = error.fields.address_line_2?.[0] ?? null;
+          if (line2Message && line2Details instanceof HTMLDetailsElement) line2Details.open = true;
+          const other = line2Message
+            ?? error.fields.items?.[0]
+            ?? error.fields.total?.[0]
+            ?? error.fields.idempotency_key?.[0]
+            ?? null;
+          if (other) showNote(errorMsg, other);
+          if (invalid) invalid.focus();
+          else if (line2Message) line2Input?.focus();
+        } else {
+          const message = error?.message || orderNotSaved;
+          if (message === checkNotComplete) showNote(turnstileError, message);
+          else showNote(errorMsg, message);
+        }
+      } catch {
+        showNote(errorMsg, orderNotSaved);
       }
+      resetTurnstile();
+      submitting = false;
+      renderSummary();
     });
   }
 </script>

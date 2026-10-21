@@ -1,17 +1,46 @@
 ---
-import Layout from '../../layouts/Layout.astro';
-import { env } from 'cloudflare:workers';
-import { formatPkr } from '../../lib/money';
-import { unknownOrder } from '../../lib/order';
-import { whatsappHref } from '../../lib/shop';
+/**
+ * Order received. docs/pages.md#order-received-order-successid.
+ * Shows the id, lines, total, date, and city. Not the phone or street address.
+ */
+import "../info.css";
+import Layout from "../../layouts/Layout.astro";
+import Button from "../../components/Button.astro";
+import { counterPlace } from "../../lib/desk";
+import { formatPkr } from "../../lib/money";
+import {
+  continueShopping,
+  formatOrderDate,
+  linesUnreadable,
+  orderCancelled,
+  orderReceivedNext,
+  orderReceivedTitle,
+  receiptLines,
+  receiptTimeline,
+  receiptWhatsAppText,
+  sendReceipt,
+  serverBroke,
+  stepStateLabel,
+  tryAgain,
+  unknownOrder,
+} from "../../lib/order";
+import { pageTitle, shopName, whatsappHref } from "../../lib/shop";
+import { sameDayDispatch } from "../../lib/shipping";
+import { env } from "cloudflare:workers";
 
 export const prerender = false;
 
 const requestedId = Astro.params.id ?? "";
+const name = shopName();
+const retry = `${Astro.url.pathname}${Astro.url.search}`;
 
 type OrderRow = {
   id: string;
+  destination: string | null;
+  items_json: string;
   total_price: number;
+  status: string;
+  created_at: string | null;
 };
 
 let order: OrderRow | null = null;
@@ -23,12 +52,15 @@ if (!env?.DB) {
 } else {
   try {
     const row = await env.DB.prepare(
-      "SELECT id, total_price FROM Orders WHERE id = ?",
+      "SELECT id, destination, items_json, total_price, status, created_at FROM Orders WHERE id = ?",
     )
       .bind(requestedId)
       .first<OrderRow>();
     if (!row) {
       Astro.response.status = 404;
+    } else if (typeof row.total_price !== "number" || !Number.isInteger(row.total_price)) {
+      lookupFailed = true;
+      Astro.response.status = 500;
     } else {
       order = row;
     }
@@ -39,38 +71,136 @@ if (!env?.DB) {
   }
 }
 
-const waLink = order
-  ? whatsappHref(`Order ${order.id}. Here is my payment receipt screenshot.`)
-  : undefined;
-
+const lines = order ? receiptLines(order.items_json) : null;
+const when = order ? formatOrderDate(order.created_at) : null;
+const city = order?.destination?.trim() || null;
+const timeline = order ? receiptTimeline(order.status) : null;
+const wa = order ? whatsappHref(receiptWhatsAppText(order.id)) : undefined;
 const title = order
-  ? `Order ${order.id} — Lahore Silicon`
+  ? pageTitle(`Order ${order.id}`, name)
   : lookupFailed
-    ? "Order lookup failed — Lahore Silicon"
-    : `${unknownOrder} — Lahore Silicon`;
+    ? pageTitle("Something broke", name)
+    : pageTitle(unknownOrder, name);
+const description = order ? `${orderReceivedTitle}. ${orderReceivedNext}` : title;
 ---
 
-<Layout title={title}>
-  <div class="page page-narrow">
-    {order ? (
-      <div class="panel stack">
-        <p class="label">Saved</p>
-        <h1 class="display">Order placed</h1>
-        <p>This id is the one stored with the order.</p>
-        <p class="part-number">{order.id}</p>
-        <hr class="copper-rule" />
-        <p class="price money">Total {formatPkr(order.total_price)}</p>
-        {waLink && (
-          <a class="btn-ink" href={waLink} target="_blank" rel="noopener noreferrer">Send the receipt on WhatsApp</a>
-        )}
-        <a href="/">Back to the catalog</a>
-      </div>
+<Layout title={title} description={description} robots="noindex, nofollow">
+  <article class="info-page">
+    {order && timeline ? (
+      <>
+        <p class="eyebrow">Order</p>
+        <h1 class="title">{orderReceivedTitle}</h1>
+        <p class="lede">{orderReceivedNext}</p>
+        <div class="info-stack">
+          <section class="sheet" aria-labelledby="receipt-heading">
+            <h2 id="receipt-heading" class="heading">Receipt</h2>
+            <p class="eyebrow">Order</p>
+            <p class="order-id">{order.id}</p>
+            <dl class="meta">
+              {when && (
+                <div>
+                  <dt>Date</dt>
+                  <dd>{when}</dd>
+                </div>
+              )}
+              <div>
+                <dt>Seller</dt>
+                <dd>{name}</dd>
+              </div>
+              <div>
+                <dt>Counter</dt>
+                <dd>{counterPlace}</dd>
+              </div>
+              {city && (
+                <div>
+                  <dt>Delivery</dt>
+                  <dd>{city}</dd>
+                </div>
+              )}
+            </dl>
+            {lines ? (
+              <>
+                <div class="lines-head" aria-hidden="true">
+                  <span>Part</span>
+                  <span>Qty</span>
+                  <span>Unit</span>
+                  <span>Line</span>
+                </div>
+                <ul class="lines">
+                  {lines.map((line) => (
+                    <li class="line">
+                      <div class="line-id">
+                        <span class="part">{line.part_number}</span>
+                        {line.name && <span class="job">{line.name}</span>}
+                      </div>
+                      <p>
+                        <span class="k">Qty</span>
+                        <span class="v">{line.quantity}</span>
+                      </p>
+                      <p>
+                        <span class="k">Unit</span>
+                        <span class="v money">{formatPkr(line.unit_price)}</span>
+                      </p>
+                      <p>
+                        <span class="k">Line</span>
+                        <span class="v money">{formatPkr(line.line_total)}</span>
+                      </p>
+                    </li>
+                  ))}
+                </ul>
+              </>
+            ) : (
+              <p class="quiet">{linesUnreadable}</p>
+            )}
+            <p class="total">
+              <span>Total</span>
+              <span class="money">{formatPkr(order.total_price)}</span>
+            </p>
+          </section>
+
+          <section class="sheet" aria-labelledby="next-heading">
+            <h2 id="next-heading" class="heading">What happens next</h2>
+            {timeline.cancelled ? (
+              <p>{orderCancelled}</p>
+            ) : (
+              <ol class="timeline">
+                {timeline.steps.map((step) => (
+                  <li data-done={step.done ? "true" : "false"} aria-current={step.current ? "step" : undefined}>
+                    <span class="mark" aria-hidden="true"></span>
+                    <div>
+                      <p class="step-name">{step.label}</p>
+                      <p class="step-state">{stepStateLabel(step.done)}</p>
+                      {step.label === "Dispatched" && <p class="promise">{sameDayDispatch}</p>}
+                    </div>
+                  </li>
+                ))}
+              </ol>
+            )}
+          </section>
+        </div>
+        <div class="actions">
+          {wa && (
+            <Button href={wa} target="_blank" variant="primary" size="large">{sendReceipt}</Button>
+          )}
+          <Button href="/" variant={wa ? "ghost" : "primary"}>{continueShopping}</Button>
+        </div>
+      </>
+    ) : lookupFailed ? (
+      <>
+        <h1 class="title">{serverBroke}</h1>
+        <div class="actions">
+          <Button href={retry} variant="primary">{tryAgain}</Button>
+          <Button href="/" variant="ghost">All parts</Button>
+        </div>
+      </>
     ) : (
-      <div class="panel stack">
-        <h1 class="title">{lookupFailed ? "The order record could not be loaded." : unknownOrder}</h1>
-        <a class="btn-ink" href="/">Back to the catalog</a>
-        <a href="/contact">Contact the desk</a>
-      </div>
+      <>
+        <h1 class="title">{unknownOrder}</h1>
+        <div class="actions">
+          <Button href="/" variant="primary">All parts</Button>
+          <Button href="/contact" variant="ghost">Contact</Button>
+        </div>
+      </>
     )}
-  </div>
+  </article>
 </Layout>

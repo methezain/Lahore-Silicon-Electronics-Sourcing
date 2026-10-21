@@ -1,89 +1,140 @@
 ---
-import Layout from '../layouts/Layout.astro';
-import { cutoffValue } from '../lib/shipping';
-import { deskHours } from '../lib/desk';
-import { shopPhone, whatsappHref } from '../lib/shop';
+/**
+ * Contact. docs/pages.md#contact-contact.
+ * WhatsApp when a real number is configured. No street address, no map, no invented inbox.
+ */
+import "./info.css";
+import Layout from "../layouts/Layout.astro";
+import Button from "../components/Button.astro";
+import { counterPlace, deskHours } from "../lib/desk";
+import { pageTitle, shopPhone, whatsappHref } from "../lib/shop";
+import { dispatchCutoff } from "../lib/shipping";
 
 const phone = shopPhone();
-const quoteWa = whatsappHref('Hi, I need a custom sourcing quote for the following parts:');
+const wa = whatsappHref();
+const description = phone
+  ? `WhatsApp ${phone.display}. ${deskHours}`
+  : deskHours;
 ---
 
-<Layout
-  title="Contact — Lahore Silicon"
-  description="Contact the Lahore Silicon desk for a part that is not in the catalog."
->
-  <div class="page">
-    <p class="label">Desk</p>
-    <h1 class="display">Contact</h1>
-    <p class="lede">
-      {phone
-        ? 'The form opens WhatsApp with your part list already written.'
-        : 'The form opens an email with your part list already written.'}
-    </p>
+<Layout title={pageTitle("Contact")} description={description}>
+  <article class="info-page">
+    <p class="eyebrow">Counter</p>
+    <h1 class="title">Contact</h1>
+    {phone && wa && (
+      <p class="lede">This opens WhatsApp with the part list filled in.</p>
+    )}
 
-    <div class="split mt-32">
-      <div class="panel stack">
+    <div class="split">
+      <aside class="sheet side">
         <h2 class="heading">Hours</h2>
         <p>{deskHours}</p>
-        <p class="caption">Dispatch cutoff: {cutoffValue}</p>
-        <p class="caption">Hall Road, Lahore.</p>
-        {phone && <p class="mono">{phone.display}</p>}
-      </div>
+        <p class="quiet">{dispatchCutoff}</p>
+        <h2 class="heading">Counter</h2>
+        <p>{counterPlace}</p>
+        {phone && wa && (
+          <>
+            <h2 class="heading">Phone</h2>
+            <p><a href={`tel:+${phone.waDigits}`}>{phone.display}</a></p>
+            <p><a href={wa} target="_blank" rel="noopener noreferrer">WhatsApp {phone.display}</a></p>
+          </>
+        )}
+      </aside>
 
-      <form id="sourcing-form" class="panel stack">
-        <h2 class="heading">A part that is not listed</h2>
-        <div class="field">
-          <label for="quote-name">Name, required</label>
-          <input id="quote-name" name="name" type="text" required autocomplete="name" />
-        </div>
-        <div class="field">
-          <label for="quote-phone">Phone, required</label>
-          <input id="quote-phone" name="phone" type="tel" required autocomplete="tel" placeholder="03XX XXXXXXX" />
-        </div>
-        <div class="field">
-          <label for="quote-parts">Part numbers, required</label>
-          <textarea id="quote-parts" name="parts" required rows="5" placeholder="LM7805 × 10"></textarea>
-        </div>
-        <div class="field">
-          <label for="quote-notes">Notes, optional</label>
-          <textarea id="quote-notes" name="notes" rows="2"></textarea>
-        </div>
-        <a
-          id="quote-send"
-          class="btn-ink"
-          href={quoteWa ?? 'mailto:support@lahoresilicon.com?subject=Custom%20sourcing%20quote'}
-          data-wa={phone?.waDigits}
-          target={quoteWa ? '_blank' : undefined}
-          rel={quoteWa ? 'noopener noreferrer' : undefined}
-        >
-          {quoteWa ? 'Send on WhatsApp' : 'Email the part list'}
-        </a>
-      </form>
+      {phone && wa && (
+        <form id="sourcing-form" class="sheet form" data-wa={phone.waDigits} novalidate>
+          <h2 class="heading">A part that is not listed</h2>
+          <div class="field">
+            <label for="quote-phone">Phone</label>
+            <div class="phone" id="quote-phone-wrap">
+              <span class="dial" aria-hidden="true">+92</span>
+              <input
+                id="quote-phone"
+                name="phone"
+                type="tel"
+                inputmode="numeric"
+                autocomplete="tel"
+                aria-required="true"
+                placeholder="300 1234567"
+                aria-describedby="quote-phone-error"
+              />
+            </div>
+            <p id="quote-phone-error" class="field-error" role="alert" hidden></p>
+          </div>
+          <div class="field">
+            <label for="quote-parts">Part numbers</label>
+            <textarea
+              class="control"
+              id="quote-parts"
+              name="parts"
+              rows="5"
+              aria-required="true"
+              placeholder="LM7805 × 10"
+              aria-describedby="quote-parts-error"
+            ></textarea>
+            <p id="quote-parts-error" class="field-error" role="alert" hidden></p>
+          </div>
+          <div class="actions">
+            <Button id="quote-send" href={wa} target="_blank" variant="primary">Send on WhatsApp</Button>
+          </div>
+        </form>
+      )}
     </div>
-  </div>
+  </article>
 </Layout>
 
 <script>
-  const send = document.getElementById('quote-send');
-  const form = document.getElementById('sourcing-form');
-  send?.addEventListener('click', (event) => {
-    if (!(form instanceof HTMLFormElement) || !(send instanceof HTMLAnchorElement)) return;
-    if (!form.reportValidity()) {
-      event.preventDefault();
+  import { partsMessage, sourcingMessage } from "../lib/desk";
+  import { normalizePkMobile, phoneRule } from "../lib/phone";
+
+  const form = document.getElementById("sourcing-form");
+  const send = document.getElementById("quote-send");
+  const phoneInput = document.getElementById("quote-phone");
+  const phoneError = document.getElementById("quote-phone-error");
+  const phoneWrap = document.getElementById("quote-phone-wrap");
+  const partsInput = document.getElementById("quote-parts");
+  const partsError = document.getElementById("quote-parts-error");
+
+  function showError(input: HTMLElement | null, errorEl: HTMLElement | null, message: string | null, wrap?: HTMLElement | null) {
+    if (errorEl) {
+      errorEl.textContent = message ?? "";
+      errorEl.hidden = !message;
+    }
+    if (!message) {
+      input?.removeAttribute("aria-invalid");
+      wrap?.removeAttribute("data-invalid");
       return;
     }
-    const data = new FormData(form);
-    const body = [
-      `Name: ${data.get('name') ?? ''}`,
-      `Phone: ${data.get('phone') ?? ''}`,
-      '',
-      String(data.get('parts') ?? ''),
-      '',
-      String(data.get('notes') ?? ''),
-    ].join('\n').trim();
-    const waDigits = send.dataset.wa;
-    send.href = waDigits
-      ? `https://wa.me/${waDigits}?text=${encodeURIComponent(body)}`
-      : `mailto:support@lahoresilicon.com?subject=${encodeURIComponent('Custom sourcing quote')}&body=${encodeURIComponent(body)}`;
+    input?.setAttribute("aria-invalid", "true");
+    if (wrap) wrap.dataset.invalid = "true";
+  }
+
+  function sendIfValid(event: Event) {
+    if (!(form instanceof HTMLFormElement) || !(send instanceof HTMLAnchorElement)) return;
+    if (!(phoneInput instanceof HTMLInputElement) || !(partsInput instanceof HTMLTextAreaElement)) return;
+    const digits = form.dataset.wa;
+    const phoneProblem = phoneInput.value.trim() && normalizePkMobile(phoneInput.value) ? null : phoneRule;
+    const partsProblem = partsMessage(partsInput.value);
+    showError(phoneInput, phoneError, phoneProblem, phoneWrap);
+    showError(partsInput, partsError, partsProblem);
+    if (phoneProblem || partsProblem || !digits) {
+      event.preventDefault();
+      (phoneProblem ? phoneInput : partsInput).focus();
+      return;
+    }
+    const href = `https://wa.me/${digits}?text=${encodeURIComponent(sourcingMessage(phoneInput.value, partsInput.value))}`;
+    send.href = href;
+    if (event.type !== "click") {
+      event.preventDefault();
+      window.open(href, "_blank", "noopener,noreferrer");
+    }
+  }
+
+  send?.addEventListener("click", sendIfValid);
+  form?.addEventListener("submit", sendIfValid);
+  phoneInput?.addEventListener("keydown", (event) => {
+    if (!(event instanceof KeyboardEvent) || event.key !== "Enter") return;
+    event.preventDefault();
+    sendIfValid(event);
   });
 </script>

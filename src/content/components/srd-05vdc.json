@@ -10,38 +10,50 @@
   "package_type": "PCB module",
   "mounting_type": "Through-hole",
   "voltage": "5 V coil",
+  "summary": "Switches a load from a 5 V active-low input. Contacts are rated 10 A at 250 VAC.",
+  "key_specs": ["Coil voltage", "Contact rating", "Channels", "Trigger"],
   "specs": [
+    { "label": "Coil voltage", "value": "5", "unit": "V" },
+    { "label": "Channels", "value": "1" },
+    { "label": "Contact rating", "value": "10 A, 250 VAC" },
+    { "label": "Trigger", "value": "Active low" },
+    { "label": "Input circuit", "value": "Opto-isolator" },
+    { "label": "Relay", "value": "SRD-05VDC-SL-C" },
+    { "label": "Package", "value": "PCB module" },
+    { "label": "Mounting", "value": "Through-hole" }
+  ],
+  "faq": [
     {
-      "label": "Coil",
-      "value": "5",
-      "unit": "V"
+      "q": "What voltage is the coil?",
+      "a": "5 V."
     },
     {
-      "label": "Channels",
-      "value": "1"
+      "q": "How is it triggered?",
+      "a": "Active low, through an opto-isolator."
     },
     {
-      "label": "Contact rating",
-      "value": "10 A, 250 VAC"
+      "q": "What are the contacts rated?",
+      "a": "10 A at 250 VAC. That rating is the load, not the logic pin."
     },
     {
-      "label": "Trigger",
-      "value": "Active low"
+      "q": "What is in the bag?",
+      "a": "The relay module in an antistatic bag."
     },
     {
-      "label": "Input",
-      "value": "Opto-isolator"
-    },
+      "q": "What voltage does the logic pin accept?",
+      "a": "This page does not say. The listing gives the coil voltage, not the logic-pin voltage."
+    }
+  ],
+  "images": [
     {
-      "label": "Relay",
-      "value": "SRD-05VDC-SL-C"
+      "src": "../../assets/parts/srd-05vdc.jpg",
+      "alt": "SRD-05VDC-SL-C module on a red board, with a blue relay, a three-pin header, and a green screw terminal.",
+      "note": "Representative studio photograph, not a photo of the lot in the drawer."
     }
   ],
   "in_the_bag": "Relay module in an antistatic bag.",
   "limits": "The coil supply is 5 V. The contact rating is the load, not the logic pin.",
   "min_qty": 1,
   "qty_multiple": 1,
-  "description": "Single-channel module with an SRD-05VDC-SL-C relay. 5 V coil, opto-isolator, active-low trigger, indicator LED, and a flyback diode. Contacts are rated 10 A at 250 VAC. Sourced from Hall Road, Lahore.",
-  "image": "../../assets/parts/srd-05vdc.jpg",
-  "image_note": "Representative studio photograph, not a photo of the lot in the drawer."
+  "description": "Single-channel module with an SRD-05VDC-SL-C relay. 5 V coil, opto-isolator, active-low trigger, indicator LED, and a flyback diode. Contacts are rated 10 A at 250 VAC. Sourced from Hall Road, Lahore."
 }

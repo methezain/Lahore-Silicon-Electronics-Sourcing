@@ -21,7 +21,7 @@ A sentence ships only when data, the shipping module, or the server can prove it
 | "Paid before 3 PM, Monday to Saturday, ships the same day" | "Lightning-fast delivery" |
 | "Representative studio photograph" (from `image_note`) | Implying a stock photo is the lot |
 | "10 parts on the counter" (computed) | "500+ components" |
-| "Report a defect within 3 days" | "100% genuine guaranteed" without a policy behind it |
+| "Report a defect within 24 hours" | "100% genuine guaranteed" without a policy behind it |
 
 Never cite outside studies (Baymard, Google, Deloitte) on the site.
 
@@ -85,6 +85,8 @@ Name the rule, keep the value, sit on the field, no apology.
 | City | Enter your city or area. |
 | Address | Enter the full address, with house and street. |
 | Payment reference | Paste the transaction ID from your payment (at least 5 characters). |
+| Checkout check | Complete the check before placing the order. |
+| Too many attempts | Too many order attempts. Wait a minute and try again. |
 | Total mismatch | Prices changed while you were checking out. The new total is Rs 2,600. |
 | Stock exceeded | ESP32-WROOM-32D: only 9 in stock. |
 

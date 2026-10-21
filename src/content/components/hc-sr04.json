@@ -10,41 +10,56 @@
   "package_type": "PCB module",
   "mounting_type": "Through-hole",
   "voltage": "5 V",
+  "summary": "Measures 2–400 cm. Pins are VCC, Trig, Echo, and GND. The echo pin is 5 V.",
+  "key_specs": ["Sensing distance", "Distance accuracy", "Supply voltage", "Ultrasonic frequency"],
+  "logic_level": "5 V",
   "specs": [
+    { "label": "Supply voltage", "value": "5", "unit": "V" },
+    { "label": "Sensing distance", "value": "2–400", "unit": "cm" },
+    { "label": "Distance accuracy", "value": "±3", "unit": "mm" },
+    { "label": "Ultrasonic frequency", "value": "40", "unit": "kHz" },
+    { "label": "Package", "value": "PCB module" },
+    { "label": "Mounting", "value": "Through-hole" }
+  ],
+  "pinout": [
+    { "pin": "VCC", "label": "Supply", "note": "5 V" },
+    { "pin": "Trig", "label": "Trigger" },
+    { "pin": "Echo", "label": "Echo", "note": "5 V logic" },
+    { "pin": "GND", "label": "Ground" }
+  ],
+  "companions": ["ARDUINO-NANO"],
+  "faq": [
     {
-      "label": "Supply",
-      "value": "5",
-      "unit": "V"
+      "q": "What does it measure?",
+      "a": "2–400 cm, within ±3 mm, at 40 kHz."
     },
     {
-      "label": "Range",
-      "value": "2–400",
-      "unit": "cm"
+      "q": "What voltage is the echo pin?",
+      "a": "5 V. The supply is 5 V."
     },
     {
-      "label": "Accuracy",
-      "value": "±3",
-      "unit": "mm"
+      "q": "What are the pins?",
+      "a": "VCC, Trig, Echo, and GND."
     },
     {
-      "label": "Frequency",
-      "value": "40",
-      "unit": "kHz"
+      "q": "Can the echo pin go straight to the ESP32-WROOM-32D?",
+      "a": "No. That module's I/O is 3.3 V, and this echo pin is 5 V."
     },
     {
-      "label": "Pins",
-      "value": "VCC, Trig, Echo, GND"
-    },
+      "q": "What is in the bag?",
+      "a": "The module in an antistatic bag."
+    }
+  ],
+  "images": [
     {
-      "label": "Package",
-      "value": "PCB module"
+      "src": "../../assets/parts/hc-sr04.jpg",
+      "alt": "HC-SR04 module on a blue board, with two silver ultrasonic transducers and a four-pin header.",
+      "note": "Representative studio photograph, not a photo of the lot in the drawer."
     }
   ],
   "in_the_bag": "Module in an antistatic bag.",
   "limits": "The echo pin is 5 V logic.",
   "min_qty": 1,
   "qty_multiple": 1,
-  "description": "HC-SR04 ultrasonic ranging module. 2 cm–400 cm, ±3 mm, 40 kHz. Four pins: VCC, Trig, Echo, GND. Sourced from Hall Road, Lahore.",
-  "image": "../../assets/parts/hc-sr04.jpg",
-  "image_note": "Representative studio photograph, not a photo of the lot in the drawer."
+  "description": "HC-SR04 ultrasonic ranging module. 2 cm–400 cm, ±3 mm, 40 kHz. Four pins: VCC, Trig, Echo, GND. Sourced from Hall Road, Lahore."
 }

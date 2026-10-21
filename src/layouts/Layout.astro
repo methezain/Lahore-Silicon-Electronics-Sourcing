@@ -6,7 +6,9 @@ import Footer from '../components/Footer.astro';
 import IconSprite from '../components/IconSprite.astro';
 import CartSheet from '../components/CartSheet.tsx';
 import { loadCatalog } from '../lib/catalog';
+import { cspSha256 } from '../lib/csp';
 import { partTransitionCss } from '../lib/part-image';
+import { shopName } from '../lib/shop';
 import { shippingWindows } from '../lib/shipping';
 
 interface Props {
@@ -17,8 +19,9 @@ interface Props {
   robots?: string;
 }
 
+const name = shopName();
 const {
-  title = "Lahore Silicon — Electronic Component Sourcing from Hall Road",
+  title = `${name} — Electronic Component Sourcing from Hall Road`,
   description = `On-demand sourcing of ICs, microcontrollers, sensors, and passive components from Hall Road, Lahore. ${shippingWindows}`,
   ogImage = "/og-image.png",
   canonical = Astro.url.href,
@@ -27,6 +30,7 @@ const {
 
 const catalog = await loadCatalog();
 const transitionCss = partTransitionCss(catalog.map((part) => part.part_number));
+if (Astro.csp && transitionCss) Astro.csp.insertStyleHash(await cspSha256(transitionCss));
 ---
 <!doctype html>
 <html lang="en" class="scroll-smooth">
@@ -47,7 +51,7 @@ const transitionCss = partTransitionCss(catalog.map((part) => part.part_number))
     <meta property="og:description" content={description} />
     <meta property="og:image" content={ogImage} />
     <meta property="og:url" content={canonical} />
-    <meta property="og:site_name" content="Lahore Silicon" />
+    <meta property="og:site_name" content={name} />
     <meta property="og:locale" content="en_PK" />
 
     <!-- Twitter Card -->

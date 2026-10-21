@@ -10,38 +10,60 @@
   "package_type": "TO-92",
   "mounting_type": "Through-hole",
   "voltage": "3.0–5.5 V",
+  "summary": "Measures −55 °C to +125 °C on a 1-Wire bus, from 3.0–5.5 V.",
+  "key_specs": ["Temperature range", "Temperature accuracy", "Supply voltage", "Interface"],
+  "logic_level": "3.3 V and 5 V",
   "specs": [
+    { "label": "Interface", "value": "1-Wire" },
+    { "label": "Supply voltage", "value": "3.0–5.5", "unit": "V" },
+    { "label": "Temperature range", "value": "−55 to +125", "unit": "°C" },
+    { "label": "Temperature accuracy", "value": "±0.5 °C from −10 °C to +85 °C" },
+    { "label": "Address", "value": "64-bit" },
+    { "label": "Package", "value": "TO-92" },
+    { "label": "Mounting", "value": "Through-hole" }
+  ],
+  "pinout": [
+    { "pin": "1", "label": "GND", "note": "Ground" },
+    { "pin": "2", "label": "DQ", "note": "1-Wire data, open drain" },
+    { "pin": "3", "label": "VDD", "note": "Ground this pin for parasite power" }
+  ],
+  "not_included": "No pull-up resistor. Not the waterproof probe.",
+  "faq": [
     {
-      "label": "Interface",
-      "value": "1-Wire"
+      "q": "What does it measure?",
+      "a": "−55 °C to +125 °C. Accuracy is ±0.5 °C from −10 °C to +85 °C."
     },
     {
-      "label": "Supply",
-      "value": "3.0–5.5",
-      "unit": "V"
+      "q": "What supply does it use?",
+      "a": "3.0–5.5 V, so the bus works at 3.3 V and at 5 V."
     },
     {
-      "label": "Range",
-      "value": "−55 to +125",
-      "unit": "°C"
+      "q": "Can several share one wire?",
+      "a": "Yes. Each sensor has its own 64-bit address."
     },
     {
-      "label": "Accuracy",
-      "value": "±0.5 °C from −10 °C to +85 °C"
+      "q": "Does the bag include a pull-up?",
+      "a": "No. DQ is open drain. The datasheet drawing uses 4.7 kΩ, and the text calls the bus pull-up about 5 kΩ."
     },
     {
-      "label": "Address",
-      "value": "64-bit"
+      "q": "What is pin 3 in parasite power?",
+      "a": "Ground. The datasheet says VDD must be grounded in parasite-power mode."
     },
     {
-      "label": "Package",
-      "value": "TO-92"
+      "q": "Is this the waterproof probe?",
+      "a": "No. The bag is a loose TO-92. A waterproof probe is a different part."
+    }
+  ],
+  "datasheet": "https://www.analog.com/media/en/technical-documentation/data-sheets/ds18b20.pdf",
+  "images": [
+    {
+      "src": "../../assets/parts/ds18b20.jpg",
+      "alt": "DS18B20 sensor in a TO-92 package, black body with three metal leads.",
+      "note": "Representative studio photograph, not a photo of the lot in the drawer."
     }
   ],
   "in_the_bag": "Loose TO-92 in an antistatic bag.",
   "min_qty": 1,
   "qty_multiple": 1,
-  "description": "DS18B20 1-Wire thermometer in TO-92. −55 °C to +125 °C, ±0.5 °C from −10 °C to +85 °C. Each sensor has a 64-bit address, so more than one can share a bus. A waterproof probe is a different part, available on request. Sourced from Hall Road, Lahore.",
-  "image": "../../assets/parts/ds18b20.jpg",
-  "image_note": "Representative studio photograph, not a photo of the lot in the drawer."
+  "description": "DS18B20 1-Wire thermometer in TO-92. −55 °C to +125 °C, ±0.5 °C from −10 °C to +85 °C. Each sensor has a 64-bit address, so more than one can share a bus. DQ needs a pull-up, which is not in the bag. A waterproof probe is a different part, available on request. Sourced from Hall Road, Lahore."
 }

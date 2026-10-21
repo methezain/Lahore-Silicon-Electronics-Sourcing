@@ -5,6 +5,10 @@ interface __BaseEnv_Env {
 	DB: D1Database;
 	ASSETS: Fetcher;
 	RESEND_API_KEY: string;
+	ORDER_LIMIT: RateLimit;
+	TURNSTILE_SECRET?: string;
+	TURNSTILE_HOSTNAMES?: string;
+	PUBLIC_TURNSTILE_SITEKEY?: string;
 }
 declare namespace Cloudflare {
 	interface Env extends __BaseEnv_Env {}

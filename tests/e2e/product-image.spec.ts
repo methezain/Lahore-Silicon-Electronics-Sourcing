@@ -13,14 +13,14 @@ test('product photo is sized, eager, and does not shift', async ({ page }) => {
   });
 
   await page.goto('/product/lm7805');
-  const img = page.locator('.image-well img');
+  const img = page.locator('.gallery-well img');
   await expect(img).toBeVisible();
   await expect(img).toHaveAttribute('width', '640');
   await expect(img).toHaveAttribute('height', '640');
   await expect(img).toHaveAttribute('fetchpriority', 'high');
   await expect(img).toHaveAttribute('loading', 'eager');
-  await expect(img).toHaveAttribute('sizes', /516px/);
-  const types = await page.locator('.image-well source').evaluateAll((nodes) =>
+  await expect(img).toHaveAttribute('sizes', /100vw - 56px/);
+  const types = await page.locator('.gallery-well source').evaluateAll((nodes) =>
     nodes.map((node) => node.getAttribute('type')),
   );
   expect(types).toContain('image/avif');
@@ -47,24 +47,25 @@ test('product photo is sized, eager, and does not shift', async ({ page }) => {
 
 test('catalog thumbnail and product photo share a view-transition name', async ({ page }) => {
   await page.goto('/');
-  const thumb = page.locator('a[href="/product/lm7805"]:visible img');
+  const thumb = page.locator('#catalog img.vt-part-lm7805:visible');
+  const desktop = (page.viewportSize()?.width ?? 0) >= 900;
   await expect(thumb).toHaveAttribute('alt', '');
-  await expect(thumb).toHaveAttribute('width', '56');
-  await expect(thumb).toHaveAttribute('height', '56');
-  await expect(thumb).toHaveAttribute('sizes', '56px');
+  await expect(thumb).toHaveAttribute('width', desktop ? '52' : '160');
+  await expect(thumb).toHaveAttribute('height', desktop ? '52' : '160');
+  await expect(thumb).toHaveAttribute('sizes', desktop ? '52px' : '80px');
   await expect(thumb).toHaveAttribute('loading', 'lazy');
   await expect(thumb).toHaveAttribute('decoding', 'async');
   const catalogName = await thumb.evaluate((el) => getComputedStyle(el).viewTransitionName);
   expect(catalogName).toBe('part-lm7805');
 
   await page.goto('/product/lm7805');
-  const productName = await page.locator('.image-well img').evaluate((el) => getComputedStyle(el).viewTransitionName);
+  const productName = await page.locator('.gallery-well img').evaluate((el) => getComputedStyle(el).viewTransitionName);
   expect(productName).toBe(catalogName);
 });
 
 test('cart line uses the optimized thumb', async ({ page }) => {
   await page.goto('/product/esp32-wroom-32d');
-  await page.getByRole('button', { name: 'Add to cart' }).click();
+  await page.locator('.qty-row .buy-add').click();
   const cartImg = page.locator('.cart-photo img');
   await expect(cartImg).toBeVisible();
   await expect(cartImg).toHaveAttribute('width', '64');
@@ -81,7 +82,7 @@ test('cart line uses the optimized thumb', async ({ page }) => {
 test('product photo stays visible with reduced motion', async ({ page }) => {
   await page.emulateMedia({ reducedMotion: 'reduce' });
   await page.goto('/product/lm7805');
-  await expect(page.locator('.image-well img')).toBeVisible();
-  const animation = await page.locator('.product-screen').evaluate((el) => getComputedStyle(el).animationName);
+  await expect(page.locator('.gallery-well img')).toBeVisible();
+  const animation = await page.locator('.product-page').evaluate((el) => getComputedStyle(el).animationName);
   expect(animation).toBe('none');
 });

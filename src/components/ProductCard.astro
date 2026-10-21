@@ -23,6 +23,10 @@ interface Props {
   packageType: string;
   image?: ImageMetadata;
   layout?: "row" | "stack";
+  /** Front hero card: job and price, then stock and the key spec. Shadow, no hover fill. */
+  variant?: "catalog" | "hero";
+  /** Key spec beside the stock count. Hero only. */
+  detail?: string;
   priority?: boolean;
   /** Catalog thumbnail shares a view-transition name with the product photo. */
   transition?: boolean;
@@ -42,18 +46,21 @@ const {
   packageType,
   image,
   layout = "row",
+  variant = "catalog",
+  detail,
   priority = false,
   transition = true,
 } = Astro.props;
 
 const figure = formatPkr(unitPrice({ price, breaks }, 1)).slice("Rs ".length);
-const stacked = layout === "stack";
+const hero = variant === "hero";
+const stacked = hero || layout === "stack";
 const photo = stacked
   ? { width: 640, height: 480, sizes: "(min-width: 900px) 380px, calc(100vw - 64px)", widths: [480, 768] }
   : { width: 160, height: 160, sizes: "80px", widths: [80, 160] };
 ---
 
-<article class:list={["card", stacked ? "is-stack" : "is-row"]}>
+<article class:list={["card", stacked ? "is-stack" : "is-row", hero && "is-hero"]}>
   <a class="card-link" href={href}>
     <span class="tab">
       <span class="pin" aria-hidden="true"></span>
@@ -80,17 +87,35 @@ const photo = stacked
         )}
       </div>
       <div class="copy">
-        <p class="job">{name}</p>
-        <div class="meta">
+        {hero ? (
+          <div class="hero-top">
+            <p class="job">{name}</p>
+            <span class="price"><span class="rs">Rs</span>{" "}{figure}</span>
+          </div>
+        ) : (
+          <p class="job">{name}</p>
+        )}
+        {hero ? (
           <StockIndicator
             stockQty={stockQty}
             lowStockAt={lowStockAt}
             restockOn={restockOn}
             shelfQty={shelfQty}
             meter={showMeter}
+            aside={detail}
           />
-          <span class="price"><span class="rs">Rs</span>{" "}{figure}</span>
-        </div>
+        ) : (
+          <div class="meta">
+            <StockIndicator
+              stockQty={stockQty}
+              lowStockAt={lowStockAt}
+              restockOn={restockOn}
+              shelfQty={shelfQty}
+              meter={showMeter}
+            />
+            <span class="price"><span class="rs">Rs</span>{" "}{figure}</span>
+          </div>
+        )}
       </div>
     </div>
   </a>
@@ -117,6 +142,13 @@ const photo = stacked
   .card:hover,
   .card:focus-within {
     --product-card: var(--color-blue-50);
+  }
+
+  .is-hero,
+  .is-hero:hover,
+  .is-hero:focus-within {
+    --product-card: var(--color-surface);
+    box-shadow: var(--shadow-3);
   }
 
   .card:focus-within {
@@ -249,6 +281,22 @@ const photo = stacked
     flex-direction: column;
     gap: var(--space-8);
     min-width: 0;
+  }
+
+  .hero-top {
+    display: flex;
+    align-items: flex-start;
+    justify-content: space-between;
+    gap: var(--space-12);
+  }
+
+  .hero-top .job {
+    min-width: 0;
+  }
+
+  .is-hero :global(.stock),
+  .is-hero :global(.line) {
+    width: 100%;
   }
 
   .job {

@@ -24,8 +24,25 @@ export const shippingWindows = `${lahoreDelivery} ${nationwideDelivery} ${orderB
 /** No rupee amount is known. Do not print a blank or invent one. */
 export const deliveryCost = "Delivery cost is confirmed from your city, before you pay.";
 
-/** Same sentence as the defect section on the shipping page. */
-export const returnRule = "Report a defect within 3 days of receiving the parcel.";
+/** Commerce manual. Qualified, and not a promised date. */
+export const remoteDelivery = "Remote areas and Eid periods may add 1–2 days.";
+
+/**
+ * Owner: no cash on delivery (docs/decisions.md).
+ * Pickup is not a checkout choice, so this does not describe one.
+ * Delivery is not a rupee line until a real rate table exists.
+ */
+export const noCashOnDelivery =
+  "There is no cash on delivery. Pay the total shown before the order is dispatched.";
+
+/** Owner: 24 hours, and WhatsApp first (docs/decisions.md). Not a change-of-mind return. */
+export const returnRule = "Report a defect within 24 hours of receiving the parcel.";
+
+/** The second sentence of the return rule. Shown with `returnRule` on the policy page. */
+export const defectNotice = "Message us on WhatsApp first.";
+
+/** Hero fact. The full sentences are `returnRule` and `defectNotice`. */
+export const defectFact = "Report within 24 hours";
 
 export const clockRows = [
   {

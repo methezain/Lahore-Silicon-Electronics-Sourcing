@@ -1,81 +1,145 @@
 ---
-import Layout from '../layouts/Layout.astro';
-import { paymentMethods, whatsappHref } from '../lib/shop';
-import { clockRows, returnRule } from '../lib/shipping';
+/**
+ * Shipping and payment. docs/pages.md#shipping-and-payment-shipping-and-payments.
+ * Sentences come from src/lib/shipping.ts and src/lib/shop.ts.
+ */
+import "./info.css";
+import Layout from "../layouts/Layout.astro";
+import Button from "../components/Button.astro";
+import { inspectedBeforeDispatch } from "../lib/desk";
+import {
+  clockRows,
+  defectNotice,
+  deliveryCost,
+  lahoreDelivery,
+  nationwideDelivery,
+  noCashOnDelivery,
+  remoteDelivery,
+  returnRule,
+} from "../lib/shipping";
+import { copyAction, copiedAction, pageTitle, paymentMethods, paymentSentOnWhatsApp, whatsappHref } from "../lib/shop";
 
 const methods = paymentMethods();
 const wa = whatsappHref();
+const description = methods.length > 0
+  ? `${noCashOnDelivery} ${returnRule}`
+  : `${paymentSentOnWhatsApp} ${returnRule}`;
 ---
 
-<Layout
-  title="Shipping and payment — Lahore Silicon"
-  description="How Lahore Silicon takes payment, dispatches from Hall Road, and replaces a defective part."
->
-  <article class="page page-narrow stack">
-    <p class="label">Policy</p>
-    <h1 class="display">Shipping and payment</h1>
-    <p class="lede">The desk buys the part on Hall Road after the order is paid. The clock below is the one used on the product page.</p>
+<Layout title={pageTitle("Shipping and payment")} description={description}>
+  <article class="info-page">
+    <p class="eyebrow">Policy</p>
+    <h1 class="title">Shipping and payment</h1>
+    <p class="lede">The same rules as the product page, the cart, and checkout.</p>
+    <nav class="jumps" aria-label="On this page">
+      <a href="#dispatch">Dispatch</a>
+      <a href="#delivery">Delivery</a>
+      <a href="#payment">Payment</a>
+      <a href="#returns">Returns</a>
+    </nav>
 
-    <section class="panel prose">
-      <h2 class="heading">Why payment comes first</h2>
-      <p>
-        This is not a warehouse. Placing an order sends someone to Hall Road to buy that part.
-        The payment is what makes that trip happen.
-      </p>
-      <p>
-        If the part cannot be bought, the payment is returned by the same method within 24 hours.
-      </p>
-    </section>
+    <div class="info-stack">
+      <section class="sheet" id="dispatch" aria-labelledby="dispatch-heading">
+        <h2 id="dispatch-heading" class="heading">Dispatch</h2>
+        <dl class="facts">
+          {clockRows.map((row) => (
+            <div>
+              <dt>
+                <span class="fact-label">{row.label}</span>
+                <span class="fact-detail">{row.detail}</span>
+              </dt>
+              <dd>{row.value}</dd>
+            </div>
+          ))}
+        </dl>
+        <p>{inspectedBeforeDispatch}</p>
+      </section>
 
-    {methods.length > 0 && (
-      <section class="panel">
-        <h2 class="heading">Payment details</h2>
-        {methods.map((method) => (
-          <div class="mt-16">
-            <p class="label">{method.label}</p>
-            <dl>
-              {method.lines.map((line) => (
-                <div class="summary-row">
-                  <dt class="caption">{line.label}</dt>
-                  <dd class="mono">{line.value}</dd>
+      <section class="sheet" id="delivery" aria-labelledby="delivery-heading">
+        <h2 id="delivery-heading" class="heading">Delivery</h2>
+        <p>{lahoreDelivery}</p>
+        <p>{nationwideDelivery}</p>
+        <p>{remoteDelivery}</p>
+        <p>{deliveryCost}</p>
+      </section>
+
+      <section class="sheet" id="payment" aria-labelledby="payment-heading">
+        <h2 id="payment-heading" class="heading">Payment</h2>
+        <p>{noCashOnDelivery}</p>
+        {methods.length > 0 ? (
+          methods.map((method) => (
+            <div class="pay-method">
+              <h3 class="heading">{method.label}</h3>
+              {method.lines.map((row) => (
+                <div class="pay-line">
+                  <span class="pay-label">{row.label}</span>
+                  <span class="pay-value">{row.value}</span>
+                  <button
+                    class="copy-btn"
+                    type="button"
+                    data-copy={row.value}
+                    data-label={row.label}
+                    data-idle={copyAction}
+                    data-done={copiedAction}
+                    aria-label={`${copyAction} ${row.label}`}
+                  >{copyAction}</button>
                 </div>
               ))}
-            </dl>
-          </div>
-        ))}
+            </div>
+          ))
+        ) : (
+          <p>
+            {wa ? (
+              <a href={wa} target="_blank" rel="noopener noreferrer">{paymentSentOnWhatsApp}</a>
+            ) : (
+              paymentSentOnWhatsApp
+            )}
+          </p>
+        )}
+        <p id="copy-status" class="sr-only" aria-live="polite"></p>
       </section>
-    )}
 
-    <section class="panel">
-      <h2 class="heading">Dispatch</h2>
-      {clockRows.map((row) => (
-        <div class="summary-row pad-y-12 rule-bottom">
-          <div>
-            <p>{row.label}</p>
-            <p class="caption">{row.detail}</p>
+      <section class="sheet" id="defects" aria-labelledby="returns">
+        <h2 class="heading" id="returns">Returns</h2>
+        <p>{returnRule}</p>
+        <p>{defectNotice}</p>
+        {wa ? (
+          <div class="actions">
+            <Button href={wa} target="_blank" variant="primary">Message on WhatsApp</Button>
           </div>
-          <p class="mono">{row.value}</p>
-        </div>
-      ))}
-      <div class="summary-row pad-y-12">
-        <div>
-          <p>Packaging</p>
-          <p class="caption">Antistatic bag, then a labeled parcel.</p>
-        </div>
-        <p class="mono">Antistatic</p>
-      </div>
-    </section>
-
-    <section id="defects" class="panel prose">
-      <h2 class="heading">A part that does not work</h2>
-      <p>{returnRule}</p>
-      <p>Send a photo or a short video of the part on the bench, with the order id.</p>
-      <p>The part must still be in the condition it arrived. A replacement, once confirmed, is dispatched within 2 business days.</p>
-      {wa ? (
-        <a class="btn-ink" href={wa}>Message the desk</a>
-      ) : (
-        <a class="btn-ink" href="/contact">Contact the desk</a>
-      )}
-    </section>
+        ) : (
+          <div class="actions">
+            <Button href="/contact" variant="primary">Contact</Button>
+          </div>
+        )}
+      </section>
+    </div>
   </article>
 </Layout>
+
+<script>
+  const copyStatus = document.getElementById("copy-status");
+  document.querySelectorAll(".copy-btn").forEach((btn) => {
+    if (!(btn instanceof HTMLButtonElement)) return;
+    let timer = 0;
+    btn.addEventListener("click", async () => {
+      const text = btn.dataset.copy ?? "";
+      const idle = btn.dataset.idle ?? "Copy";
+      const done = btn.dataset.done ?? "Copied";
+      try {
+        await navigator.clipboard.writeText(text);
+      } catch {
+        return;
+      }
+      btn.textContent = done;
+      btn.setAttribute("aria-label", done);
+      if (copyStatus) copyStatus.textContent = done;
+      window.clearTimeout(timer);
+      timer = window.setTimeout(() => {
+        btn.textContent = idle;
+        btn.setAttribute("aria-label", `${idle} ${btn.dataset.label ?? ""}`.trim());
+        if (copyStatus) copyStatus.textContent = "";
+      }, 2000);
+    });
+  });
+</script>

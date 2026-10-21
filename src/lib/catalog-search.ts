@@ -175,3 +175,23 @@ export function searchCatalog<T extends SearchPart>(parts: readonly T[], query: 
 
   return [...exact, ...prefix, ...textual];
 }
+
+/** Exact part number or MPN only. A prefix is a different part, so it misses. */
+export function exactPart<T extends Pick<SearchPart, "part_number" | "mpn">>(
+  parts: readonly T[],
+  query: string,
+): T | undefined {
+  const needle = normalizePartNumber(query);
+  if (!needle) return undefined;
+  return parts.find(
+    (part) => normalizePartNumber(part.part_number) === needle || normalizePartNumber(part.mpn) === needle,
+  );
+}
+
+/** 404 for a product URL the shop does not sell. */
+export function notStocked(part: string): string {
+  return `We don't stock ${part}.`;
+}
+
+/** Link under a search miss and under that 404. */
+export const sourcingOffer = "Send the part number on WhatsApp and we'll check Hall Road.";

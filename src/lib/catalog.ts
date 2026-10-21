@@ -13,6 +13,7 @@ export type CatalogPart = CatalogPrice & {
   mpn: string;
   category: string;
   voltage?: string;
+  summary?: string;
   package_type: string;
   specs: CatalogSpec[];
   stock_qty: number;
@@ -42,6 +43,7 @@ export async function loadCatalog(): Promise<CatalogPart[]> {
     name: entry.data.name,
     category: entry.data.category,
     voltage: entry.data.voltage,
+    summary: entry.data.summary,
     package_type: entry.data.package_type,
     specs: entry.data.specs.map((spec) => ({
       value: spec.value,
@@ -52,7 +54,7 @@ export async function loadCatalog(): Promise<CatalogPart[]> {
     ...(entry.data.restock_on ? { restock_on: entry.data.restock_on } : {}),
     min_qty: entry.data.min_qty,
     qty_multiple: entry.data.qty_multiple,
-    image: entry.data.image ? await partThumbSrc(entry.data.image) : undefined,
+    image: entry.data.images?.[0] ? await partThumbSrc(entry.data.images[0].src) : undefined,
   })));
 }
 

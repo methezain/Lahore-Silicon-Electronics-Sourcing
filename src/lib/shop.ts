@@ -45,6 +45,24 @@ function readPublic(value: unknown): string | undefined {
   return trimmed;
 }
 
+/** Fallback when `PUBLIC_SHOP_NAME` is unset. One name for the logo, titles, and receipts. */
+export const defaultShopName = "Lahore Silicon";
+
+export function shopName(value: unknown = import.meta.env.PUBLIC_SHOP_NAME): string {
+  return clean(value) ?? defaultShopName;
+}
+
+/** `[Page] | Lahore Silicon`, with the name from `shopName`. */
+export function pageTitle(page: string, name = shopName()): string {
+  return `${page} | ${name}`;
+}
+
+/** Shown when no payment account is configured. Checkout uses the same sentence. */
+export const paymentSentOnWhatsApp = "Payment details are sent on WhatsApp.";
+
+export const copyAction = "Copy";
+export const copiedAction = "Copied";
+
 export function shopPhone(): ShopPhone | undefined {
   const raw = readPublic(import.meta.env.PUBLIC_SHOP_PHONE);
   if (!raw) return undefined;
@@ -83,6 +101,16 @@ export function paymentMethods(): PaymentMethod[] {
     methods.push({ id: "raast", label: "Raast", lines });
   }
 
+  const jazzcash = readPublic(import.meta.env.PUBLIC_JAZZCASH_NUMBER);
+  if (jazzcash) {
+    methods.push({ id: "jazzcash", label: "JazzCash", lines: [{ label: "JazzCash", value: jazzcash }] });
+  }
+
+  const sadapay = readPublic(import.meta.env.PUBLIC_SADAPAY_NUMBER);
+  if (sadapay) {
+    methods.push({ id: "sadapay", label: "SadaPay", lines: [{ label: "SadaPay", value: sadapay }] });
+  }
+
   const bankName = readPublic(import.meta.env.PUBLIC_BANK_NAME);
   const accountNumber = readPublic(import.meta.env.PUBLIC_BANK_ACCOUNT_NUMBER);
   const iban = readPublic(import.meta.env.PUBLIC_BANK_IBAN);
@@ -92,7 +120,7 @@ export function paymentMethods(): PaymentMethod[] {
     if (title) lines.push({ label: "Account title", value: title });
     if (accountNumber) lines.push({ label: "Account number", value: accountNumber });
     if (iban) lines.push({ label: "IBAN", value: iban });
-    methods.push({ id: "bank", label: bankName, lines });
+    methods.push({ id: "bank", label: "Bank transfer", lines });
   }
 
   return methods;

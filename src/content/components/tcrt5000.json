@@ -10,33 +10,51 @@
   "package_type": "PCB module",
   "mounting_type": "Through-hole",
   "voltage": "5 V",
+  "summary": "Reflects infrared off a nearby surface, with digital and analog outputs on 5 V.",
+  "key_specs": ["Supply voltage", "Outputs", "Sensitivity"],
   "specs": [
+    { "label": "Supply voltage", "value": "5", "unit": "V" },
+    { "label": "Sensor", "value": "TCRT5000" },
+    { "label": "Outputs", "value": "Digital and analog" },
+    { "label": "Sensitivity", "value": "Adjustable on the module" },
+    { "label": "Package", "value": "PCB module" },
+    { "label": "Mounting", "value": "Through-hole" }
+  ],
+  "faq": [
     {
-      "label": "Supply",
-      "value": "5",
-      "unit": "V"
+      "q": "What does it sense?",
+      "a": "Infrared reflected from a nearby surface."
     },
     {
-      "label": "Sensor",
-      "value": "TCRT5000"
+      "q": "What are the outputs?",
+      "a": "Digital and analog."
     },
     {
-      "label": "Outputs",
-      "value": "Digital and analog"
+      "q": "What supply does it use?",
+      "a": "5 V."
     },
     {
-      "label": "Sensitivity",
-      "value": "Adjustable on the module"
+      "q": "How is sensitivity set?",
+      "a": "With the potentiometer on the module."
     },
     {
-      "label": "Package",
-      "value": "PCB module"
+      "q": "What is in the bag?",
+      "a": "The module in an antistatic bag."
+    },
+    {
+      "q": "Are the header pins named on this page?",
+      "a": "No. The listing does not give the pin names."
+    }
+  ],
+  "images": [
+    {
+      "src": "../../assets/parts/tcrt5000.jpg",
+      "alt": "TCRT5000 module on a blue board, with a black reflective sensor and a four-pin header.",
+      "note": "Representative studio photograph, not a photo of the lot in the drawer."
     }
   ],
   "in_the_bag": "Module in an antistatic bag.",
   "min_qty": 1,
   "qty_multiple": 1,
-  "description": "IR reflective module built around a TCRT5000. 5 V supply, digital and analog outputs, sensitivity set by the onboard potentiometer. Sourced from Hall Road, Lahore.",
-  "image": "../../assets/parts/tcrt5000.jpg",
-  "image_note": "Representative studio photograph, not a photo of the lot in the drawer."
+  "description": "IR reflective module built around a TCRT5000. 5 V supply, digital and analog outputs, sensitivity set by the onboard potentiometer. Sourced from Hall Road, Lahore."
 }

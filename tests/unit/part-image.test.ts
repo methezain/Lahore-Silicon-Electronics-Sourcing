@@ -22,13 +22,16 @@ describe('part photo paths', () => {
     for (const file of files) {
       const record = JSON.parse(await readFile(path.join(dir, file), 'utf8')) as {
         image?: string;
-        image_note?: string;
+        images?: { src?: string; alt?: string; note?: string }[];
       };
-      if (record.image_note) expect(record.image, file).toBeTruthy();
-      if (!record.image) continue;
-      expect(record.image, file).not.toContain('placehold.co');
-      expect(record.image.startsWith('../../assets/parts/'), file).toBe(true);
-      await access(path.resolve(dir, record.image));
+      expect(record.image, file).toBeUndefined();
+      const photo = record.images?.[0];
+      if (!photo) continue;
+      expect(photo.alt, file).toBeTruthy();
+      expect(photo.src, file).toBeTruthy();
+      expect(photo.src, file).not.toContain('placehold.co');
+      expect(photo.src!.startsWith('../../assets/parts/'), file).toBe(true);
+      await access(path.resolve(dir, photo.src!));
     }
   });
 });

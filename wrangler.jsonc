@@ -17,7 +17,21 @@
 		{
 			"binding": "DB",
 			"database_name": "electronics-sourcing-db",
-			"database_id": "f13d4da5-1b2f-4387-9a18-dc5a7bc7c65c"
+			"database_id": "f13d4da5-1b2f-4387-9a18-dc5a7bc7c65c",
+			"migrations_dir": "db/migrations"
 		}
-	]
+	],
+	"ratelimits": [
+		{
+			"name": "ORDER_LIMIT",
+			"namespace_id": "1001",
+			"simple": {
+				"limit": 5,
+				"period": 60
+			}
+		}
+	],
+	"vars": {
+		"TURNSTILE_HOSTNAMES": "lahoresilicon.com"
+	}
 }

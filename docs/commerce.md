@@ -108,7 +108,7 @@ Owner: `src/lib/shipping.ts`. Pages render its strings; they never retype window
 
 ## Returns and defects
 
-- "Report a defect within 3 days of receiving the parcel" (owner: `returnRule` in `src/lib/shipping.ts`).
+- "Report a defect within 24 hours of receiving the parcel" (owner: `returnRule` in `src/lib/shipping.ts`). Message on WhatsApp first (`defectNotice`). There is no cash on delivery.
 - The full return and refund policy lives at `/shipping-and-payments#returns` and is linked from the product page, the cart and checkout before payment (Punjab Consumer Protection Act).
 
 ## Orders

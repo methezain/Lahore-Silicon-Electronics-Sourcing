@@ -131,7 +131,7 @@ describe('quoteOrder', () => {
   it('rejects a client total that does not match', () => {
     const quote = quoteOrder(partCatalog(), [{ part_number: 'PART-1', quantity: 1 }], 1);
     expect(quote.ok).toBe(false);
-    if (!quote.ok) expect(quote.error).toBe('Order total does not match the catalog price. The total is Rs 1,250.');
+    if (!quote.ok) expect(quote.error).toBe('Prices changed while you were checking out. The new total is Rs 1,250.');
   });
 
   it('rejects an empty cart, a bad total, a missing part, and a bad quantity', () => {

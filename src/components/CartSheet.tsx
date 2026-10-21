@@ -156,6 +156,8 @@ export default function CartSheet({ catalog = [] }: Props) {
     return () => {
       document.removeEventListener("focusin", onFocusIn);
       document.body.style.overflow = previousOverflow;
+      // Hide commits before this cleanup. Restoring focus here survives the dialog losing focus.
+      if (!openRef.current) document.getElementById("cart-button")?.focus({ preventScroll: true });
     };
   }, [open]);
 

@@ -17,6 +17,8 @@ import { CartEmptyButton, CartSampleButton } from "../../components/CartSheet.ts
 import { getCollection } from "astro:content";
 import { CATEGORIES, type Category } from "../../lib/categories";
 import { formatPkr, unitPrice } from "../../lib/money";
+import { keyFigures } from "../../lib/product";
+import { pageTitle } from "../../lib/shop";
 
 if (import.meta.env.PROD) {
   return new Response(null, { status: 404, statusText: "Not Found" });
@@ -107,7 +109,7 @@ const catalogRows = [
     breaks: part.data.breaks,
     stockQty: part.data.stock_qty,
     href: `/product/${part.data.part_number.toLowerCase()}`,
-    image: part.data.image,
+    image: part.data.images?.[0]?.src,
     packageType: part.data.package_type,
     minQty: part.data.min_qty,
     qtyMultiple: part.data.qty_multiple,
@@ -128,7 +130,7 @@ const priceSort = sort === "price" ? "ascending" as const : sort === "price-desc
 ---
 
 <Layout
-  title="Components | Lahore Silicon"
+  title={pageTitle("Components")}
   description="Component states used while building the storefront."
   robots="noindex, nofollow"
 >
@@ -281,7 +283,7 @@ const priceSort = sort === "price" ? "ascending" as const : sort === "price-desc
           breaks={lm2596.data.breaks}
           stockQty={lm2596.data.stock_qty}
           packageType={lm2596.data.package_type}
-          image={lm2596.data.image}
+          image={lm2596.data.images?.[0]?.src}
           transition={false}
           priority
         />
@@ -294,7 +296,7 @@ const priceSort = sort === "price" ? "ascending" as const : sort === "price-desc
             breaks={part.data.breaks}
             stockQty={part.data.stock_qty}
             packageType={part.data.package_type}
-            image={part.data.image}
+            image={part.data.images?.[0]?.src}
           />
         ))}
       </div>
@@ -340,14 +342,8 @@ const priceSort = sort === "price" ? "ascending" as const : sort === "price-desc
 
     <section aria-labelledby="figures-heading">
       <h2 id="figures-heading" class="heading">Key figures</h2>
-      <p class="caption">LM7805. The first four specs in the catalog, in that order.</p>
-      <KeyFigures
-        figures={lm7805.data.specs.slice(0, 4).map((spec) => ({
-          label: spec.label,
-          value: spec.value,
-          unit: spec.unit,
-        }))}
-      />
+      <p class="caption">LM7805. The specs named in key_specs, in that order.</p>
+      <KeyFigures figures={keyFigures(lm7805.data.specs, lm7805.data.key_specs)} />
     </section>
   </div>
 

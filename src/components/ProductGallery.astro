@@ -1,0 +1,222 @@
+---
+/**
+ * Product gallery. docs/design-system.md section 4 (socket tab) and section 7 (1:1 well).
+ * One real photograph. Empty thumb wells are not drawn.
+ * The main photo shares a view-transition name with the catalog thumbnail.
+ * The thumb does not, because a name can belong to only one element.
+ */
+import type { ImageMetadata } from "astro";
+import { productPhoto } from "../lib/part-image";
+import PartPicture from "./PartPicture.astro";
+
+interface Props {
+  partNumber: string;
+  manufacturer: string;
+  packageType: string;
+  image?: ImageMetadata;
+  imageNote?: string;
+  alt: string;
+}
+
+const { partNumber, manufacturer, packageType, image, imageNote, alt } = Astro.props;
+---
+
+<div class="gallery-column">
+  <div class="gallery">
+    <p class="tab">
+      <span class="pin" aria-hidden="true"></span>
+      <span class="part">{partNumber}</span>
+      <span class="maker"> · {manufacturer}</span>
+    </p>
+    <div class="gallery-well">
+      {image ? (
+        <PartPicture
+          src={image}
+          partNumber={partNumber}
+          alt={alt}
+          width={productPhoto.width}
+          height={productPhoto.height}
+          sizes={productPhoto.sizes}
+          widths={[...productPhoto.widths]}
+          priority
+          frameClass="frame"
+        />
+      ) : (
+        <p class="fallback">{packageType}</p>
+      )}
+    </div>
+    {image && (
+      <div class="thumbs" aria-hidden="true">
+        <span class="thumb is-current">
+          <PartPicture
+            src={image}
+            partNumber={partNumber}
+            alt=""
+            width={64}
+            height={64}
+            sizes="64px"
+            widths={[64, 128]}
+            transition={false}
+            frameClass="thumb-frame"
+          />
+        </span>
+      </div>
+    )}
+  </div>
+  {image && imageNote && <p class="note">{imageNote}</p>}
+</div>
+
+<style>
+  .gallery-column {
+    min-width: 0;
+  }
+
+  .gallery {
+    --tab-bg: var(--color-surface);
+    position: relative;
+    margin-top: 34px;
+    padding: var(--space-12);
+    border-radius: var(--radius-frame);
+    background: var(--tab-bg);
+    box-shadow: inset 0 0 0 1px var(--color-line);
+  }
+
+  .tab {
+    position: absolute;
+    left: var(--space-32);
+    bottom: 100%;
+    display: inline-flex;
+    align-items: center;
+    gap: var(--space-8);
+    max-width: calc(100% - var(--space-48));
+    height: 34px;
+    margin: 0;
+    padding: 0 var(--space-12);
+    border-radius: 10px 10px 0 0;
+    background: var(--tab-bg);
+    color: var(--color-ink);
+    white-space: nowrap;
+  }
+
+  .tab::before,
+  .tab::after {
+    content: "";
+    position: absolute;
+    bottom: 0;
+    width: 10px;
+    height: 10px;
+  }
+
+  .tab::before {
+    right: 100%;
+    background: radial-gradient(circle at 0 0, transparent 9.5px, var(--tab-bg) 10px);
+  }
+
+  .tab::after {
+    left: 100%;
+    background: radial-gradient(circle at 100% 0, transparent 9.5px, var(--tab-bg) 10px);
+  }
+
+  .pin {
+    flex: none;
+    width: 6px;
+    height: 6px;
+    border-radius: var(--space-2);
+    background: var(--color-action);
+  }
+
+  .part,
+  .maker {
+    font-family: var(--font-part);
+    font-size: var(--text-caption);
+    font-weight: var(--font-weight-part);
+    font-variation-settings: normal;
+    font-variant-numeric: slashed-zero;
+    letter-spacing: var(--tracking-part);
+    line-height: 1.2;
+  }
+
+  .gallery-well {
+    position: relative;
+    aspect-ratio: 1;
+    overflow: hidden;
+    border-radius: var(--radius-card);
+    background: var(--color-sunken);
+  }
+
+  .gallery-well :global(picture),
+  .gallery-well :global(img) {
+    display: block;
+    width: 100%;
+    height: 100%;
+  }
+
+  .gallery-well :global(picture) {
+    position: absolute;
+    inset: 0;
+  }
+
+  .gallery-well :global(img) {
+    max-width: none;
+    object-fit: cover;
+    mix-blend-mode: multiply;
+  }
+
+  .fallback {
+    display: grid;
+    place-items: center;
+    height: 100%;
+    margin: 0;
+    padding: var(--space-16);
+    font-family: var(--font-part);
+    font-size: var(--text-heading);
+    font-weight: var(--font-weight-part);
+    font-variation-settings: normal;
+    font-variant-numeric: slashed-zero;
+    letter-spacing: var(--tracking-part);
+    line-height: var(--text-heading--line-height);
+    text-align: center;
+    text-wrap: pretty;
+  }
+
+  .thumbs {
+    display: flex;
+    gap: var(--space-8);
+    margin-top: var(--space-8);
+  }
+
+  .thumb {
+    display: block;
+    width: var(--space-64);
+    height: var(--space-64);
+    overflow: hidden;
+    border-radius: var(--radius-control);
+    background: var(--color-sunken);
+    box-shadow: inset 0 0 0 1px var(--color-line);
+  }
+
+  .thumb.is-current {
+    box-shadow: inset 0 0 0 2px var(--color-action);
+  }
+
+  .thumb :global(picture),
+  .thumb :global(img) {
+    display: block;
+    width: 100%;
+    height: 100%;
+  }
+
+  .thumb :global(img) {
+    object-fit: cover;
+    mix-blend-mode: multiply;
+  }
+
+  .note {
+    margin: var(--space-8) 0 0;
+    color: var(--color-ink-muted);
+    font-size: var(--text-caption);
+    font-weight: var(--text-caption--font-weight);
+    line-height: var(--text-caption--line-height);
+    text-wrap: pretty;
+  }
+</style>

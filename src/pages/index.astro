@@ -1,33 +1,106 @@
 ---
-import Layout from "../layouts/Layout.astro";
+/**
+ * Home. docs/pages.md#home-.
+ * Server-rendered so the dispatch chip reads Asia/Karachi on each request.
+ */
 import { getCollection } from "astro:content";
-import PartPicture from "../components/PartPicture.astro";
-import { CATEGORIES } from "../lib/categories";
-import { formatPkr, unitPrice } from "../lib/money";
-import { thumb56 } from "../lib/part-image";
+import type { ImageMetadata } from "astro";
+import Layout from "../layouts/Layout.astro";
+import CatalogTable from "../components/CatalogTable.astro";
+import CategoryBento from "../components/CategoryBento.astro";
+import FilterPills from "../components/FilterPills.astro";
+import Hero, { type HeroCard } from "../components/Hero.astro";
+import ProcessBand from "../components/ProcessBand.astro";
+import { CATEGORIES, CATEGORY_HEADINGS, FEATURED_CATEGORY, FEATURED_TILE_PART } from "../lib/categories";
+import {
+  bentoOrder,
+  categoryCounts,
+  categoryPhoto,
+  keySpec,
+  orderedParts,
+  pickHeroDeck,
+  resolveFeaturedCategory,
+  type HomePart,
+} from "../lib/home";
+import type { PriceBreak } from "../lib/money";
+import { pageTitle } from "../lib/shop";
+
+type HomeRecord = HomePart & {
+  name: string;
+  price: number;
+  breaks?: readonly PriceBreak[];
+  stock_qty: number;
+  restock_on?: string;
+  package_type: string;
+  voltage?: string;
+  image?: ImageMetadata;
+  min_qty: number;
+  qty_multiple: number;
+};
 
 const components = await getCollection("components");
-const requested = Astro.url.searchParams.get("category");
-const sort = Astro.url.searchParams.get("sort") ?? "catalog";
+const records: HomeRecord[] = components.map((entry) => ({
+  part_number: entry.data.part_number,
+  category: entry.data.category,
+  featured: entry.data.featured,
+  name: entry.data.name,
+  price: entry.data.price,
+  breaks: entry.data.breaks,
+  stock_qty: entry.data.stock_qty,
+  restock_on: entry.data.restock_on,
+  package_type: entry.data.package_type,
+  voltage: entry.data.voltage,
+  image: entry.data.images?.[0]?.src,
+  min_qty: entry.data.min_qty,
+  qty_multiple: entry.data.qty_multiple,
+}));
 
-const categoryOrder = new Map(CATEGORIES.map((category, index) => [category, index]));
-let parts = [...components];
-if (requested) {
-  parts = parts.filter((part) => part.data.category === requested);
+const requestedRaw = Astro.url.searchParams.get("category")?.trim() ?? "";
+const requested = requestedRaw.length > 0 ? requestedRaw : null;
+const sortParam = Astro.url.searchParams.get("sort");
+const sort =
+  sortParam === "price" || sortParam === "price-desc" || sortParam === "stock" || sortParam === "stock-desc"
+    ? sortParam
+    : "catalog";
+
+const counts = categoryCounts(records, CATEGORIES);
+const feature = resolveFeaturedCategory(records, CATEGORIES, FEATURED_CATEGORY);
+const deck = pickHeroDeck(records, CATEGORIES, feature);
+const ordered = orderedParts(records, CATEGORIES);
+
+function productHref(partNumber: string) {
+  return `/product/${encodeURIComponent(partNumber.toLowerCase())}`;
 }
 
-parts.sort((a, b) => {
-  if (sort === "price" || sort === "price-desc") {
-    const diff = a.data.price - b.data.price;
-    return sort === "price" ? diff : -diff;
-  }
-  if (sort === "stock" || sort === "stock-desc") {
-    const diff = a.data.stock_qty - b.data.stock_qty;
-    return sort === "stock" ? diff : -diff;
-  }
-  const categoryDiff = (categoryOrder.get(a.data.category) ?? 99) - (categoryOrder.get(b.data.category) ?? 99);
-  if (categoryDiff !== 0) return categoryDiff;
-  return a.data.part_number.localeCompare(b.data.part_number);
+function toCard(part: HomeRecord): HeroCard {
+  return {
+    href: productHref(part.part_number),
+    partNumber: part.part_number,
+    name: part.name,
+    price: part.price,
+    breaks: part.breaks,
+    stockQty: part.stock_qty,
+    restockOn: part.restock_on,
+    packageType: part.package_type,
+    voltage: part.voltage,
+    image: part.image,
+  };
+}
+
+const tiles = bentoOrder(counts, CATEGORIES, feature).map((row) => {
+  const members = ordered.filter((part) => part.category === row.category);
+  const photo = categoryPhoto(records, row.category, CATEGORIES, row.category === feature ? FEATURED_TILE_PART : undefined);
+  const heading = CATEGORY_HEADINGS[row.category as keyof typeof CATEGORY_HEADINGS] ?? row.category;
+  return {
+    href: `/?category=${encodeURIComponent(row.category)}#catalog`,
+    category: row.category,
+    heading,
+    count: row.count,
+    featured: row.category === feature,
+    partNumbers: row.category === feature ? members.map((part) => part.part_number) : undefined,
+    image: photo?.image,
+    imagePart: photo?.part_number,
+  };
 });
 
 function catalogHref(category: string | null, nextSort = sort) {
@@ -43,101 +116,150 @@ function toggleSort(key: "price" | "stock") {
   if (sort === `${key}-desc`) return catalogHref(requested, "catalog");
   return catalogHref(requested, key);
 }
+
+function columnSort(key: "price" | "stock"): "ascending" | "descending" | "none" {
+  if (sort === key) return "ascending";
+  if (sort === `${key}-desc`) return "descending";
+  return "none";
+}
+
+let parts = [...ordered];
+if (requested) parts = parts.filter((part) => part.category === requested);
+parts.sort((a, b) => {
+  if (sort === "price" || sort === "price-desc") {
+    const diff = a.price - b.price;
+    return sort === "price" ? diff : -diff;
+  }
+  if (sort === "stock" || sort === "stock-desc") {
+    const diff = a.stock_qty - b.stock_qty;
+    return sort === "stock" ? diff : -diff;
+  }
+  return 0;
+});
+
+const pills = [
+  { label: "All", href: catalogHref(null), count: records.length, current: !requested },
+  ...counts.map((row) => ({
+    label: row.category,
+    href: catalogHref(row.category),
+    count: row.count,
+    current: requested === row.category,
+  })),
+];
+
+const rows = parts.map((part) => ({
+  partNumber: part.part_number,
+  name: part.name,
+  keySpec: keySpec(part),
+  price: part.price,
+  breaks: part.breaks,
+  stockQty: part.stock_qty,
+  restockOn: part.restock_on,
+  href: productHref(part.part_number),
+  image: part.image,
+  packageType: part.package_type,
+  minQty: part.min_qty,
+  qtyMultiple: part.qty_multiple,
+  transition: true,
+}));
 ---
 
-<Layout title="Parts — Lahore Silicon" description="A short catalog of parts from Hall Road, Lahore. The price on the row is the price in the cart.">
-  <section class="hero">
-    <p class="label">Hall Road, Lahore</p>
-    <h1 class="display">Parts, counted and priced.</h1>
-    <p class="lede">Ten parts on the desk. The photograph shows the object. The number in the stock column is how many you can add.</p>
-  </section>
-  <section id="catalog" class="catalog">
-
-    <div class="catalog-tools">
-      <a href={catalogHref(null)} aria-current={!requested ? "true" : undefined}>All</a>
-      {CATEGORIES.map((category) => (
-        <a href={catalogHref(category)} aria-current={requested === category ? "true" : undefined}>{category}</a>
-      ))}
-      <a href={toggleSort("price")}>Sort by price</a>
-      <a href={toggleSort("stock")}>Sort by stock</a>
+<Layout
+  title={pageTitle("Catalog")}
+  description="Regulators, boards, sensors and relays. Every price is the price at checkout. Every stock number is a real count."
+>
+  <Hero front={deck ? toCard(deck.front) : null} behind={deck ? deck.behind.map(toCard) : []} />
+  <CategoryBento tiles={tiles} total={records.length} allHref="/#catalog" />
+  <section class="catalog-section" id="catalog" aria-labelledby="catalog-title">
+    <div class="wrap">
+      <div class="section-head">
+        <p class="eyebrow">Catalog</p>
+        <h2 id="catalog-title">On the counter today</h2>
+      </div>
+      <div class="toolbar">
+        <FilterPills items={pills} />
+      </div>
+      {parts.length === 0 ? (
+        <p class="empty">
+          {requested ? (
+            <>No parts in {requested}. <a href={catalogHref(null)}>Show the full catalog.</a></>
+          ) : (
+            <>No parts on the counter.</>
+          )}
+        </p>
+      ) : (
+        <CatalogTable
+          rows={rows}
+          sort={{
+            stockHref: toggleSort("stock"),
+            priceHref: toggleSort("price"),
+            stock: columnSort("stock"),
+            price: columnSort("price"),
+          }}
+        />
+      )}
     </div>
-
-    {requested && (
-      <p class="caption">
-        Showing {requested}. <a href={catalogHref(null)}>Remove</a>
-      </p>
-    )}
-
-    {parts.length === 0 ? (
-      <p class="body">No parts in {requested ?? "this category"}. <a href="/#catalog">Show the full catalog.</a></p>
-    ) : (
-      <>
-        <table class="catalog-table">
-          <thead>
-            <tr>
-              <th></th>
-              <th>Part</th>
-              <th>What it is</th>
-              <th>Spec</th>
-              <th class="num">Stock</th>
-              <th class="num">Price</th>
-            </tr>
-          </thead>
-          <tbody>
-            {parts.map((part) => (
-              <tr>
-                <td>
-                  <a href={`/product/${part.data.part_number.toLowerCase()}`}>
-                    {part.data.image && (
-                      <PartPicture
-                        src={part.data.image}
-                        partNumber={part.data.part_number}
-                        alt=""
-                        width={thumb56.width}
-                        height={thumb56.height}
-                        sizes={thumb56.sizes}
-                        class="thumb"
-                        frameClass="thumb-frame"
-                      />
-                    )}
-                  </a>
-                </td>
-                <td><a class="mono" href={`/product/${part.data.part_number.toLowerCase()}`}>{part.data.part_number}</a></td>
-                <td>{part.data.name}</td>
-                <td>{part.data.voltage ?? part.data.package_type}</td>
-                <td class:list={["num", part.data.stock_qty > 0 && "stock-in"]}>{part.data.stock_qty}</td>
-                <td class="num money">{formatPkr(unitPrice({ price: part.data.price, breaks: part.data.breaks }, 1))}</td>
-              </tr>
-            ))}
-          </tbody>
-        </table>
-
-        <ul class="catalog-list">
-          {parts.map((part) => (
-            <li>
-              <a href={`/product/${part.data.part_number.toLowerCase()}`}>
-                {part.data.image && (
-                  <PartPicture
-                    src={part.data.image}
-                    partNumber={part.data.part_number}
-                    alt=""
-                    width={thumb56.width}
-                    height={thumb56.height}
-                    sizes={thumb56.sizes}
-                    class="thumb"
-                    frameClass="thumb-frame"
-                  />
-                )}
-                <span class="mono">{part.data.part_number}</span>
-                <span class="job">{part.data.name}</span>
-                <span class="meta">{part.data.voltage ?? part.data.package_type}</span>
-                <span class="meta">{part.data.stock_qty} in stock</span>
-                <span class="price-line money">{formatPkr(unitPrice({ price: part.data.price, breaks: part.data.breaks }, 1))}</span>
-              </a>
-            </li>
-          ))}
-        </ul>
-      </>
-    )}
   </section>
+  <ProcessBand />
 </Layout>
+
+<style>
+  .catalog-section {
+    padding: 0 0 var(--space-56);
+  }
+
+  .wrap {
+    max-width: var(--page-max);
+    margin-inline: auto;
+    padding-inline: var(--gutter);
+  }
+
+  .section-head {
+    margin-bottom: var(--space-24);
+  }
+
+  .eyebrow {
+    margin: 0;
+    color: var(--color-ink-muted);
+    font-family: var(--font-label);
+    font-size: var(--text-label);
+    font-weight: var(--text-label--font-weight);
+    font-variation-settings: normal;
+    line-height: var(--text-label--line-height);
+    letter-spacing: var(--text-label--letter-spacing);
+    text-transform: uppercase;
+  }
+
+  h2 {
+    margin: var(--space-8) 0 0;
+    color: var(--color-ink);
+    font-size: var(--text-display);
+    font-weight: var(--text-display--font-weight);
+    line-height: var(--text-display--line-height);
+    letter-spacing: var(--text-display--letter-spacing);
+    font-stretch: calc(var(--wdth-display) * 1%);
+    font-variation-settings: "wdth" var(--wdth-display);
+    text-wrap: balance;
+  }
+
+  .toolbar {
+    margin-bottom: var(--space-16);
+  }
+
+  .empty {
+    margin: 0;
+    font-size: var(--text-body);
+    line-height: var(--text-body--line-height);
+    text-wrap: pretty;
+  }
+
+  .empty a {
+    color: var(--color-link);
+  }
+
+  @media (min-width: 900px) {
+    .catalog-section {
+      padding-bottom: var(--space-96);
+    }
+  }
+</style>

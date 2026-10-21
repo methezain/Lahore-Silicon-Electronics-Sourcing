@@ -13,7 +13,7 @@ test('cart sheet traps tab, closes on escape, and returns focus', async ({ page 
   });
   await page.goto('/');
   await page.locator('#cart-button[data-ready="true"]').waitFor();
-  const cart = page.getByRole('button', { name: /Cart, \d+ parts?/ });
+  const cart = page.getByRole('button', { name: /Cart \d+ parts?/ });
   await cart.click();
   const dialog = page.getByRole('dialog', { name: 'Cart' });
   await expect(dialog).toBeVisible();
@@ -63,7 +63,7 @@ test('cart sheet flags a part the shop no longer sells', async ({ page }) => {
   });
   await page.goto('/');
   await page.locator('#cart-button[data-ready="true"]').waitFor();
-  await page.getByRole('button', { name: /Cart, \d+ parts?/ }).click();
+  await page.getByRole('button', { name: /Cart \d+ parts?/ }).click();
   const dialog = page.getByRole('dialog', { name: 'Cart' });
   await expect(dialog.getByText('The shop no longer sells LM317.')).toBeVisible();
   await expect(dialog.getByRole('link', { name: /Check out/ })).toHaveCount(0);
@@ -98,7 +98,7 @@ test('dev gallery renders the new components', async ({ page }) => {
   await expect(dialog.getByText('Added LM7805 to cart')).toBeVisible();
   await expect(dialog.getByRole('link', { name: 'Check out · Rs 2,545' })).toBeVisible();
   await page.keyboard.press('Escape');
-  await expect(page.getByRole('button', { name: /Cart, \d+ parts?/ })).toBeFocused();
+  await expect(page.getByRole('button', { name: /Cart \d+ parts?/ })).toBeFocused();
 
   await page.getByRole('button', { name: 'Show the empty cart' }).click();
   await expect(dialog.getByText('Your cart is empty. Browse the catalog.')).toBeVisible();

@@ -74,7 +74,23 @@ const geistUnicodeRange = [
 export default defineConfig({
   site: 'https://lahoresilicon.com',
   output: 'server',
+  security: {
+    checkOrigin: true,
+    csp: {
+      directives: [
+        "default-src 'self'",
+        "base-uri 'self'",
+        "form-action 'self'",
+        "img-src 'self'",
+        "font-src 'self'",
+        "object-src 'none'",
+      ],
+    },
+  },
   vite: {
+    resolve: {
+      dedupe: ['zod'],
+    },
     plugins: [tailwindcss()],
     optimizeDeps: {
       exclude: ['@astrojs/cloudflare', '@astrojs/preact', 'preact']
@@ -89,7 +105,7 @@ export default defineConfig({
   integrations: [
     preact(),
     sitemap({
-      filter: (page) => !page.includes("/dev/"),
+      filter: (page) => !page.includes("/dev/") && !page.includes("/404") && !page.includes("/500"),
     }),
   ],
   adapter: cloudflare({

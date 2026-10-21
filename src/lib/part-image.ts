@@ -4,11 +4,14 @@
  * becomes `part-ams1117-3-3`.
  */
 
-/** 1120px frame, 32px padding each side, 24px column gap → 516px. Mobile gutter is 16px. */
+/**
+ * Desktop slot: 1.15 / 2 of (min(100vw, 1280px) − 64px gutter − 32px gap), minus 24px gallery padding.
+ * Mobile: viewport minus 32px gutter and 24px gallery padding.
+ */
 export const productPhoto = {
   width: 640,
   height: 640,
-  sizes: "(min-width: 720px) min(516px, calc((100vw - 88px) / 2)), calc(100vw - 32px)",
+  sizes: "(min-width: 900px) calc((min(100vw, 1280px) - 96px) * 0.575 - 24px), calc(100vw - 56px)",
   /** 1× desktop slot and a 1024 source for 2×. */
   widths: [640, 1024],
 } as const;

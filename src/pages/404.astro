@@ -1,0 +1,91 @@
+---
+/**
+ * Not found. docs/pages.md#not-found-and-errors.
+ * A product URL for a stocked part redirects to that part. Anything else says so.
+ */
+import "./info.css";
+import { getCollection } from "astro:content";
+import Layout from "../layouts/Layout.astro";
+import Button from "../components/Button.astro";
+import { CATEGORIES } from "../lib/categories";
+import { exactPart, notStocked, sourcingOffer } from "../lib/catalog-search";
+import { categoryCounts } from "../lib/home";
+import { pageMissing } from "../lib/order";
+import { pageTitle, whatsappHref } from "../lib/shop";
+
+export const prerender = false;
+
+function requestedPart(pathname: string): string | undefined {
+  const match = /^\/product\/([^/]+)\/?$/.exec(pathname);
+  if (!match?.[1]) return undefined;
+  try {
+    return decodeURIComponent(match[1]).replace(/\s+/g, " ").trim();
+  } catch {
+    return match[1].replace(/\s+/g, " ").trim();
+  }
+}
+
+const parts = await getCollection("components");
+const listed = parts.map((entry) => ({
+  part_number: entry.data.part_number,
+  mpn: entry.data.mpn,
+  category: entry.data.category,
+}));
+const asked = requestedPart(Astro.url.pathname);
+const stocked = asked ? exactPart(listed, asked) : undefined;
+if (stocked) return Astro.redirect(`/product/${stocked.part_number.toLowerCase()}`);
+
+Astro.response.status = 404;
+const counts = categoryCounts(listed, CATEGORIES);
+const heading = asked ? notStocked(asked) : pageMissing;
+const wa = asked ? whatsappHref(`Do you stock ${asked}?`) : undefined;
+const title = heading.length > 80 ? pageTitle("Not found") : pageTitle(heading);
+---
+
+<Layout title={title} description={heading} robots="noindex, nofollow">
+  <article class="info-page">
+    <p class="eyebrow">Catalog</p>
+    <h1 class="title miss">{heading}</h1>
+    <div class="actions">
+      <Button id="page-search" type="button" variant="primary">Search parts</Button>
+      <Button href="/#catalog" variant="ghost">All parts</Button>
+    </div>
+    {wa && (
+      <p class="lede"><a href={wa} target="_blank" rel="noopener noreferrer">{sourcingOffer}</a></p>
+    )}
+    {counts.length > 0 && (
+      <nav aria-label="Categories">
+        <ul class="cats">
+          {counts.map((row) => (
+            <li>
+              <a href={`/?category=${encodeURIComponent(row.category)}#catalog`}>
+                <span>{row.category}</span>
+                <span class="count">{row.count} <span class="sr-only">{row.count === 1 ? "part" : "parts"}</span></span>
+              </a>
+            </li>
+          ))}
+        </ul>
+      </nav>
+    )}
+  </article>
+</Layout>
+
+<script>
+  const pageSearch = document.getElementById("page-search");
+  pageSearch?.addEventListener("click", () => {
+    const open = () => document.getElementById("search-open")?.click();
+    const button = document.getElementById("search-open");
+    if (button?.dataset.ready === "true") {
+      open();
+      return;
+    }
+    const started = performance.now();
+    const timer = window.setInterval(() => {
+      const ready = document.getElementById("search-open");
+      if (ready?.dataset.ready === "true" || performance.now() - started > 2000) {
+        window.clearInterval(timer);
+        ready?.click();
+      }
+    }, 50);
+  });
+</script>

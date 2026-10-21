@@ -11,6 +11,9 @@ interface Props {
   href?: string;
   type?: "button" | "submit" | "reset";
   disabled?: boolean;
+  id?: string;
+  target?: "_blank" | "_self";
+  rel?: string;
 }
 
 const {
@@ -20,15 +23,19 @@ const {
   href,
   type = "button",
   disabled = false,
+  id,
+  target,
+  rel,
 } = Astro.props;
 
 const classes = ["btn", variant, size === "large" && "large", block && "block"];
+const relation = target === "_blank" ? rel ?? "noopener noreferrer" : rel;
 ---
 
 {href && !disabled ? (
-  <a class:list={classes} href={href}><slot /></a>
+  <a class:list={classes} href={href} id={id} target={target} rel={relation}><slot /></a>
 ) : (
-  <button class:list={classes} type={type} disabled={disabled}><slot /></button>
+  <button class:list={classes} type={type} disabled={disabled} id={id}><slot /></button>
 )}
 
 <style>

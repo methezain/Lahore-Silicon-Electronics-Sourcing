@@ -12,9 +12,11 @@ interface Props {
   /** Normal full quantity for this part. Omit to hide the meter. */
   shelfQty?: number;
   meter?: boolean;
+  /** Key spec beside the count. The hero card uses the voltage line. */
+  aside?: string;
 }
 
-const { stockQty, lowStockAt, restockOn, shelfQty, meter = false } = Astro.props;
+const { stockQty, lowStockAt, restockOn, shelfQty, meter = false, aside } = Astro.props;
 const level = stockLevel(stockQty, lowStockAt);
 const label = stockLabel(stockQty, restockOn);
 const shelf = typeof shelfQty === "number" && shelfQty > 0 ? shelfQty : undefined;
@@ -29,7 +31,10 @@ const segments = Array.from({ length: METER_SEGMENTS }, (_, index) => index < fi
       {segments.map((on) => <span class:list={["seg", on && "on"]} />)}
     </span>
   )}
-  <span class="words">{label}</span>
+  <span class="line">
+    <span class="words">{label}</span>
+    {aside && <span class="aside">{aside}</span>}
+  </span>
 </span>
 
 <style>
@@ -50,7 +55,30 @@ const segments = Array.from({ length: METER_SEGMENTS }, (_, index) => index < fi
     display: flex;
     flex-direction: column;
     align-items: stretch;
+    gap: var(--space-8);
     width: 100%;
+  }
+
+  .line {
+    display: flex;
+    align-items: baseline;
+    justify-content: space-between;
+    gap: var(--space-12);
+    min-width: 0;
+  }
+
+  .has-meter .line {
+    width: 100%;
+  }
+
+  .aside {
+    max-width: 60%;
+    color: var(--color-ink-muted);
+    font-size: var(--text-caption);
+    font-weight: var(--text-caption--font-weight);
+    line-height: var(--text-caption--line-height);
+    text-align: right;
+    text-wrap: pretty;
   }
 
   .words {
