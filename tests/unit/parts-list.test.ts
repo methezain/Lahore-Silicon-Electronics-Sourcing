@@ -97,6 +97,8 @@ describe("parsePartsList formats", () => {
   it("treats two bare part numbers as a list", () => {
     expect(looksLikePartsList("LM7805")).toBe(false);
     expect(looksLikePartsList("LM7805 x10")).toBe(true);
+    expect(looksLikePartsList("lm 7805")).toBe(false);
+    expect(looksLikePartsList("lm 7805\nne555 10")).toBe(true);
     expect(looksLikePartsList("LM7805\nNE555")).toBe(true);
   });
 });

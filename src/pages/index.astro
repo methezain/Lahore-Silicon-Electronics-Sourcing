@@ -14,6 +14,7 @@ import { CATEGORIES } from "../lib/categories";
 import {
   SORT_OPTIONS,
   catalogHref,
+  clampPage,
   catalogRowTransitionCss,
   columnSortState,
   compareCatalog,
@@ -22,6 +23,9 @@ import {
   emptyCatalogCopy,
   matchesQuery,
   nextColumnSort,
+  pageCount,
+  pageSlice,
+  pagerItems,
   parseCatalogQuery,
   sortLabel,
 } from "../lib/catalog-query";
@@ -63,20 +67,25 @@ const sorted = [...ordered].sort((a, b) => compareCatalog(query.sort)(rank(a), r
 const inCategory = query.category ? ordered.filter((part) => part.category === query.category).length : ordered.length;
 const matched = sorted.filter((part) => matchesQuery(asMatch(part), query));
 const emptyText = emptyCatalogCopy(query, matched.length, inCategory);
-const showAll = catalogHref({ category: null, sort: query.sort, q: "" });
+const showAll = catalogHref({ category: null, sort: query.sort, q: "", page: 1 });
 const sentence = counterSentence(matched.length);
+const page = clampPage(query.page, matched.length);
+const pages = pageCount(matched.length);
+const onPage = new Set(pageSlice(matched, page).map((part) => part.part_number));
+const pager = pagerItems(page, pages);
+const pageHref = (target: number) => catalogHref({ ...query, page: target });
 
 const pills = [
   {
     label: "All",
-    href: catalogHref({ ...query, category: null }),
+    href: catalogHref({ ...query, category: null, page: 1 }),
     count: records.length,
     current: !query.category,
     category: "",
   },
   ...counts.map((row) => ({
     label: row.category,
-    href: catalogHref({ ...query, category: row.category }),
+    href: catalogHref({ ...query, category: row.category, page: 1 }),
     count: row.count,
     current: query.category === row.category,
     category: row.category,
@@ -99,7 +108,7 @@ const rows = sorted.map((part) => ({
   transition: true,
   category: part.category,
   order: catalogOrder.get(part.part_number) ?? 0,
-  hidden: !matchesQuery(asMatch(part), query),
+  hidden: !onPage.has(part.part_number),
 }));
 
 const rowMotionCss = catalogRowTransitionCss(ordered.map((part) => part.part_number));
@@ -163,7 +172,7 @@ if (Astro.csp) {
               <div class="sort-menu">
                 {SORT_OPTIONS.map((id) => (
                   <a
-                    href={catalogHref({ ...query, sort: id })}
+                    href={catalogHref({ ...query, sort: id, page: 1 })}
                     data-sort={id}
                     aria-current={query.sort === id ? "page" : undefined}
                   >
@@ -190,8 +199,8 @@ if (Astro.csp) {
               rows={rows}
               cards={false}
               sort={{
-                stockHref: catalogHref({ ...query, sort: nextColumnSort(query.sort, "stock") }),
-                priceHref: catalogHref({ ...query, sort: nextColumnSort(query.sort, "price") }),
+                stockHref: catalogHref({ ...query, sort: nextColumnSort(query.sort, "stock"), page: 1 }),
+                priceHref: catalogHref({ ...query, sort: nextColumnSort(query.sort, "price"), page: 1 }),
                 stock: columnSortState(query.sort, "stock"),
                 price: columnSortState(query.sort, "price"),
               }}
@@ -202,6 +211,34 @@ if (Astro.csp) {
           </div>
         </div>
       )}
+      <nav class="pager" id="catalog-pager" aria-label="Catalog pages" hidden={pages <= 1}>
+        {pager.map((item) => {
+          if (item.kind === "gap") return <span class="pager-gap" aria-hidden="true">…</span>;
+          if (item.kind === "page") {
+            return (
+              <a
+                class="pager-link"
+                href={pageHref(item.page)}
+                data-page={item.page}
+                aria-label={`Page ${item.page}`}
+                aria-current={item.current ? "page" : undefined}
+              >
+                {item.page}
+              </a>
+            );
+          }
+          return (
+            <a
+              class="pager-link pager-step"
+              href={pageHref(item.page)}
+              data-page={item.page}
+              rel={item.kind === "prev" ? "prev" : "next"}
+            >
+              {item.kind === "prev" ? "Previous" : "Next"}
+            </a>
+          );
+        })}
+      </nav>
     </div>
   </section>
   <script>
@@ -308,9 +345,9 @@ if (Astro.csp) {
   }
 
   .toolbar {
-    position: sticky;
-    top: calc(var(--inset) + var(--header-bar));
+    position: relative;
     z-index: 30;
+    scroll-margin-top: calc(var(--inset) + var(--header-bar) + var(--space-16));
     margin: 0 calc(var(--gutter) * -1) var(--space-16);
     padding: var(--space-8) var(--gutter);
     background: var(--color-canvas);
@@ -503,6 +540,66 @@ if (Astro.csp) {
 </style>
 
 <style is:global set:html={rowMotionCss}></style>
+
+<style is:global>
+  #catalog-pager {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: center;
+    justify-content: center;
+    gap: var(--space-8);
+    margin-top: var(--space-24);
+  }
+
+  #catalog-pager[hidden] {
+    display: none;
+  }
+
+  #catalog-pager .pager-link {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    min-width: 44px;
+    height: 44px;
+    padding: 0 var(--space-16);
+    border-radius: var(--radius-pill);
+    background: var(--color-surface);
+    box-shadow: inset 0 0 0 1px var(--color-control-line);
+    color: var(--color-ink);
+    font-size: var(--text-small);
+    font-weight: var(--font-weight-strong);
+    font-variant-numeric: tabular-nums;
+    line-height: 1;
+    text-decoration: none;
+    transition-property: background-color, transform;
+    transition-duration: var(--dur-1);
+    transition-timing-function: var(--ease-out);
+  }
+
+  #catalog-pager .pager-link:hover {
+    background: var(--color-sunken);
+  }
+
+  #catalog-pager .pager-link:active {
+    transform: scale(0.97);
+  }
+
+  #catalog-pager .pager-link[aria-current="page"] {
+    background: var(--color-navy);
+    box-shadow: none;
+    color: var(--color-on-navy);
+  }
+
+  #catalog-pager .pager-gap {
+    color: var(--color-ink-muted);
+  }
+
+  @media (prefers-reduced-motion: reduce) {
+    #catalog-pager .pager-link:active {
+      transform: none;
+    }
+  }
+</style>
 
 <style is:global>
   #catalog.is-filtering [class*="vt-part-"] {

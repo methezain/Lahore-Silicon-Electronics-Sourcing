@@ -7,6 +7,7 @@ import "../info.css";
 import "../order-received.css";
 import Layout from "../../layouts/Layout.astro";
 import Button from "../../components/Button.astro";
+import PackageMark from "../../components/illustrations/PackageMark.tsx";
 import { counterPlace } from "../../lib/desk";
 import { formatPkr } from "../../lib/money";
 import {
@@ -86,7 +87,7 @@ const description = order ? `${orderReceivedTitle}. ${orderReceivedNext}` : titl
 ---
 
 <Layout title={title} description={description} robots="noindex, nofollow">
-  <article class:list={["info-page", order && "order-received"]}>
+  <article class:list={["info-page", order ? "order-received" : "state"]}>
     {order && timeline ? (
       <>
         <p class="eyebrow">Order</p>
@@ -205,6 +206,7 @@ const description = order ? `${orderReceivedTitle}. ${orderReceivedNext}` : titl
       </>
     ) : lookupFailed ? (
       <>
+        <PackageMark kind="module" empty />
         <h1 class="title">{serverBroke}</h1>
         <div class="actions">
           <Button href={retry} variant="primary">{tryAgain}</Button>
@@ -213,6 +215,7 @@ const description = order ? `${orderReceivedTitle}. ${orderReceivedNext}` : titl
       </>
     ) : (
       <>
+        <PackageMark kind="module" empty />
         <h1 class="title">{unknownOrder}</h1>
         <div class="actions">
           <Button href="/" variant="primary">All parts</Button>

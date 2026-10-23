@@ -378,10 +378,10 @@ async function cutFile(file, gain) {
     create: { width: side, height: side, channels: 4, background: { r: 0, g: 0, b: 0, alpha: 0 } },
   })
     .composite([{ input: cropped, left: Math.floor((side - cropW) / 2), top: Math.floor((side - cropH) / 2) }])
-    .resize(SIZE, SIZE, { fit: "fill" })
     .png()
     .toBuffer();
-  return { file, square, meanL: lSum / opaque };
+  const sized = await sharp(square).resize(SIZE, SIZE, { fit: "fill" }).png().toBuffer();
+  return { file, square: sized, meanL: lSum / opaque };
 }
 
 const files = (await readdir(root))

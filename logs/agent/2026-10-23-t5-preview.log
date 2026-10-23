@@ -1,0 +1,4 @@
+(node:18936) [DEP0190] DeprecationWarning: Passing args to a child process with shell option true can lead to security vulnerabilities, as the arguments are not escaped, only concatenated.
+(Use `node --trace-deprecation ...` to show where the warning was created)
+{"message":"Preview server running at http://127.0.0.1:4323 (pid 16352)\n  Stop:   astro preview stop\n  Status: astro preview status\n  Logs:   astro preview logs","label":"SKIP_FORMAT","level":"info"}
+compressed preview ready http://127.0.0.1:4322/

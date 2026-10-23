@@ -4,6 +4,7 @@ test('search dialog finds a part, misses cleanly, and traps focus', async ({ pag
   const shot = (name: string) => `test-results/search-dialog/${testInfo.project.name}-${name}.png`;
 
   await page.goto('/');
+  await page.locator('#search-open').hover();
   await page.locator('#search-open[data-ready="true"]').waitFor();
   await page.screenshot({ path: shot('header') });
 
@@ -62,11 +63,11 @@ test('search dialog finds a part, misses cleanly, and traps focus', async ({ pag
   } else {
     await expect(dialog.getByRole('link', { name: /WhatsApp/ })).toHaveCount(0);
   }
-  await expect(dialog.getByRole('link', { name: 'Power 3' })).toHaveAttribute('href', '/?category=Power#catalog');
-  await expect(dialog.getByRole('link', { name: 'Boards 2' })).toBeVisible();
-  await expect(dialog.getByRole('link', { name: 'ICs 1' })).toBeVisible();
-  await expect(dialog.getByRole('link', { name: 'Sensors 3' })).toBeVisible();
-  await expect(dialog.getByRole('link', { name: 'Relays 1' })).toBeVisible();
+  await expect(dialog.getByRole('option', { name: 'Power 3' })).toHaveAttribute('href', '/?category=Power#catalog');
+  await expect(dialog.getByRole('option', { name: 'Boards 2' })).toBeVisible();
+  await expect(dialog.getByRole('option', { name: 'ICs 1' })).toBeVisible();
+  await expect(dialog.getByRole('option', { name: 'Sensors 3' })).toBeVisible();
+  await expect(dialog.getByRole('option', { name: 'Relays 1' })).toBeVisible();
   await page.screenshot({ path: shot('miss') });
 
   const overflow = await page.evaluate(
@@ -98,6 +99,7 @@ test('search dialog finds a part, misses cleanly, and traps focus', async ({ pag
 
 test('slash does not open search from a field or while the cart is open', async ({ page }) => {
   await page.goto('/');
+  await page.locator('#search-open').hover();
   await page.locator('#search-open[data-ready="true"]').waitFor();
   await page.getByRole('button', { name: /Cart \d+ parts?/ }).click();
   await expect(page.getByRole('dialog', { name: 'Cart' })).toBeVisible();
@@ -115,6 +117,7 @@ test('slash does not open search from a field or while the cart is open', async 
 
 test('a dock control opens search and returns focus', async ({ page }) => {
   await page.goto('/');
+  await page.locator('#search-open').hover();
   await page.locator('#search-open[data-ready="true"]').waitFor();
   await page.evaluate(() => {
     const button = document.createElement('button');
@@ -139,6 +142,7 @@ test('a dock control opens search and returns focus', async ({ page }) => {
 test('search dialog stays put with reduced motion', async ({ page }) => {
   await page.emulateMedia({ reducedMotion: 'reduce' });
   await page.goto('/');
+  await page.locator('#search-open').hover();
   await page.locator('#search-open[data-ready="true"]').waitFor();
   await page.keyboard.press('/');
   const panel = page.locator('.search-panel');

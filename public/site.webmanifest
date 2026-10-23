@@ -1,0 +1,21 @@
+{
+  "name": "Lahore Silicon",
+  "short_name": "Lahore Silicon",
+  "description": "Electronic components from Hall Road, Lahore",
+  "start_url": "/",
+  "display": "browser",
+  "background_color": "#F3F6FA",
+  "theme_color": "#F3F6FA",
+  "icons": [
+    {
+      "src": "/icon-192.png",
+      "sizes": "192x192",
+      "type": "image/png"
+    },
+    {
+      "src": "/icon-512.png",
+      "sizes": "512x512",
+      "type": "image/png"
+    }
+  ]
+}

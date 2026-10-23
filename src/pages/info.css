@@ -360,6 +360,11 @@
 }
 
 .copy-btn {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: var(--space-8);
+  white-space: nowrap;
   grid-area: button;
   min-width: 44px;
   min-height: 44px;

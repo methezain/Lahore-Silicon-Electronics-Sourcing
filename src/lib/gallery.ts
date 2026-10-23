@@ -4,7 +4,7 @@
  * because --dur-base is not a token yet.
  */
 
-import { animateEl, prefersReducedMotion, preloadMotion, stopMotion } from "./motion";
+import { animateEl, prefersReducedMotion, stopMotion } from "./motion";
 
 const mounted = new WeakSet<HTMLElement>();
 
@@ -459,10 +459,6 @@ function bindGallery(
       img?.style.setProperty("--zoom-y", `${y}%`);
     });
   }
-
-  window.requestIdleCallback(() => {
-    void preloadMotion();
-  });
 }
 
 function focusTarget(target: EventTarget | null, viewerOpen: boolean): "thumb" | "open" | "dot" | undefined {

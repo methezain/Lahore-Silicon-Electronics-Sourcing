@@ -12,6 +12,12 @@ export default function CartButton() {
   const [joined, setJoined] = useState(false);
   const [ring, setRing] = useState(false);
   useEffect(() => setReady(true), []);
+  useEffect(
+    () => isCartDrawerOpen.subscribe((open) => {
+      if (open) document.dispatchEvent(new Event("lahore-cart-wanted"));
+    }),
+    [],
+  );
   const partCount = ready ? Object.keys(cartItems).length : 0;
   const noun = partCount === 1 ? "part" : "parts";
 

@@ -11,7 +11,7 @@ test("quick order previews matches, misses, stock limits, and adds them", async 
   await expect(summary).toContainText("1 quantity was set to the stock count");
   await expect(page.getByText("We don't stock \"TIP120\".")).toBeVisible();
   await expect(page.getByText(/ESP32-WROOM-32D: Only \d+ in stock\. Quantity set to \d+\./)).toBeVisible();
-  await expect(page.getByText("AMS1117-3.3")).toBeVisible();
+  await expect(page.locator("#main").getByText("AMS1117-3.3")).toBeVisible();
 
   const configured = await page.locator("footer a[href^='https://wa.me/']").count();
   const send = page.getByRole("link", { name: "Send cart on WhatsApp" });
@@ -46,6 +46,7 @@ test("a cart link rebuilds the cart", async ({ page }) => {
 
 test("command palette opens with ctrl+k and highlights a match", async ({ page }) => {
   await page.goto("/");
+  await page.locator('#search-open').hover();
   await page.locator("#search-open[data-ready='true']").waitFor();
   await page.keyboard.press("Control+k");
   const dialog = page.getByRole("dialog", { name: "Search parts" });
@@ -64,6 +65,7 @@ test("command palette opens with ctrl+k and highlights a match", async ({ page }
 test("selection highlight slides, and jumps when reduced motion is on", async ({ page }, testInfo) => {
   const dir = "test-results/r6";
   await page.goto("/");
+  await page.locator('#search-open').hover();
   await page.locator("#search-open[data-ready='true']").waitFor();
   await page.keyboard.press("/");
   const dialog = page.getByRole("dialog", { name: "Search parts" });
@@ -102,6 +104,7 @@ test("palette and quick order screenshots", async ({ page }, testInfo) => {
   const dir = "test-results/r6";
   const name = testInfo.project.name;
   await page.goto("/");
+  await page.locator('#search-open').hover();
   await page.locator("#search-open[data-ready='true']").waitFor();
   await page.keyboard.press("/");
   const dialog = page.getByRole("dialog", { name: "Search parts" });

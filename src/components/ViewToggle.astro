@@ -163,6 +163,7 @@ if (Astro.csp) Astro.csp.insertScriptHash(await cspSha256(boot));
   }
 
   #catalog [data-layout="list"] .cat-scroll {
+    position: relative;
     display: block;
     width: 100%;
     max-width: 100%;
@@ -180,57 +181,50 @@ if (Astro.csp) Astro.csp.insertScriptHash(await cspSha256(boot));
     }
 
     #catalog [data-layout="list"] .cat-table {
-      width: 720px;
-      min-width: 720px;
+      width: 1000px;
+      min-width: 1000px;
     }
   }
 
-  /* Photo morph between list and grid. Header and footer keep their own names. */
-  html.catalog-morph::view-transition-group(.part-morph),
-  html.catalog-morph::view-transition-old(.part-morph),
-  html.catalog-morph::view-transition-new(.part-morph) {
+  html.catalog-morph [class*="vt-part-"] {
+    view-transition-name: none;
+  }
+
+  html.catalog-morph::view-transition-group(root) {
+    animation: none;
+  }
+
+  html.catalog-morph::view-transition-old(root),
+  html.catalog-morph::view-transition-new(root),
+  html.catalog-morph::view-transition-old(.catalog-photo),
+  html.catalog-morph::view-transition-new(.catalog-photo) {
+    mix-blend-mode: normal;
+  }
+
+  html.catalog-morph::view-transition-old(root) {
+    animation: none;
+  }
+
+  html.catalog-morph::view-transition-new(root) {
+    animation: catalog-fade-in var(--dur-2) var(--ease-out) both;
+  }
+
+  html.catalog-morph::view-transition-group(.catalog-photo) {
     animation-duration: var(--dur-slow);
     animation-timing-function: var(--ease-out);
   }
 
-  html.catalog-morph::view-transition-old(.part-morph),
-  html.catalog-morph::view-transition-new(.part-morph) {
-    mix-blend-mode: normal;
-  }
-
-  html.catalog-morph::view-transition-group(root),
-  html.catalog-morph::view-transition-old(root),
-  html.catalog-morph::view-transition-new(root) {
+  html.catalog-morph::view-transition-old(.catalog-photo) {
     animation: none;
   }
 
-  html.catalog-morph::view-transition-old(root) {
-    opacity: 0;
+  html.catalog-morph::view-transition-new(.catalog-photo) {
+    animation: catalog-fade-in var(--dur-base) var(--ease-out) both;
   }
 
-  html.catalog-morph::view-transition-new(root) {
-    opacity: 1;
-  }
-
-  @media (prefers-reduced-motion: reduce) {
-    html.catalog-morph-reduce #catalog [class*="vt-part-"] {
-      view-transition-name: none;
-    }
-
-    html.catalog-morph::view-transition-old(root) {
-      animation: catalog-fade-out var(--dur-1) linear both;
-      opacity: 1;
-    }
-
-    html.catalog-morph::view-transition-new(root) {
-      animation: catalog-fade-in var(--dur-1) linear both;
-      opacity: 1;
-    }
-  }
-
-  @keyframes catalog-fade-out {
-    from { opacity: 1; }
-    to { opacity: 0; }
+  html.catalog-morph-reduce::view-transition-new(root) {
+    animation-duration: var(--dur-1);
+    animation-timing-function: linear;
   }
 
   @keyframes catalog-fade-in {

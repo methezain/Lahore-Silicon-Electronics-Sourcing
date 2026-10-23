@@ -38,11 +38,15 @@ const { items } = Astro.props;
     function update() {
       frame = 0;
       if (sections.length === 0) return;
-      const line = nav.getBoundingClientRect().bottom + 32;
+      const header = document.querySelector(".site-header");
+      const stuckTop = header ? header.getBoundingClientRect().bottom : 0;
+      const line = stuckTop + nav.offsetHeight + 32;
+      const atEnd = window.innerHeight + window.scrollY >= document.documentElement.scrollHeight - 2;
       let current = sections[0];
       for (const entry of sections) {
         if (entry.section.getBoundingClientRect().top <= line) current = entry;
       }
+      if (atEnd && window.scrollY > 0) current = sections[sections.length - 1];
       for (const entry of sections) {
         if (entry === current) entry.link.setAttribute("aria-current", "true");
         else entry.link.removeAttribute("aria-current");

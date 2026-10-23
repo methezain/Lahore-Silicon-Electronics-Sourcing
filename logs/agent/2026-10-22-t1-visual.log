@@ -1,0 +1,371 @@
+
+Running 8 tests using 2 workers
+
+  x  1 [390] › tests\e2e\visual.spec.ts:58:3 › @visual › product (7.6s)
+  x  2 [390] › tests\e2e\visual.spec.ts:51:3 › @visual › home (7.8s)
+  x  4 [390] › tests\e2e\visual.spec.ts:77:3 › @visual › checkout (4.0s)
+  x  3 [390] › tests\e2e\visual.spec.ts:65:3 › @visual › cart open (6.8s)
+  x  5 [1440] › tests\e2e\visual.spec.ts:51:3 › @visual › home (7.4s)
+  x  6 [1440] › tests\e2e\visual.spec.ts:58:3 › @visual › product (9.7s)
+  x  7 [1440] › tests\e2e\visual.spec.ts:65:3 › @visual › cart open (7.1s)
+  x  8 [1440] › tests\e2e\visual.spec.ts:77:3 › @visual › checkout (5.9s)
+
+
+  1) [390] › tests\e2e\visual.spec.ts:51:3 › @visual › home ────────────────────────────────────────
+
+    Error: expect(page).toHaveScreenshot(expected) failed
+
+      Expected an image 390px by 2862px, received 390px by 4776px. 1112013 pixels (ratio 0.60 of all image pixels) are different.
+
+      Snapshot: home.png
+
+    Call log:
+      - Expect "toHaveScreenshot(home.png)" with timeout 5000ms
+        - verifying given screenshot expectation
+      - taking page screenshot
+        - disabled all CSS animations
+      - waiting for fonts to load...
+      - fonts loaded
+      - Expected an image 390px by 2862px, received 390px by 4776px. 1112013 pixels (ratio 0.60 of all image pixels) are different.
+      - waiting 100ms before taking screenshot
+      - taking page screenshot
+        - disabled all CSS animations
+      - waiting for fonts to load...
+      - fonts loaded
+      - captured a stable screenshot
+      - Expected an image 390px by 2862px, received 390px by 4776px. 1112013 pixels (ratio 0.60 of all image pixels) are different.
+
+
+      53 |     await expect(page.getByRole("heading", { level: 1, name: "Parts from Hall Road, counted before you pay." })).toBeVisible();
+      54 |     await settle(page);
+    > 55 |     await expect(page).toHaveScreenshot("home.png", { ...shot, fullPage: true });
+         |                        ^
+      56 |   });
+      57 |
+      58 |   test("product", async ({ page }) => {
+        at D:\My Coding Projects\Electronics Selling\tests\e2e\visual.spec.ts:55:24
+
+    attachment #1: home (image/png) ────────────────────────────────────────────────────────────────
+    Expected: tests\e2e\visual.spec.ts-snapshots\home-390-win32.png
+    Received: .pw-out\visual\visual--visual-home-390\home-actual.png
+    Diff:     .pw-out\visual\visual--visual-home-390\home-diff.png
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+    Error Context: .pw-out\visual\visual--visual-home-390\error-context.md
+
+  2) [390] › tests\e2e\visual.spec.ts:58:3 › @visual › product ─────────────────────────────────────
+
+    Error: expect(page).toHaveScreenshot(expected) failed
+
+      Expected an image 390px by 3651px, received 390px by 4039px. 356847 pixels (ratio 0.23 of all image pixels) are different.
+
+      Snapshot: product.png
+
+    Call log:
+      - Expect "toHaveScreenshot(product.png)" with timeout 5000ms
+        - verifying given screenshot expectation
+      - taking page screenshot
+        - disabled all CSS animations
+      - waiting for fonts to load...
+      - fonts loaded
+      - Expected an image 390px by 3651px, received 390px by 4039px. 356847 pixels (ratio 0.23 of all image pixels) are different.
+      - waiting 100ms before taking screenshot
+      - taking page screenshot
+        - disabled all CSS animations
+      - waiting for fonts to load...
+      - fonts loaded
+      - captured a stable screenshot
+      - Expected an image 390px by 3651px, received 390px by 4039px. 356847 pixels (ratio 0.23 of all image pixels) are different.
+
+
+      60 |     await expect(page.locator(".gallery img").first()).toBeVisible();
+      61 |     await settle(page);
+    > 62 |     await expect(page).toHaveScreenshot("product.png", { ...shot, fullPage: true });
+         |                        ^
+      63 |   });
+      64 |
+      65 |   test("cart open", async ({ page }) => {
+        at D:\My Coding Projects\Electronics Selling\tests\e2e\visual.spec.ts:62:24
+
+    attachment #1: product (image/png) ─────────────────────────────────────────────────────────────
+    Expected: tests\e2e\visual.spec.ts-snapshots\product-390-win32.png
+    Received: .pw-out\visual\visual--visual-product-390\product-actual.png
+    Diff:     .pw-out\visual\visual--visual-product-390\product-diff.png
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+    Error Context: .pw-out\visual\visual--visual-product-390\error-context.md
+
+  3) [390] › tests\e2e\visual.spec.ts:65:3 › @visual › cart open ───────────────────────────────────
+
+    Error: expect(page).toHaveScreenshot(expected) failed
+
+      8049 pixels (ratio 0.03 of all image pixels) are different.
+
+      Snapshot: cart.png
+
+    Call log:
+      - Expect "toHaveScreenshot(cart.png)" with timeout 5000ms
+        - verifying given screenshot expectation
+      - taking page screenshot
+        - disabled all CSS animations
+      - waiting for fonts to load...
+      - fonts loaded
+      - 8049 pixels (ratio 0.03 of all image pixels) are different.
+      - waiting 100ms before taking screenshot
+      - taking page screenshot
+        - disabled all CSS animations
+      - waiting for fonts to load...
+      - fonts loaded
+      - captured a stable screenshot
+      - 8049 pixels (ratio 0.03 of all image pixels) are different.
+
+
+      72 |     await expect(dialog.getByText("LM7805").first()).toBeVisible();
+      73 |     await settle(page);
+    > 74 |     await expect(page).toHaveScreenshot("cart.png", { ...shot, fullPage: false });
+         |                        ^
+      75 |   });
+      76 |
+      77 |   test("checkout", async ({ page }) => {
+        at D:\My Coding Projects\Electronics Selling\tests\e2e\visual.spec.ts:74:24
+
+    attachment #1: cart (image/png) ────────────────────────────────────────────────────────────────
+    Expected: tests\e2e\visual.spec.ts-snapshots\cart-390-win32.png
+    Received: .pw-out\visual\visual--visual-cart-open-390\cart-actual.png
+    Diff:     .pw-out\visual\visual--visual-cart-open-390\cart-diff.png
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+    Error Context: .pw-out\visual\visual--visual-cart-open-390\error-context.md
+
+  4) [390] › tests\e2e\visual.spec.ts:77:3 › @visual › checkout ────────────────────────────────────
+
+    Error: expect(page).toHaveScreenshot(expected) failed
+
+      Expected an image 390px by 2615px, received 390px by 2867px. 227212 pixels (ratio 0.21 of all image pixels) are different.
+
+      Snapshot: checkout.png
+
+    Call log:
+      - Expect "toHaveScreenshot(checkout.png)" with timeout 5000ms
+        - verifying given screenshot expectation
+      - taking page screenshot
+        - disabled all CSS animations
+      - waiting for fonts to load...
+      - fonts loaded
+      - Expected an image 390px by 2615px, received 390px by 2867px. 248448 pixels (ratio 0.23 of all image pixels) are different.
+      - waiting 100ms before taking screenshot
+      - taking page screenshot
+        - disabled all CSS animations
+      - waiting for fonts to load...
+      - fonts loaded
+      - 21657 pixels (ratio 0.02 of all image pixels) are different.
+      - waiting 250ms before taking screenshot
+      - taking page screenshot
+        - disabled all CSS animations
+      - waiting for fonts to load...
+      - fonts loaded
+      - captured a stable screenshot
+      - Expected an image 390px by 2615px, received 390px by 2867px. 227212 pixels (ratio 0.21 of all image pixels) are different.
+
+
+      80 |     await expect(page.locator("#summary-items .line-part")).toHaveText("LM7805");
+      81 |     await settle(page);
+    > 82 |     await expect(page).toHaveScreenshot("checkout.png", { ...shot, fullPage: true });
+         |                        ^
+      83 |   });
+      84 | });
+      85 |
+        at D:\My Coding Projects\Electronics Selling\tests\e2e\visual.spec.ts:82:24
+
+    attachment #1: checkout (image/png) ────────────────────────────────────────────────────────────
+    Expected: tests\e2e\visual.spec.ts-snapshots\checkout-390-win32.png
+    Received: .pw-out\visual\visual--visual-checkout-390\checkout-actual.png
+    Diff:     .pw-out\visual\visual--visual-checkout-390\checkout-diff.png
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+    Error Context: .pw-out\visual\visual--visual-checkout-390\error-context.md
+
+  5) [1440] › tests\e2e\visual.spec.ts:51:3 › @visual › home ───────────────────────────────────────
+
+    Error: expect(page).toHaveScreenshot(expected) failed
+
+      Expected an image 1440px by 2336px, received 1440px by 3909px. 2519740 pixels (ratio 0.45 of all image pixels) are different.
+
+      Snapshot: home.png
+
+    Call log:
+      - Expect "toHaveScreenshot(home.png)" with timeout 5000ms
+        - verifying given screenshot expectation
+      - taking page screenshot
+        - disabled all CSS animations
+      - waiting for fonts to load...
+      - fonts loaded
+      - Expected an image 1440px by 2336px, received 1440px by 3909px. 2519740 pixels (ratio 0.45 of all image pixels) are different.
+      - waiting 100ms before taking screenshot
+      - taking page screenshot
+        - disabled all CSS animations
+      - waiting for fonts to load...
+      - fonts loaded
+      - captured a stable screenshot
+      - Expected an image 1440px by 2336px, received 1440px by 3909px. 2519740 pixels (ratio 0.45 of all image pixels) are different.
+
+
+      53 |     await expect(page.getByRole("heading", { level: 1, name: "Parts from Hall Road, counted before you pay." })).toBeVisible();
+      54 |     await settle(page);
+    > 55 |     await expect(page).toHaveScreenshot("home.png", { ...shot, fullPage: true });
+         |                        ^
+      56 |   });
+      57 |
+      58 |   test("product", async ({ page }) => {
+        at D:\My Coding Projects\Electronics Selling\tests\e2e\visual.spec.ts:55:24
+
+    attachment #1: home (image/png) ────────────────────────────────────────────────────────────────
+    Expected: tests\e2e\visual.spec.ts-snapshots\home-1440-win32.png
+    Received: .pw-out\visual\visual--visual-home-1440\home-actual.png
+    Diff:     .pw-out\visual\visual--visual-home-1440\home-diff.png
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+    Error Context: .pw-out\visual\visual--visual-home-1440\error-context.md
+
+  6) [1440] › tests\e2e\visual.spec.ts:58:3 › @visual › product ────────────────────────────────────
+
+    Error: expect(page).toHaveScreenshot(expected) failed
+
+      Expected an image 1440px by 2933px, received 1440px by 3013px. 593755 pixels (ratio 0.14 of all image pixels) are different.
+
+      Snapshot: product.png
+
+    Call log:
+      - Expect "toHaveScreenshot(product.png)" with timeout 5000ms
+        - verifying given screenshot expectation
+      - taking page screenshot
+        - disabled all CSS animations
+      - waiting for fonts to load...
+      - fonts loaded
+      - Expected an image 1440px by 2933px, received 1440px by 3013px. 593755 pixels (ratio 0.14 of all image pixels) are different.
+      - waiting 100ms before taking screenshot
+      - taking page screenshot
+        - disabled all CSS animations
+      - waiting for fonts to load...
+      - fonts loaded
+      - captured a stable screenshot
+      - Expected an image 1440px by 2933px, received 1440px by 3013px. 593755 pixels (ratio 0.14 of all image pixels) are different.
+
+
+      60 |     await expect(page.locator(".gallery img").first()).toBeVisible();
+      61 |     await settle(page);
+    > 62 |     await expect(page).toHaveScreenshot("product.png", { ...shot, fullPage: true });
+         |                        ^
+      63 |   });
+      64 |
+      65 |   test("cart open", async ({ page }) => {
+        at D:\My Coding Projects\Electronics Selling\tests\e2e\visual.spec.ts:62:24
+
+    attachment #1: product (image/png) ─────────────────────────────────────────────────────────────
+    Expected: tests\e2e\visual.spec.ts-snapshots\product-1440-win32.png
+    Received: .pw-out\visual\visual--visual-product-1440\product-actual.png
+    Diff:     .pw-out\visual\visual--visual-product-1440\product-diff.png
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+    Error Context: .pw-out\visual\visual--visual-product-1440\error-context.md
+
+  7) [1440] › tests\e2e\visual.spec.ts:65:3 › @visual › cart open ──────────────────────────────────
+
+    Error: expect(page).toHaveScreenshot(expected) failed
+
+      583296 pixels (ratio 0.46 of all image pixels) are different.
+
+      Snapshot: cart.png
+
+    Call log:
+      - Expect "toHaveScreenshot(cart.png)" with timeout 5000ms
+        - verifying given screenshot expectation
+      - taking page screenshot
+        - disabled all CSS animations
+      - waiting for fonts to load...
+      - fonts loaded
+      - 583296 pixels (ratio 0.46 of all image pixels) are different.
+      - waiting 100ms before taking screenshot
+      - taking page screenshot
+        - disabled all CSS animations
+      - waiting for fonts to load...
+      - fonts loaded
+      - captured a stable screenshot
+      - 583296 pixels (ratio 0.46 of all image pixels) are different.
+
+
+      72 |     await expect(dialog.getByText("LM7805").first()).toBeVisible();
+      73 |     await settle(page);
+    > 74 |     await expect(page).toHaveScreenshot("cart.png", { ...shot, fullPage: false });
+         |                        ^
+      75 |   });
+      76 |
+      77 |   test("checkout", async ({ page }) => {
+        at D:\My Coding Projects\Electronics Selling\tests\e2e\visual.spec.ts:74:24
+
+    attachment #1: cart (image/png) ────────────────────────────────────────────────────────────────
+    Expected: tests\e2e\visual.spec.ts-snapshots\cart-1440-win32.png
+    Received: .pw-out\visual\visual--visual-cart-open-1440\cart-actual.png
+    Diff:     .pw-out\visual\visual--visual-cart-open-1440\cart-diff.png
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+    Error Context: .pw-out\visual\visual--visual-cart-open-1440\error-context.md
+
+  8) [1440] › tests\e2e\visual.spec.ts:77:3 › @visual › checkout ───────────────────────────────────
+
+    Error: expect(page).toHaveScreenshot(expected) failed
+
+      Expected an image 1440px by 2099px, received 1440px by 2296px. 653744 pixels (ratio 0.20 of all image pixels) are different.
+
+      Snapshot: checkout.png
+
+    Call log:
+      - Expect "toHaveScreenshot(checkout.png)" with timeout 5000ms
+        - verifying given screenshot expectation
+      - taking page screenshot
+        - disabled all CSS animations
+      - waiting for fonts to load...
+      - fonts loaded
+      - Expected an image 1440px by 2099px, received 1440px by 2296px. 665718 pixels (ratio 0.21 of all image pixels) are different.
+      - waiting 100ms before taking screenshot
+      - taking page screenshot
+        - disabled all CSS animations
+      - waiting for fonts to load...
+      - fonts loaded
+      - 12663 pixels (ratio 0.01 of all image pixels) are different.
+      - waiting 250ms before taking screenshot
+      - taking page screenshot
+        - disabled all CSS animations
+      - waiting for fonts to load...
+      - fonts loaded
+      - captured a stable screenshot
+      - Expected an image 1440px by 2099px, received 1440px by 2296px. 653744 pixels (ratio 0.20 of all image pixels) are different.
+
+
+      80 |     await expect(page.locator("#summary-items .line-part")).toHaveText("LM7805");
+      81 |     await settle(page);
+    > 82 |     await expect(page).toHaveScreenshot("checkout.png", { ...shot, fullPage: true });
+         |                        ^
+      83 |   });
+      84 | });
+      85 |
+        at D:\My Coding Projects\Electronics Selling\tests\e2e\visual.spec.ts:82:24
+
+    attachment #1: checkout (image/png) ────────────────────────────────────────────────────────────
+    Expected: tests\e2e\visual.spec.ts-snapshots\checkout-1440-win32.png
+    Received: .pw-out\visual\visual--visual-checkout-1440\checkout-actual.png
+    Diff:     .pw-out\visual\visual--visual-checkout-1440\checkout-diff.png
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+    Error Context: .pw-out\visual\visual--visual-checkout-1440\error-context.md
+
+  8 failed
+    [390] › tests\e2e\visual.spec.ts:51:3 › @visual › home ─────────────────────────────────────────
+    [390] › tests\e2e\visual.spec.ts:58:3 › @visual › product ──────────────────────────────────────
+    [390] › tests\e2e\visual.spec.ts:65:3 › @visual › cart open ────────────────────────────────────
+    [390] › tests\e2e\visual.spec.ts:77:3 › @visual › checkout ─────────────────────────────────────
+    [1440] › tests\e2e\visual.spec.ts:51:3 › @visual › home ────────────────────────────────────────
+    [1440] › tests\e2e\visual.spec.ts:58:3 › @visual › product ─────────────────────────────────────
+    [1440] › tests\e2e\visual.spec.ts:65:3 › @visual › cart open ───────────────────────────────────
+    [1440] › tests\e2e\visual.spec.ts:77:3 › @visual › checkout ────────────────────────────────────
+exit 1

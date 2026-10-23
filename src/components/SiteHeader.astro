@@ -52,7 +52,7 @@ const nav = [
         <a href={item.href} aria-current={item.current ? "page" : undefined}>{item.label}</a>
       ))}
     </nav>
-    <SiteSearch client:idle parts={searchParts} categories={searchCategories} whatsappBase={whatsappBase} />
+    <SiteSearch client:intent="#search-open|[data-search-open]|keys" parts={searchParts} categories={searchCategories} whatsappBase={whatsappBase} />
     <CartButton client:load />
   </div>
   <p id="cart-status" class="sr-only" aria-live="polite"></p>

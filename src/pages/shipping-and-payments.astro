@@ -82,7 +82,16 @@ const description = methods.length > 0
                     data-idle={copyAction}
                     data-done={copiedAction}
                     aria-label={`${copyAction} ${row.label}`}
-                  >{copyAction}</button>
+                  >
+                    <span class="copy-ico" aria-hidden="true">
+                      <svg class="copy-glyph" viewBox="0 0 24 24" focusable="false">
+                        <rect x="8" y="8" width="12" height="12" rx="2" fill="none" stroke="currentColor" stroke-width="1.8" />
+                        <path fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" d="M6 15H5a1 1 0 0 1-1-1V4h10v2" />
+                      </svg>
+                      <svg class="copy-check" viewBox="0 0 24 24" focusable="false"><use href="#check" /></svg>
+                    </span>
+                    <span class="copy-text">{copyAction}</span>
+                  </button>
                 </div>
               ))}
             </div>
@@ -118,28 +127,6 @@ const description = methods.length > 0
 </Layout>
 
 <script>
-  const copyStatus = document.getElementById("copy-status");
-  document.querySelectorAll(".copy-btn").forEach((btn) => {
-    if (!(btn instanceof HTMLButtonElement)) return;
-    let timer = 0;
-    btn.addEventListener("click", async () => {
-      const text = btn.dataset.copy ?? "";
-      const idle = btn.dataset.idle ?? "Copy";
-      const done = btn.dataset.done ?? "Copied";
-      try {
-        await navigator.clipboard.writeText(text);
-      } catch {
-        return;
-      }
-      btn.textContent = done;
-      btn.setAttribute("aria-label", done);
-      if (copyStatus) copyStatus.textContent = done;
-      window.clearTimeout(timer);
-      timer = window.setTimeout(() => {
-        btn.textContent = idle;
-        btn.setAttribute("aria-label", `${idle} ${btn.dataset.label ?? ""}`.trim());
-        if (copyStatus) copyStatus.textContent = "";
-      }, 2000);
-    });
-  });
+  import { bindCopyButtons } from "../lib/copy";
+  bindCopyButtons();
 </script>

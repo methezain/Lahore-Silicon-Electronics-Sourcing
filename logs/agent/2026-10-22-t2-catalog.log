@@ -1,0 +1,14 @@
+N1   390      FAIL  header moved between pages
+N1   1440     PASS  
+N1   390-rm   PASS  
+N1   1440-rm  PASS  
+A1   390      FAIL  /: 1 broken of 10 images
+A1   1440     PASS  
+C1   390      PASS  
+C1   1440     PASS  
+C2   390      PASS  
+C2   1440     PASS  
+C3   390      PASS  
+C3   1440     PASS  
+C3   390-rm   PASS  
+C3   1440-rm  PASS  

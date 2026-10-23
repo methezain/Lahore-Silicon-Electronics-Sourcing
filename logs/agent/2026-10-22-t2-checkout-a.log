@@ -1,0 +1,11 @@
+K3   390      FAIL  error did not fade in (1 steps) | error did not rise | pay Rs 2,545 vs summary 
+K3   1440     FAIL  error did not fade in (1 steps) | error did not rise | layout jumped when errors appeared
+K3   390-rm   FAIL  pay Rs 2,545 vs summary 
+K3   1440-rm  FAIL  layout jumped when errors appeared
+K4   390      PASS  
+K4   1440     PASS  
+K4   1440-rm  PASS  
+S1   390      FAIL  Parts section missing:  | matched characters are not highlighted | threw: locator.innerText: Timeout 30000ms exceeded.
+S1   1440     FAIL  Parts section missing:  | matched characters are not highlighted | threw: locator.innerText: Timeout 30000ms exceeded.
+S1   390-rm   FAIL  Parts section missing:  | matched characters are not highlighted | threw: locator.innerText: Timeout 30000ms exceeded.
+S1   1440-rm  FAIL  Parts section missing:  | matched characters are not highlighted | threw: locator.innerText: Page crashed

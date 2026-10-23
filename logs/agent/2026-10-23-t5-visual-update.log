@@ -1,0 +1,40 @@
+
+> lahore-silicon@0.0.1 test:visual
+> playwright test --grep @visual --update-snapshots --workers=2 --reporter=line
+
+
+Running 8 tests using 2 workers
+
+[1/8] [390] › tests\e2e\visual.spec.ts:51:3 › @visual › home
+[2/8] [390] › tests\e2e\visual.spec.ts:58:3 › @visual › product
+[390] › tests\e2e\visual.spec.ts:58:3 › @visual › product
+D:\My Coding Projects\Electronics Selling\tests\e2e\visual.spec.ts-snapshots\product-390-win32.png is re-generated, writing actual.
+
+[3/8] [390] › tests\e2e\visual.spec.ts:65:3 › @visual › cart open
+[390] › tests\e2e\visual.spec.ts:51:3 › @visual › home
+D:\My Coding Projects\Electronics Selling\tests\e2e\visual.spec.ts-snapshots\home-390-win32.png is re-generated, writing actual.
+
+[4/8] [390] › tests\e2e\visual.spec.ts:77:3 › @visual › checkout
+[390] › tests\e2e\visual.spec.ts:77:3 › @visual › checkout
+D:\My Coding Projects\Electronics Selling\tests\e2e\visual.spec.ts-snapshots\checkout-390-win32.png is re-generated, writing actual.
+
+[5/8] [1440] › tests\e2e\visual.spec.ts:51:3 › @visual › home
+[390] › tests\e2e\visual.spec.ts:65:3 › @visual › cart open
+D:\My Coding Projects\Electronics Selling\tests\e2e\visual.spec.ts-snapshots\cart-390-win32.png is re-generated, writing actual.
+
+[6/8] [1440] › tests\e2e\visual.spec.ts:58:3 › @visual › product
+[1440] › tests\e2e\visual.spec.ts:51:3 › @visual › home
+D:\My Coding Projects\Electronics Selling\tests\e2e\visual.spec.ts-snapshots\home-1440-win32.png is re-generated, writing actual.
+
+[7/8] [1440] › tests\e2e\visual.spec.ts:65:3 › @visual › cart open
+[1440] › tests\e2e\visual.spec.ts:58:3 › @visual › product
+D:\My Coding Projects\Electronics Selling\tests\e2e\visual.spec.ts-snapshots\product-1440-win32.png is re-generated, writing actual.
+
+[8/8] [1440] › tests\e2e\visual.spec.ts:77:3 › @visual › checkout
+[1440] › tests\e2e\visual.spec.ts:65:3 › @visual › cart open
+D:\My Coding Projects\Electronics Selling\tests\e2e\visual.spec.ts-snapshots\cart-1440-win32.png is re-generated, writing actual.
+
+[1440] › tests\e2e\visual.spec.ts:77:3 › @visual › checkout
+D:\My Coding Projects\Electronics Selling\tests\e2e\visual.spec.ts-snapshots\checkout-1440-win32.png is re-generated, writing actual.
+
+  8 passed (35.1s)

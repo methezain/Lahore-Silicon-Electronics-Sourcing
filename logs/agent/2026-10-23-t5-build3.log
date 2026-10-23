@@ -1,0 +1,43 @@
+[33m[1m10:17:24[22m [WARN] [config][39m Shiki syntax highlighting uses inline styles that are not compatible with Content Security Policy (CSP). Consider using Prism syntax highlighting instead, or disable CSP if Shiki is required.
+[2m10:17:24[22m [34m[@astrojs/cloudflare][39m Enabling image processing with Cloudflare Images for production with the "IMAGES" Images binding.
+[2m10:17:24[22m [34m[@astrojs/cloudflare][39m Enabling sessions with Cloudflare KV with the "SESSION" KV binding.
+[2m10:17:25[22m [34m[content][39m Syncing content
+[2m10:17:25[22m [34m[content][39m Synced content
+[2m10:17:25[22m [34m[types][39m Generated [2m940ms[22m
+[2m10:17:25[22m [34m[build][39m output: [34m"server"[39m
+[2m10:17:25[22m [34m[build][39m mode: [34m"server"[39m
+[2m10:17:25[22m [34m[build][39m directory: [34mD:\My Coding Projects\Electronics Selling\dist\[39m
+[2m10:17:25[22m [34m[build][39m adapter: [32m@astrojs/cloudflare[39m
+[2m10:17:25[22m [34m[build][39m Collecting build info...
+[2m10:17:25[22m [34m[build][39m [32m✓ Completed in 1.06s.[39m
+[2m10:17:25[22m [34m[build][39m Building server entrypoints...
+[2m10:17:27[22m [34m[assets][39m Copying fonts (2 files)...
+Using secrets defined in .env
+[2m10:17:27[22m [34m[vite][39m [32m✓ built in 2.51s[39m
+Using secrets defined in .env
+[2m10:17:30[22m [34m[vite][39m [32m✓ built in 3.13s[39m
+[2m10:17:33[22m [34m[vite][39m [32m✓ built in 2.18s[39m
+[2mDefault inspector port 9229 not available, using 9230 instead
+[22m
+Using secrets defined in dist\server\.prerender\.dev.vars
+
+[42m[30m prerendering static routes [39m[49m
+✨ Parsed 1 valid header rule.
+[2m10:17:34[22m   [34m├─[39m [2m/product/ams1117-3.3/index.html[22m [2m(+73ms)[22m 
+[2m10:17:34[22m   [34m├─[39m [2m/product/arduino-nano/index.html[22m [2m(+41ms)[22m 
+[2m10:17:34[22m   [34m├─[39m [2m/product/ds18b20/index.html[22m [2m(+28ms)[22m 
+[2m10:17:34[22m   [34m├─[39m [2m/product/esp32-wroom-32d/index.html[22m [2m(+36ms)[22m 
+[2m10:17:34[22m   [34m├─[39m [2m/product/hc-sr04/index.html[22m [2m(+27ms)[22m 
+[2m10:17:34[22m   [34m├─[39m [2m/product/lm2596s/index.html[22m [2m(+33ms)[22m 
+[2m10:17:34[22m   [34m├─[39m [2m/product/lm7805/index.html[22m [2m(+32ms)[22m 
+[2m10:17:34[22m   [34m├─[39m [2m/product/ne555/index.html[22m [2m(+36ms)[22m 
+[2m10:17:34[22m   [34m├─[39m [2m/product/srd-05vdc-sl-c/index.html[22m [2m(+39ms)[22m 
+[2m10:17:34[22m   [34m├─[39m [2m/product/tcrt5000/index.html[22m [2m(+32ms)[22m 
+[2m10:17:34[22m [32m✓ Completed in 1.69s.
+[39m
+[2m10:17:34[22m [34m[build][39m Rearranging server assets...
+[2m10:17:35[22m [34m[build][39m [32m✓ Completed in 9.88s.[39m
+[2m10:17:35[22m [34m[@astrojs/cloudflare][39m Injected immutable Cache-Control for /_astro/* into _headers.
+[2m10:17:35[22m [34m[@astrojs/sitemap][39m `sitemap-index.xml` created at `dist\client`
+[2m10:17:35[22m [34m[build][39m Server built in [1m10.99s[22m
+[2m10:17:35[22m [34m[build][39m [1mComplete![22m

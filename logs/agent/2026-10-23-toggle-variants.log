@@ -1,0 +1,20 @@
+base 
+  grid n=23 max=133 over20=11 worst=83,100,133
+  list n=25 max=267 over20=9 worst=83,100,267
+  grid n=39 max=117 over20=9 worst=67,67,117
+  list n=35 max=233 over20=11 worst=33,50,233
+nonames 
+  grid n=41 max=217 over20=3 worst=50,133,217
+  list n=42 max=233 over20=3 worst=50,67,233
+  grid n=31 max=283 over20=4 worst=67,117,283
+  list n=43 max=183 over20=4 worst=50,67,183
+prewarm 
+  grid n=45 max=150 over20=7 worst=33,50,150
+  list n=43 max=117 over20=7 worst=50,50,117
+  grid n=36 max=183 over20=11 worst=50,50,183
+  list n=48 max=133 over20=5 worst=33,33,133
+nonames+prewarm 
+  grid n=55 max=100 over20=2 worst=17,33,100
+  list n=52 max=83 over20=3 worst=33,50,83
+  grid n=50 max=117 over20=3 worst=33,50,117
+  list n=47 max=200 over20=2 worst=17,33,200

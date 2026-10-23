@@ -459,37 +459,6 @@
   cursor: pointer;
 }
 
-.copy-ico {
-  position: relative;
-  flex: none;
-  width: var(--space-16);
-  height: var(--space-16);
-}
-
-.copy-glyph,
-.copy-check {
-  position: absolute;
-  inset: 0;
-  display: block;
-  width: var(--space-16);
-  height: var(--space-16);
-  transition: opacity var(--dur-2) var(--ease-out), clip-path var(--dur-2) var(--ease-out);
-}
-
-.copy-check {
-  opacity: 0;
-  clip-path: inset(0 100% 0 0);
-}
-
-.copy-btn[data-state="copied"] .copy-glyph {
-  opacity: 0;
-}
-
-.copy-btn[data-state="copied"] .copy-check {
-  opacity: 1;
-  clip-path: inset(0 0 0 0);
-}
-
 .copy-btn:hover,
 .method:hover {
   background: var(--color-sunken);
@@ -600,13 +569,13 @@
   font-variation-settings: "wdth" var(--wdth-heading);
 }
 
-.lines {
+.sum-lines {
   display: flex;
   flex-direction: column;
   gap: var(--space-12);
 }
 
-.line {
+.sum-line {
   display: flex;
   align-items: center;
   gap: var(--space-12);

@@ -80,27 +80,35 @@ export function bindCatalogView(): void {
     paintPressed(view);
   }
 
+  let running: ViewTransition | null = null;
+
   async function select(view: CatalogView) {
-    if (view === active()) return;
-    const apply = () => commit(view);
+    const from = active();
+    if (view === from) return;
+    running?.skipTransition();
     const start = document.startViewTransition?.bind(document);
     if (!start) {
-      apply();
+      commit(view);
       return;
     }
     const html = document.documentElement;
+    const calm = reduce.matches || prefersReducedMotion();
+    const photos = namePhotos(from, view, calm);
     html.classList.add("catalog-morph");
-    if (reduce.matches || prefersReducedMotion()) html.classList.add("catalog-morph-reduce");
+    if (calm) html.classList.add("catalog-morph-reduce");
     let applied = false;
     try {
-      const transition = start(() => {
+      running = start(() => {
         applied = true;
-        apply();
+        commit(view);
+        photos.pairNew();
       });
-      await transition.finished;
+      await running.finished;
     } catch {
-      if (!applied) apply();
+      if (!applied) commit(view);
     } finally {
+      running = null;
+      photos.clear();
       html.classList.remove("catalog-morph", "catalog-morph-reduce");
     }
   }
@@ -108,7 +116,7 @@ export function bindCatalogView(): void {
   for (const button of buttons) {
     button.addEventListener("click", () => {
       const view = button.dataset.view === "grid" ? "grid" : "list";
-      void select(view);
+      select(view);
     });
   }
 
@@ -125,6 +133,74 @@ export function bindCatalogView(): void {
   }
   root.dataset.ready = "true";
   bindTilt(fine, reduce);
+  whenIdle(warmHiddenLayout);
+}
+
+function layoutPhotos(view: CatalogView): Map<string, HTMLElement> {
+  const selector =
+    view === "list"
+      ? '[data-layout="list"] tr[data-part]:not([hidden]) .thumb'
+      : '[data-layout="grid"] li[data-part]:not([hidden]) .well';
+  const photos = new Map<string, HTMLElement>();
+  for (const el of document.querySelectorAll<HTMLElement>(`#catalog-results ${selector}`)) {
+    const part = el.closest<HTMLElement>("[data-part]")?.dataset.part;
+    if (part) photos.set(part, el);
+  }
+  return photos;
+}
+
+function onScreen(el: HTMLElement) {
+  const rect = el.getBoundingClientRect();
+  return rect.bottom > 0 && rect.top < window.innerHeight;
+}
+
+function claim(el: HTMLElement, index: number) {
+  el.style.setProperty("view-transition-name", `catalog-photo-${index}`);
+  el.style.setProperty("view-transition-class", "catalog-photo");
+}
+
+function namePhotos(from: CatalogView, to: CatalogView, calm: boolean) {
+  const named = new Set<HTMLElement>();
+  const source = calm ? new Map<string, HTMLElement>() : layoutPhotos(from);
+  const order = new Map([...source.keys()].map((part, index) => [part, index]));
+  const seen = new Set<string>();
+  for (const [part, el] of source) {
+    if (!onScreen(el)) continue;
+    claim(el, order.get(part)!);
+    named.add(el);
+    seen.add(part);
+  }
+  return {
+    pairNew() {
+      if (calm) return;
+      for (const [part, el] of layoutPhotos(to)) {
+        const index = order.get(part);
+        if (index === undefined || !(seen.has(part) || onScreen(el))) continue;
+        claim(el, index);
+        named.add(el);
+      }
+    },
+    clear() {
+      for (const el of named) {
+        el.style.removeProperty("view-transition-name");
+        el.style.removeProperty("view-transition-class");
+      }
+      named.clear();
+    },
+  };
+}
+
+function whenIdle(task: () => void) {
+  if ("requestIdleCallback" in window) window.requestIdleCallback(task, { timeout: 2000 });
+  else setTimeout(task, 300);
+}
+
+function warmHiddenLayout() {
+  const images = document.querySelectorAll<HTMLImageElement>("#catalog-results img");
+  for (const image of images) {
+    if (image.loading === "lazy") image.loading = "eager";
+    void image.decode().catch(() => {});
+  }
 }
 
 function bindTilt(fine: MediaQueryList, reduce: MediaQueryList) {

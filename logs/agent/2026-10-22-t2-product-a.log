@@ -1,0 +1,8 @@
+P1   390      FAIL  viewer photo did not grow from the gallery position | Escape did not close the viewer | focus did not return to the photo (viewer-close)
+P1   1440     FAIL  viewer photo did not grow from the gallery position | Escape did not close the viewer | focus did not return to the photo (viewer-close)
+P1   390-rm   PASS  
+P1   1440-rm  PASS  
+P2   390      PASS  
+P2   1440     PASS  
+P2   390-rm   PASS  
+P2   1440-rm  PASS  

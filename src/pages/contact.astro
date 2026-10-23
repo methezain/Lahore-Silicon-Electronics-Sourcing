@@ -36,7 +36,7 @@ const description = phone
           <>
             <h2 class="heading">Phone</h2>
             <p><a href={`tel:+${phone.waDigits}`}>{phone.display}</a></p>
-            <p><a href={wa} target="_blank" rel="noopener noreferrer">WhatsApp {phone.display}</a></p>
+            <p><a href={wa} target="_blank" rel="noopener noreferrer">WhatsApp <span class="nowrap">{phone.display}</span></a></p>
           </>
         )}
       </aside>

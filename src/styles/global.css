@@ -1,6 +1,7 @@
 @import "tailwindcss";
 @import "./tokens.css";
 @import "./press.css";
+@import "./craft.css";
 
 /* Header bar height is specified in design-system.md section 9 (60px, then 64px). */
 :root {
@@ -206,6 +207,7 @@ main :focus {
   position: sticky;
   top: var(--inset);
   z-index: 40;
+  height: var(--header-bar);
   margin: var(--inset) var(--inset) 0;
   view-transition-name: site-header;
 }
@@ -222,14 +224,14 @@ main :focus {
 }
 /* motion.md #9. Resting height stays 60px, then 64px from 900px. */
 .site-header.is-condensed {
-  --header-bar: 52px;
+  --bar-height: 52px;
 }
 .site-bar {
   position: relative;
   display: flex;
   align-items: center;
   gap: var(--space-8);
-  height: var(--header-bar);
+  height: var(--bar-height, var(--header-bar));
   padding: 0 var(--space-8) 0 var(--space-16);
   border-radius: var(--radius-pill);
   background: color-mix(in oklch, var(--color-surface) 78%, transparent);

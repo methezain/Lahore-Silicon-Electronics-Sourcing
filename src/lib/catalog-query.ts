@@ -13,6 +13,7 @@ export type CatalogQuery = {
   category: string | null;
   sort: CatalogSort;
   q: string;
+  page: number;
 };
 
 export type CatalogMatch = {
@@ -29,6 +30,47 @@ export type CatalogRank = {
 };
 
 const QUERY_MAX = 80;
+
+export const CATALOG_PAGE_SIZE = 12;
+
+export function pageCount(total: number): number {
+  return Math.max(1, Math.ceil(total / CATALOG_PAGE_SIZE));
+}
+
+export function clampPage(page: number, total: number): number {
+  const whole = Number.isFinite(page) ? Math.trunc(page) : 1;
+  return Math.min(Math.max(1, whole), pageCount(total));
+}
+
+export function pageSlice<T>(items: readonly T[], page: number): T[] {
+  const start = (clampPage(page, items.length) - 1) * CATALOG_PAGE_SIZE;
+  return items.slice(start, start + CATALOG_PAGE_SIZE);
+}
+
+export type PagerItem =
+  | { kind: "prev" | "next"; page: number }
+  | { kind: "page"; page: number; current: boolean }
+  | { kind: "gap" };
+
+export function pagerItems(page: number, pages: number): PagerItem[] {
+  if (pages <= 1) return [];
+  const numbers = new Set([1, pages, page - 1, page, page + 1]);
+  const items: PagerItem[] = [];
+  if (page > 1) items.push({ kind: "prev", page: page - 1 });
+  let last = 0;
+  for (const number of [...numbers].filter((n) => n >= 1 && n <= pages).sort((a, b) => a - b)) {
+    if (number - last > 1) items.push({ kind: "gap" });
+    items.push({ kind: "page", page: number, current: number === page });
+    last = number;
+  }
+  if (page < pages) items.push({ kind: "next", page: page + 1 });
+  return items;
+}
+
+function parseCatalogPage(value: string | null): number {
+  const page = Number.parseInt(value ?? "", 10);
+  return Number.isFinite(page) && page > 1 ? page : 1;
+}
 
 export function parseCatalogSort(value: string | null): CatalogSort {
   switch (value) {
@@ -48,6 +90,7 @@ export function parseCatalogQuery(params: URLSearchParams): CatalogQuery {
     category: category.length > 0 ? category : null,
     sort: parseCatalogSort(params.get("sort")),
     q: (params.get("q") ?? "").trim().slice(0, QUERY_MAX),
+    page: parseCatalogPage(params.get("page")),
   };
 }
 
@@ -57,6 +100,7 @@ export function catalogHref(query: CatalogQuery, hash = true): string {
   if (query.category) params.set("category", query.category);
   if (query.sort !== "catalog") params.set("sort", query.sort);
   if (query.q) params.set("q", query.q);
+  if (query.page > 1) params.set("page", String(query.page));
   const search = params.toString();
   if (!search) return "/";
   return hash ? `/?${search}#catalog` : `/?${search}`;
@@ -127,7 +171,7 @@ export function nextColumnSort(sort: CatalogSort, key: "price" | "stock"): Catal
 }
 
 export function sameQuery(a: CatalogQuery, b: CatalogQuery): boolean {
-  return a.category === b.category && a.sort === b.sort && a.q === b.q;
+  return a.category === b.category && a.sort === b.sort && a.q === b.q && a.page === b.page;
 }
 
 /** Category with no rows, then a text miss, then an empty counter. */

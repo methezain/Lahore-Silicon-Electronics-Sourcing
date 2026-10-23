@@ -242,7 +242,10 @@ const description = methods.length > 0
           </summary>
           <div class="summary-panel" id="order-panel">
             <h2 class="summary-title">Order</h2>
-            <div id="summary-items" class="lines"></div>
+            <div id="summary-items" class="sum-lines" aria-busy="true">
+              <span class="skeleton skeleton-row" aria-hidden="true"></span>
+              <span class="skeleton skeleton-row" aria-hidden="true"></span>
+            </div>
             <div class="totals" id="summary-totals" hidden>
               <div class="sum-row">
                 <span>Merchandise</span>
@@ -260,7 +263,7 @@ const description = methods.length > 0
             <p class="sum-return"><a href="/shipping-and-payments#returns">{returnRule}</a></p>
             {wa && phone && (
               <p class="sum-help">
-                <a href={wa} target="_blank" rel="noopener noreferrer">WhatsApp {phone.display}</a>
+                <a href={wa} target="_blank" rel="noopener noreferrer">WhatsApp <span class="nowrap">{phone.display}</span></a>
               </p>
             )}
           </div>
@@ -292,7 +295,7 @@ const description = methods.length > 0
   import { checkoutKeyStorage, isOrderKey, turnstileAction } from "../lib/order-key";
   import { phoneMessage } from "../lib/phone";
   import { prefersReducedMotion } from "../lib/motion";
-  import { copiedAction, copyAction } from "../lib/shop";
+  import { bindCopyButtons } from "../lib/copy";
 
   type CheckoutPart = CatalogPrice & {
     image?: string;
@@ -322,7 +325,6 @@ const description = methods.length > 0
   const form = document.getElementById("checkout-form") as HTMLFormElement | null;
   const errorMsg = document.getElementById("error-msg");
   const cartProblem = document.getElementById("cart-problem");
-  const copyStatus = document.getElementById("copy-status");
   const turnstileBox = document.getElementById("checkout-turnstile");
   const turnstileError = document.getElementById("turnstile-error");
   const turnstileSitekey = turnstileBox?.dataset.sitekey ?? "";
@@ -453,7 +455,6 @@ const description = methods.length > 0
   }
 
   /** docs/motion.md #21. The label returns after 1.6s. */
-  const copyRevertMs = 1600;
 
   function tokenMs(name: string, fallback: number): number {
     const raw = getComputedStyle(document.documentElement).getPropertyValue(name).trim();
@@ -616,6 +617,7 @@ const description = methods.length > 0
     const stored = Object.values(cartStore.get());
     if (!itemsContainer) return;
     itemsContainer.replaceChildren();
+    itemsContainer.removeAttribute("aria-busy");
 
     if (stored.length === 0) {
       showCheckout(false);
@@ -648,7 +650,7 @@ const description = methods.length > 0
     for (const line of priced.lines) {
       const part = catalog.find((entry) => entry.part_number === line.part_number);
       const row = document.createElement("div");
-      row.className = "line";
+      row.className = "sum-line";
 
       const photo = document.createElement("div");
       photo.className = "line-photo";
@@ -748,30 +750,7 @@ const description = methods.length > 0
     });
   });
 
-  document.querySelectorAll(".copy-btn").forEach((btn) => {
-    if (!(btn instanceof HTMLButtonElement)) return;
-    let timer = 0;
-    btn.addEventListener("click", async () => {
-      const text = btn.dataset.copy ?? "";
-      try {
-        await navigator.clipboard.writeText(text);
-      } catch {
-        return;
-      }
-      const label = btn.querySelector(".copy-text");
-      if (label) label.textContent = copiedAction;
-      btn.dataset.state = "copied";
-      btn.setAttribute("aria-label", copiedAction);
-      if (copyStatus) copyStatus.textContent = copiedAction;
-      window.clearTimeout(timer);
-      timer = window.setTimeout(() => {
-        if (label) label.textContent = copyAction;
-        delete btn.dataset.state;
-        btn.setAttribute("aria-label", `${copyAction} ${btn.dataset.label ?? ""}`.trim());
-        if (copyStatus) copyStatus.textContent = "";
-      }, copyRevertMs);
-    });
-  });
+  bindCopyButtons();
 
   const summaryDetails = document.querySelector(".summary-details");
   const desktop = window.matchMedia("(min-width: 900px)");

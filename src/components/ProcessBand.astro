@@ -25,7 +25,7 @@ const steps = [
 
 <section class="band home-reveal" id="ordering" aria-labelledby="ordering-title">
   <div class="band-inner">
-    <p class="eyebrow">How ordering works</p>
+    <p class="eyebrow is-long">How ordering works</p>
     <h2 id="ordering-title" class="band-title">Three steps, and you pay the total shown.</h2>
     <div class="steps-wrap">
       <svg class="connector connector-h" viewBox="0 0 100 2" preserveAspectRatio="none" aria-hidden="true">
@@ -71,6 +71,15 @@ const steps = [
     letter-spacing: var(--text-label--letter-spacing);
     text-transform: uppercase;
     color: var(--color-on-navy-muted);
+  }
+
+  .eyebrow.is-long {
+    font-family: var(--font-sans);
+    font-size: var(--text-caption);
+    font-weight: var(--font-weight-strong);
+    line-height: var(--text-caption--line-height);
+    letter-spacing: 0;
+    text-transform: none;
   }
 
   .band-title {

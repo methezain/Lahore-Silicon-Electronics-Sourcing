@@ -4,6 +4,7 @@
  */
 import {
   catalogHref,
+  clampPage,
   columnSortLabel,
   columnSortState,
   compareCatalog,
@@ -11,6 +12,9 @@ import {
   emptyCatalogCopy,
   matchesQuery,
   nextColumnSort,
+  pageCount,
+  pageSlice,
+  pagerItems,
   parseCatalogQuery,
   parseCatalogSort,
   sameQuery,
@@ -21,6 +25,7 @@ import {
 } from "./catalog-query";
 
 const ENTER_MS = 700;
+const TYPING_MS = 160;
 
 type ViewTransitionLike = { finished: Promise<void> };
 
@@ -53,6 +58,9 @@ function reorder(container: Element | null, selector: string, order: readonly st
     const id = el.dataset.part ?? "";
     if (!map.has(id)) map.set(id, el);
   }
+  const current = [...container.querySelectorAll<HTMLElement>(selector)].map((el) => el.dataset.part ?? "");
+  const wanted = order.filter((id) => map.has(id));
+  if (current.length === wanted.length && current.every((id, index) => id === wanted[index])) return;
   for (const id of order) {
     const el = map.get(id);
     if (el) container.appendChild(el);
@@ -134,6 +142,41 @@ function startTransition(root: HTMLElement, update: () => void) {
   transition.finished.then(clear, clear);
 }
 
+function renderPager(nav: HTMLElement, query: CatalogQuery, total: number) {
+  const items = pagerItems(query.page, pageCount(total));
+  nav.hidden = items.length === 0;
+  const nodes = items.map((item) => {
+    if (item.kind === "gap") {
+      const gap = document.createElement("span");
+      gap.className = "pager-gap";
+      gap.setAttribute("aria-hidden", "true");
+      gap.textContent = "…";
+      return gap;
+    }
+    const link = document.createElement("a");
+    link.className = item.kind === "page" ? "pager-link" : "pager-link pager-step";
+    link.href = catalogHref({ ...query, page: item.page });
+    link.dataset.page = String(item.page);
+    if (item.kind === "page") {
+      link.textContent = String(item.page);
+      link.setAttribute("aria-label", `Page ${item.page}`);
+      if (item.current) link.setAttribute("aria-current", "page");
+    } else {
+      link.textContent = item.kind === "prev" ? "Previous" : "Next";
+      link.rel = item.kind;
+    }
+    return link;
+  });
+  nav.replaceChildren(...nodes);
+}
+
+function scrollToToolbar(root: HTMLElement) {
+  const toolbar = root.querySelector<HTMLElement>(".toolbar");
+  if (!toolbar) return;
+  if (toolbar.getBoundingClientRect().top >= 0) return;
+  toolbar.scrollIntoView({ block: "start", behavior: "instant" });
+}
+
 function endEntrance(root: HTMLElement) {
   const html = document.documentElement;
   html.classList.add("catalog-entered");
@@ -160,13 +203,18 @@ export function mountCatalog(root: HTMLElement) {
     const inCategory = query.category
       ? items.filter((el) => el.dataset.category === query.category).length
       : items.length;
-    const visible = new Set(
-      ranked.filter((el) => matchesQuery(read(el), query)).map((el) => el.dataset.part ?? ""),
-    );
-    for (const el of root.querySelectorAll<HTMLElement>("[data-part]")) {
-      el.hidden = !visible.has(el.dataset.part ?? "");
+    const matches = ranked.filter((el) => matchesQuery(read(el), query));
+    const matched = matches.length;
+    const page = clampPage(query.page, matched);
+    if (page !== query.page) {
+      query = { ...query, page };
+      state = query;
     }
-    const matched = visible.size;
+    const visible = new Set(pageSlice(matches, page).map((el) => el.dataset.part ?? ""));
+    for (const el of root.querySelectorAll<HTMLElement>("[data-part]")) {
+      const hide = !visible.has(el.dataset.part ?? "");
+      if (el.hidden !== hide) el.hidden = hide;
+    }
 
     reorder(root.querySelector('[data-layout="list"] tbody'), "tr[data-part]", order);
     reorder(root.querySelector('[data-layout="list"] .cat-cards'), ".cat-card[data-part]", order);
@@ -184,7 +232,7 @@ export function mountCatalog(root: HTMLElement) {
       const show = empty.querySelector<HTMLAnchorElement>("[data-catalog-show]");
       if (show) {
         show.hidden = !query.category && !query.q;
-        show.href = catalogHref({ category: null, sort: query.sort, q: "" });
+        show.href = catalogHref({ category: null, sort: query.sort, q: "", page: 1 });
       }
     }
 
@@ -193,9 +241,12 @@ export function mountCatalog(root: HTMLElement) {
     const rest = root.querySelector<HTMLElement>("#catalog-rest");
     if (rest) rest.textContent = ` ${counterNoun(matched)} on the counter`;
 
+    const pager = root.querySelector<HTMLElement>("#catalog-pager");
+    if (pager) renderPager(pager, query, matched);
+
     for (const link of root.querySelectorAll<HTMLAnchorElement>(".pills a")) {
       const category = link.dataset.category ? link.dataset.category : null;
-      link.href = catalogHref({ ...query, category });
+      link.href = catalogHref({ ...query, category, page: 1 });
       if (category === query.category) link.setAttribute("aria-current", "page");
       else link.removeAttribute("aria-current");
     }
@@ -204,7 +255,7 @@ export function mountCatalog(root: HTMLElement) {
     if (sortValue) sortValue.textContent = sortLabel(query.sort);
     for (const link of root.querySelectorAll<HTMLAnchorElement>(".sort-menu a")) {
       const sort = parseCatalogSort(link.dataset.sort ?? null);
-      link.href = catalogHref({ ...query, sort });
+      link.href = catalogHref({ ...query, sort, page: 1 });
       if (sort === query.sort) link.setAttribute("aria-current", "page");
       else link.removeAttribute("aria-current");
     }
@@ -218,7 +269,7 @@ export function mountCatalog(root: HTMLElement) {
       if (!link) continue;
       link.classList.toggle("is-sorted", columnState !== "none");
       link.setAttribute("aria-label", columnSortLabel(column, columnState));
-      link.href = catalogHref({ ...query, sort: nextColumnSort(query.sort, key) });
+      link.href = catalogHref({ ...query, sort: nextColumnSort(query.sort, key), page: 1 });
     }
 
     const categoryInput = form?.querySelector<HTMLInputElement>('input[name="category"]');
@@ -238,11 +289,15 @@ export function mountCatalog(root: HTMLElement) {
     if (currentUrl !== nextUrl) history.replaceState(null, "", nextUrl);
   }
 
-  function apply(next: CatalogQuery) {
+  function apply(next: CatalogQuery, typing = false) {
     const query = { ...next, q: next.q.trim().slice(0, 80) };
     if (sameQuery(state, query)) return;
     state = query;
     endEntrance(root);
+    if (typing && root.classList.contains("is-filtering")) {
+      render(query);
+      return;
+    }
     startTransition(root, () => render(query));
   }
 
@@ -252,40 +307,49 @@ export function mountCatalog(root: HTMLElement) {
     const link = event.target.closest("a");
     if (!link || !root.contains(link)) return;
 
+    if (link.closest(".pager")) {
+      event.preventDefault();
+      apply({ ...state, page: Number(link.dataset.page) || 1 });
+      scrollToToolbar(root);
+      return;
+    }
     if (link.closest(".pills")) {
       event.preventDefault();
       const category = link.dataset.category ? link.dataset.category : null;
-      apply({ ...state, category });
+      apply({ ...state, category, page: 1 });
       return;
     }
     if (link.closest(".sort-menu")) {
       event.preventDefault();
       const sort = parseCatalogSort(link.dataset.sort ?? null);
-      apply({ ...state, sort });
+      apply({ ...state, sort, page: 1 });
       if (details) details.open = false;
       return;
     }
     if (link.hasAttribute("data-catalog-show")) {
       event.preventDefault();
       if (input) input.value = "";
-      apply({ ...state, category: null, q: "" });
+      apply({ ...state, category: null, q: "", page: 1 });
       return;
     }
     if (link.closest("th[data-sort-col]")) {
       event.preventDefault();
       const th = link.closest("th");
       const key = th?.dataset.sortCol === "stock" ? "stock" : "price";
-      apply({ ...state, sort: nextColumnSort(state.sort, key) });
+      apply({ ...state, sort: nextColumnSort(state.sort, key), page: 1 });
     }
   });
 
+  let typingTimer = 0;
   input?.addEventListener("input", () => {
-    apply({ ...state, q: input.value });
+    window.clearTimeout(typingTimer);
+    typingTimer = window.setTimeout(() => apply({ ...state, q: input.value, page: 1 }, true), TYPING_MS);
   });
 
   form?.addEventListener("submit", (event) => {
     event.preventDefault();
-    apply({ ...state, q: input?.value ?? "" });
+    window.clearTimeout(typingTimer);
+    apply({ ...state, q: input?.value ?? "", page: 1 });
   });
 
   details?.addEventListener("keydown", (event) => {

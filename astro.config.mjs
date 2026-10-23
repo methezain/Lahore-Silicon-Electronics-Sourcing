@@ -5,6 +5,17 @@ import tailwindcss from '@tailwindcss/vite';
 import preact from '@astrojs/preact';
 import sitemap from '@astrojs/sitemap';
 import cloudflare from '@astrojs/cloudflare';
+import { fileURLToPath } from 'node:url';
+
+/** @type {() => import('astro').AstroIntegration} */
+const intent = () => ({
+  name: 'client-intent',
+  hooks: {
+    'astro:config:setup': ({ addClientDirective }) => {
+      addClientDirective({ name: 'intent', entrypoint: fileURLToPath(new URL('./src/directives/intent.js', import.meta.url)) });
+    },
+  },
+});
 
 /** Glyphs actually present in the vendored Mona Sans file. U+00B5 and U+03A9 are absent. */
 /** @type {[string, ...string[]]} */
@@ -108,6 +119,7 @@ export default defineConfig({
 
   integrations: [
     preact(),
+    intent(),
     sitemap({
       filter: (page) => !page.includes("/dev/") && !page.includes("/404") && !page.includes("/500") && !page.includes("/api/"),
     }),

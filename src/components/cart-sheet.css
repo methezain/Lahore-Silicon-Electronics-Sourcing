@@ -487,7 +487,7 @@ html.is-connect-photo .cart-scrim {
   background: var(--color-out);
 }
 
-.roll {
+.cart-roll {
   display: inline-grid;
   overflow: hidden;
   height: 1lh;
@@ -495,25 +495,25 @@ html.is-connect-photo .cart-scrim {
   vertical-align: bottom;
 }
 
-.roll-out,
-.roll-in {
+.cart-roll-out,
+.cart-roll-in {
   grid-area: 1 / 1;
 }
 
-.roll-in {
-  animation: roll-in var(--dur-fast) var(--ease-out);
+.cart-roll-in {
+  animation: cart-roll-in var(--dur-fast) var(--ease-out);
 }
 
-.roll-out {
-  animation: roll-out var(--dur-fast) var(--ease-exit) forwards;
+.cart-roll-out {
+  animation: cart-roll-out var(--dur-fast) var(--ease-exit) forwards;
 }
 
-@keyframes roll-in {
+@keyframes cart-roll-in {
   from { transform: translateY(100%); }
   to { transform: translateY(0); }
 }
 
-@keyframes roll-out {
+@keyframes cart-roll-out {
   from { transform: translateY(0); }
   to { transform: translateY(-100%); }
 }
@@ -593,7 +593,7 @@ html.is-connect-photo .cart-scrim {
   text-decoration: none;
 }
 
-.cart-checkout .roll {
+.cart-checkout .cart-roll {
   font-variant-numeric: tabular-nums;
   font-weight: var(--font-weight-num);
   font-variation-settings: "wdth" var(--wdth-num);
@@ -670,8 +670,8 @@ html.is-connect-photo .cart-scrim {
   .cart-line.is-slide,
   .cart-line-clip.is-grow,
   .cart-line-clip.is-collapse,
-  .roll-in,
-  .roll-out {
+  .cart-roll-in,
+  .cart-roll-out {
     animation: none;
     transform: none;
     opacity: 1;

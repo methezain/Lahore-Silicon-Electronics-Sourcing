@@ -25,7 +25,7 @@ const counterLinks = [
   { label: 'Shipping and payment', href: '/shipping-and-payments', current: path === '/shipping-and-payments' },
   { label: 'About', href: '/about', current: path === '/about' },
   { label: 'Contact', href: '/contact', current: path === '/contact' },
-  ...(wa && phone ? [{ label: `WhatsApp ${phone.display}`, href: wa, current: false }] : []),
+  ...(wa && phone ? [{ label: 'WhatsApp', number: phone.display, href: wa, current: false }] : []),
 ];
 ---
 
@@ -47,7 +47,7 @@ const counterLinks = [
       <h2 class="label">Counter</h2>
       <ul>
         {counterLinks.map((link) => (
-          <li><a href={link.href} aria-current={link.current ? 'page' : undefined}>{link.label}</a></li>
+          <li><a href={link.href} aria-current={link.current ? 'page' : undefined}>{link.label}{'number' in link && <>{' '}<span class="nowrap">{link.number}</span></>}</a></li>
         ))}
       </ul>
     </div>

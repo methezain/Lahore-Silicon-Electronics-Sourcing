@@ -1,0 +1,9 @@
+`--ignore-lock` cannot be used together with an auto-detected AI agent environment, which runs the dev server in the background automatically.
+
+Background dev servers rely on the lock file so `astro dev stop`, `astro dev status`, and `astro dev logs` can find them.
+Run the dev server in the foreground to use --ignore-lock.
+  [1mLocation:[22m
+    [4mD:\My Coding Projects\Electronics Selling\node_modules\astro\dist\cli\dev\index.js:112:13[24m
+  [1mStack trace:[22m
+[2m    at dev (file:///D:/My%20Coding%20Projects/Electronics%20Selling/node_modules/astro/dist/cli/dev/index.js:112:13)
+    at async cli (file:///D:/My%20Coding%20Projects/Electronics%20Selling/node_modules/astro/dist/cli/index.js:220:5)[22m

@@ -61,7 +61,7 @@ const MOTION_EVENT = "lahore-motion";
 
 type MotionApi = {
   animate: typeof import("motion/mini").animate;
-  spring: typeof import("motion").spring;
+  spring: typeof import("./motion-spring").spring;
 };
 
 let loading: Promise<MotionApi> | null = null;
@@ -115,7 +115,7 @@ export function stopMotion(element: Element): void {
 
 function loadMotion(): Promise<MotionApi> {
   if (!loading) {
-    loading = Promise.all([import("motion/mini"), import("motion")]).then(([mini, full]) => ({
+    loading = Promise.all([import("motion/mini"), import("./motion-spring")]).then(([mini, full]) => ({
       animate: mini.animate,
       spring: full.spring,
     }));

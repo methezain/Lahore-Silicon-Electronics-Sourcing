@@ -32,3 +32,9 @@ interface Window {
     getResponse(widgetId?: string): string | undefined;
   };
 }
+
+declare namespace astroHTML.JSX {
+  interface IntrinsicAttributes {
+    'client:intent'?: string;
+  }
+}

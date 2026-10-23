@@ -7,6 +7,8 @@
   },
   "scripts": {
     "dev": "astro dev",
+    "og": "node scripts/og-images.mjs --force",
+    "prebuild": "node scripts/og-images.mjs",
     "build": "astro build && pagefind --site dist",
     "preview": "astro preview",
     "astro": "astro",

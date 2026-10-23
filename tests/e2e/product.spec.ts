@@ -80,6 +80,7 @@ test("longest part numbers stay inside the viewport", async ({ page }, testInfo)
 
 test("search lm 7805, add, correct quantity, and match the cart price", async ({ page }) => {
   await page.goto("/");
+  await page.locator('#search-open').hover();
   await page.locator("#search-open[data-ready='true']").waitFor();
   await page.keyboard.press("/");
   const search = page.getByRole("dialog", { name: "Search parts" });

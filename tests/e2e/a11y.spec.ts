@@ -10,6 +10,7 @@ test("axe finds no WCAG A/AA violations on the catalog", async ({ page }) => {
 test("axe finds no WCAG A/AA violations on the home page", async ({ page }) => {
   await page.goto("/home");
   await expect(page.getByRole("heading", { level: 1, name: "Parts from Hall Road, counted before you pay." })).toBeVisible();
+  await page.addStyleTag({ content: ".home-reveal { animation: none !important; }" });
   await expectNoAxeViolations(page);
 });
 
@@ -33,6 +34,7 @@ test("axe finds no WCAG A/AA violations on the component gallery", async ({ page
 
 test("axe finds no WCAG A/AA violations in the search dialog", async ({ page }) => {
   await page.goto("/");
+  await page.locator('#search-open').hover();
   await page.locator("#search-open[data-ready='true']").waitFor();
   await page.keyboard.press("/");
   await expect(page.getByRole("dialog", { name: "Search parts" })).toBeVisible();

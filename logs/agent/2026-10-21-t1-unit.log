@@ -1,0 +1,17 @@
+
+> lahore-silicon@0.0.1 test
+> vitest run
+
+
+ RUN  v5.0.5 D:/My Coding Projects/Electronics Selling
+
+
+ Test Files  30 passed (30)
+      Tests  243 passed (243)
+   Start at  23:09:11
+   Duration  9.61s (tests 47%, import 42%, transform 9%, worker 2%)
+
+    Isolate  30 workers spawned · ~771ms startup each (spawn + environment, per file)
+             at least ~2.53s faster with isolate: false — reuses workers across files instead of one per file
+
+exit 0

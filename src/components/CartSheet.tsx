@@ -113,9 +113,9 @@ function RollingText({ value }: { value: string }) {
   useEffect(() => () => window.clearTimeout(timer.current), []);
 
   return (
-    <span class="roll">
-      {outgoing !== null && <span class="roll-out" aria-hidden="true">{outgoing}</span>}
-      <span class={outgoing !== null ? "roll-in" : undefined}>{shown}</span>
+    <span class="cart-roll">
+      {outgoing !== null && <span class="cart-roll-out" aria-hidden="true">{outgoing}</span>}
+      <span class={outgoing !== null ? "cart-roll-in" : undefined}>{shown}</span>
     </span>
   );
 }

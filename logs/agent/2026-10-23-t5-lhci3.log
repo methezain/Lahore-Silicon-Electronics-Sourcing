@@ -1,0 +1,64 @@
+
+> lahore-silicon@0.0.1 lhci
+> node scripts/lhci.mjs
+
+✅  .lighthouseci/ directory writable
+✅  Configuration file found
+✅  Chrome installation found
+Healthcheck passed!
+
+Started a web server with "npm run build && node scripts/preview-gzip.mjs"...
+Running Lighthouse 5 time(s) on http://127.0.0.1:4322/
+Run #1...done.
+Run #2...done.
+Run #3...done.
+Run #4...done.
+Run #5...done.
+Running Lighthouse 5 time(s) on http://127.0.0.1:4322/product/lm7805
+Run #1...done.
+Run #2...done.
+Run #3...done.
+Run #4...done.
+Run #5...done.
+Done running Lighthouse!
+
+Checking assertions against 2 URL(s), 10 total run(s)
+
+1 result(s) for [1mhttp://127.0.0.1:4322/[0m :
+
+  [31m×[0m  [1mlargest-contentful-paint[0m failure for [1mmaxNumericValue[0m assertion
+       Largest Contentful Paint
+       https://developer.chrome.com/docs/lighthouse/performance/lighthouse-largest-contentful-paint/
+
+        expected: <=[32m2000[0m
+           found: [31m3767.1058999999987[0m
+      [2mall values: 4234.2816, 3534.6581000000006, 3967.2571000000007, 3730.1883987632286, 3767.1058999999987[0m
+
+1 result(s) for [1mhttp://127.0.0.1:4322/product/lm7805/[0m :
+
+  [31m×[0m  [1mlargest-contentful-paint[0m failure for [1mmaxNumericValue[0m assertion
+       Largest Contentful Paint
+       https://developer.chrome.com/docs/lighthouse/performance/lighthouse-largest-contentful-paint/
+
+        expected: <=[32m2000[0m
+           found: [31m3992.2072499999995[0m
+      [2mall values: 3818.73954, 3523.7898000000014, 4333.115999999999, 4041.8406000000004, 3992.2072499999995[0m
+
+Assertion failed. Exiting with status code 1.
+
+Dumping 10 reports to disk at D:\My Coding Projects\Electronics Selling\.lighthouseci...
+Done writing reports to disk.
+
+assert command failed. Exiting with status code 1.
+http://127.0.0.1:4322/ run 1: 19450 bytes (2 images)
+http://127.0.0.1:4322/ run 2: 19450 bytes (2 images)
+http://127.0.0.1:4322/ run 3: 19450 bytes (2 images)
+http://127.0.0.1:4322/ run 4: 19450 bytes (2 images)
+http://127.0.0.1:4322/ run 5: 19450 bytes (2 images)
+http://127.0.0.1:4322/product/lm7805/ run 1: 11947 bytes (2 images)
+http://127.0.0.1:4322/product/lm7805/ run 2: 11947 bytes (2 images)
+http://127.0.0.1:4322/product/lm7805/ run 3: 11947 bytes (2 images)
+http://127.0.0.1:4322/product/lm7805/ run 4: 11947 bytes (2 images)
+http://127.0.0.1:4322/product/lm7805/ run 5: 11947 bytes (2 images)
+pass http://127.0.0.1:4322/ median 19450 bytes (budget 122880)
+pass http://127.0.0.1:4322/product/lm7805/ median 11947 bytes (budget 122880)

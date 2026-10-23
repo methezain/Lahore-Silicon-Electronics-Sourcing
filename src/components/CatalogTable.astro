@@ -104,7 +104,7 @@ if (rows.length > 0 && Astro.csp) Astro.csp.insertScriptHash(await cspSha256(ent
             <tr>
               <th scope="col"><span class="sr-only">Photograph</span></th>
               <th scope="col">Part</th>
-              <th scope="col">What it is</th>
+              <th scope="col" class="th-long">What it is</th>
               <th scope="col">Key spec</th>
               <th class="num" scope="col" data-sort-col="stock" aria-sort={sort?.stock ?? "none"}>
                 {sort ? (
@@ -243,7 +243,7 @@ if (rows.length > 0 && Astro.csp) Astro.csp.insertScriptHash(await cspSha256(ent
                   <td class="add">
                     {!row.sample && typeof row.stockQty === "number" && (
                       <AddPart
-                        client:visible
+                        client:idle
                         partNumber={row.partNumber}
                         name={row.name}
                         minQty={row.minQty ?? 1}
@@ -331,6 +331,15 @@ if (rows.length > 0 && Astro.csp) Astro.csp.insertScriptHash(await cspSha256(ent
     letter-spacing: var(--text-label--letter-spacing);
     text-align: left;
     text-transform: uppercase;
+  }
+
+  .cat-table th.th-long {
+    font-family: var(--font-sans);
+    font-size: var(--text-caption);
+    font-weight: var(--font-weight-strong);
+    line-height: var(--text-caption--line-height);
+    letter-spacing: 0;
+    text-transform: none;
   }
 
   .cat-table th.num,
@@ -629,7 +638,7 @@ if (rows.length > 0 && Astro.csp) Astro.csp.insertScriptHash(await cspSha256(ent
 
   .row-preview-motion {
     width: max-content;
-    max-width: calc(var(--space-128) * 2 + var(--space-80));
+    max-width: calc(var(--space-128) * 3);
     padding: var(--space-16);
     border-radius: var(--radius-card);
     background: var(--color-surface);
@@ -638,7 +647,7 @@ if (rows.length > 0 && Astro.csp) Astro.csp.insertScriptHash(await cspSha256(ent
 
   .row-preview-motion :global(.preview-layout) {
     display: grid;
-    grid-template-columns: var(--space-128) minmax(var(--space-96), calc(var(--space-128) + var(--space-32)));
+    grid-template-columns: var(--space-128) minmax(var(--space-128), 1fr);
     gap: var(--space-16);
     align-items: start;
   }
@@ -676,6 +685,10 @@ if (rows.length > 0 && Astro.csp) Astro.csp.insertScriptHash(await cspSha256(ent
     line-height: var(--text-small--line-height);
   }
 
+  .row-preview-motion :global(.preview-copy) {
+    min-width: 0;
+  }
+
   .row-preview-motion :global(.preview-name) {
     margin: var(--space-4) 0 0;
     color: var(--color-ink-muted);
@@ -685,8 +698,8 @@ if (rows.length > 0 && Astro.csp) Astro.csp.insertScriptHash(await cspSha256(ent
 
   .row-preview-motion :global(.preview-figures) {
     display: grid;
-    grid-template-columns: minmax(0, 1fr) auto;
-    gap: var(--space-4) var(--space-8);
+    grid-template-columns: minmax(0, 1fr);
+    gap: var(--space-2) 0;
     margin: var(--space-12) 0 0;
   }
 
@@ -710,8 +723,11 @@ if (rows.length > 0 && Astro.csp) Astro.csp.insertScriptHash(await cspSha256(ent
     font-variation-settings: "wdth" var(--wdth-num);
     letter-spacing: var(--tracking-num);
     line-height: var(--text-small--line-height);
-    text-align: right;
-    white-space: nowrap;
+    overflow-wrap: anywhere;
+  }
+
+  .row-preview-motion :global(.preview-figures) :global(dd:not(:last-child)) {
+    margin-bottom: var(--space-8);
   }
 
   .row-preview-motion :global(.preview-unit) {

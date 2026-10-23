@@ -3,6 +3,7 @@ import CartShare from "./CartShare";
 import PartsPreview from "./PartsPreview";
 import { cartParamToText, parseCartParam } from "../lib/cart-link";
 import { addLabel, addableMatches, resolvePartsList, resolveRequests, type PartsSource } from "../lib/parts-list";
+import { connectHaptic } from "../lib/connect";
 import { addLinesToCart, replaceCart } from "../store/cartStore";
 
 export type QuickPart = PartsSource & {
@@ -51,6 +52,7 @@ export default function QuickOrder({ parts, initialList = "", initialCart = "" }
       quantity: match.quantity,
       ...(match.image ? { image: match.image } : {}),
     })));
+    connectHaptic();
   }
 
   function onSubmit(event: Event) {

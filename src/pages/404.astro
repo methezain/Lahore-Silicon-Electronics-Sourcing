@@ -7,6 +7,7 @@ import "./info.css";
 import { getCollection } from "astro:content";
 import Layout from "../layouts/Layout.astro";
 import Button from "../components/Button.astro";
+import PackageMark from "../components/illustrations/PackageMark.tsx";
 import { CATEGORIES } from "../lib/categories";
 import { exactPart, notStocked, sourcingOffer } from "../lib/catalog-search";
 import { categoryCounts } from "../lib/home";
@@ -43,7 +44,8 @@ const title = heading.length > 80 ? pageTitle("Not found") : pageTitle(heading);
 ---
 
 <Layout title={title} description={heading} robots="noindex, nofollow">
-  <article class="info-page">
+  <article class="info-page state">
+    <PackageMark kind="module" empty />
     <p class="eyebrow">Catalog</p>
     <h1 class="title miss">{heading}</h1>
     <div class="actions">

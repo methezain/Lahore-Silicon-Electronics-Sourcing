@@ -1,0 +1,656 @@
+
+Running 110 tests using 3 workers
+
+[1/110] [390] › tests\e2e\a11y.spec.ts:17:1 › axe finds no WCAG A/AA violations on the longest part page
+[2/110] [390] › tests\e2e\a11y.spec.ts:10:1 › axe finds no WCAG A/AA violations on the home page
+[3/110] [390] › tests\e2e\a11y.spec.ts:4:1 › axe finds no WCAG A/AA violations on the catalog
+[4/110] [390] › tests\e2e\a11y.spec.ts:23:1 › axe finds no WCAG A/AA violations on an unknown order
+[5/110] [390] › tests\e2e\a11y.spec.ts:29:1 › axe finds no WCAG A/AA violations on the component gallery
+[6/110] [390] › tests\e2e\a11y.spec.ts:35:1 › axe finds no WCAG A/AA violations in the search dialog
+[7/110] [390] › tests\e2e\a11y.spec.ts:44:1 › axe finds no WCAG A/AA violations in the cart sheet
+[8/110] [390] › tests\e2e\cart-sheet.spec.ts:3:1 › cart sheet traps tab, closes on escape, and returns focus
+  1) [390] › tests\e2e\a11y.spec.ts:44:1 › axe finds no WCAG A/AA violations in the cart sheet ─────
+
+    Error: expect(locator).toBeVisible() failed
+
+    Locator: getByRole('dialog', { name: 'Cart' })
+    Expected: visible
+    Timeout: 5000ms
+    Error: element(s) not found
+
+    Call log:
+      - Expect "toBeVisible" getByRole('dialog', { name: 'Cart' }) with timeout 5000ms
+      - waiting for getByRole('dialog', { name: 'Cart' })
+
+
+      56 |   await page.locator("#cart-button[data-ready='true']").waitFor();
+      57 |   await page.getByRole("button", { name: /Cart \d+ parts?/ }).click();
+    > 58 |   await expect(page.getByRole("dialog", { name: "Cart" })).toBeVisible();
+         |                                                            ^
+      59 |   await expectNoAxeViolations(page);
+      60 | });
+      61 |
+        at D:\My Coding Projects\Electronics Selling\tests\e2e\a11y.spec.ts:58:60
+
+    Error Context: test-results\a11y-axe-finds-no-WCAG-A-AA-violations-in-the-cart-sheet-390\error-context.md
+
+
+[9/110] [390] › tests\e2e\cart-sheet.spec.ts:57:1 › cart sheet flags a part the shop no longer sells
+  2) [390] › tests\e2e\cart-sheet.spec.ts:3:1 › cart sheet traps tab, closes on escape, and returns focus 
+
+    Error: expect(locator).toBeVisible() failed
+
+    Locator: getByRole('dialog', { name: 'Cart' })
+    Expected: visible
+    Timeout: 5000ms
+    Error: element(s) not found
+
+    Call log:
+      - Expect "toBeVisible" getByRole('dialog', { name: 'Cart' }) with timeout 5000ms
+      - waiting for getByRole('dialog', { name: 'Cart' })
+
+
+      17 |   await cart.click();
+      18 |   const dialog = page.getByRole('dialog', { name: 'Cart' });
+    > 19 |   await expect(dialog).toBeVisible();
+         |                        ^
+      20 |   await expect(dialog.getByText('Added LM7805 to cart')).toHaveCount(0);
+      21 |   const close = dialog.getByRole('button', { name: 'Close cart' });
+      22 |   await expect(close).toBeFocused();
+        at D:\My Coding Projects\Electronics Selling\tests\e2e\cart-sheet.spec.ts:19:24
+
+    Error Context: test-results\cart-sheet-cart-sheet-trap-94f45-on-escape-and-returns-focus-390\error-context.md
+
+
+[10/110] [390] › tests\e2e\cart-sheet.spec.ts:73:1 › dev gallery renders the new components
+  3) [390] › tests\e2e\cart-sheet.spec.ts:57:1 › cart sheet flags a part the shop no longer sells ──
+
+    Error: expect(locator).toBeVisible() failed
+
+    Locator: getByRole('dialog', { name: 'Cart' }).getByText('The shop no longer sells LM317.')
+    Expected: visible
+    Timeout: 5000ms
+    Error: element(s) not found
+
+    Call log:
+      - Expect "toBeVisible" getByRole('dialog', { name: 'Cart' }).getByText('The shop no longer sells LM317.') with timeout 5000ms
+      - waiting for getByRole('dialog', { name: 'Cart' }).getByText('The shop no longer sells LM317.')
+
+
+      66 |   await page.getByRole('button', { name: /Cart \d+ parts?/ }).click();
+      67 |   const dialog = page.getByRole('dialog', { name: 'Cart' });
+    > 68 |   await expect(dialog.getByText('The shop no longer sells LM317.')).toBeVisible();
+         |                                                                     ^
+      69 |   await expect(dialog.getByRole('link', { name: /Check out/ })).toHaveCount(0);
+      70 |   await expect(dialog.getByText('Rs 0')).toBeVisible();
+      71 | });
+        at D:\My Coding Projects\Electronics Selling\tests\e2e\cart-sheet.spec.ts:68:69
+
+    Error Context: test-results\cart-sheet-cart-sheet-flags-a-part-the-shop-no-longer-sells-390\error-context.md
+
+
+[11/110] [390] › tests\e2e\checkout.spec.ts:48:1 › add to cart, clear field errors, and save the order
+[12/110] [390] › tests\e2e\checkout.spec.ts:167:1 › an empty cart shows an empty state instead of the form
+  4) [390] › tests\e2e\cart-sheet.spec.ts:73:1 › dev gallery renders the new components ────────────
+
+    Error: expect(locator).toBeVisible() failed
+
+    Locator: getByRole('dialog', { name: 'Cart' }).getByText('Added LM7805 to cart')
+    Expected: visible
+    Timeout: 5000ms
+    Error: element(s) not found
+
+    Call log:
+      - Expect "toBeVisible" getByRole('dialog', { name: 'Cart' }).getByText('Added LM7805 to cart') with timeout 5000ms
+      - waiting for getByRole('dialog', { name: 'Cart' }).getByText('Added LM7805 to cart')
+
+
+       96 |   await page.getByRole('button', { name: 'Open the cart sheet' }).click();
+       97 |   const dialog = page.getByRole('dialog', { name: 'Cart' });
+    >  98 |   await expect(dialog.getByText('Added LM7805 to cart')).toBeVisible();
+          |                                                          ^
+       99 |   await expect(dialog.getByRole('link', { name: 'Check out · Rs 2,545' })).toBeVisible();
+      100 |   await page.keyboard.press('Escape');
+      101 |   await expect(page.getByRole('button', { name: /Cart \d+ parts?/ })).toBeFocused();
+        at D:\My Coding Projects\Electronics Selling\tests\e2e\cart-sheet.spec.ts:98:58
+
+    Error Context: test-results\cart-sheet-dev-gallery-renders-the-new-components-390\error-context.md
+
+
+[13/110] [390] › tests\e2e\checkout.spec.ts:186:1 › axe finds no WCAG A/AA violations on checkout
+  5) [390] › tests\e2e\checkout.spec.ts:48:1 › add to cart, clear field errors, and save the order ─
+
+    Error: expect(locator).toBeVisible() failed
+
+    Locator: getByRole('dialog', { name: 'Cart' })
+    Expected: visible
+    Timeout: 5000ms
+    Error: element(s) not found
+
+    Call log:
+      - Expect "toBeVisible" getByRole('dialog', { name: 'Cart' }) with timeout 5000ms
+      - waiting for getByRole('dialog', { name: 'Cart' })
+
+
+      59 |
+      60 |   const cart = page.getByRole('dialog', { name: 'Cart' });
+    > 61 |   await expect(cart).toBeVisible();
+         |                      ^
+      62 |   await expect(cart.getByText('Added ESP32-WROOM-32D to cart')).toBeVisible();
+      63 |   await cart.getByRole('link', { name: /Check out/ }).click();
+      64 |
+        at D:\My Coding Projects\Electronics Selling\tests\e2e\checkout.spec.ts:61:22
+
+    Error Context: test-results\checkout-add-to-cart-clear-field-errors-and-save-the-order-390\error-context.md
+
+
+[14/110] [390] › tests\e2e\checkout.spec.ts:205:3 › reduced motion › the place order button does not animate a transform
+[15/110] [390] › tests\e2e\home.spec.ts:3:1 › catalog is the front door
+[16/110] [390] › tests\e2e\home.spec.ts:25:1 › header and footer shell
+[17/110] [390] › tests\e2e\home.spec.ts:52:1 › header search and cart keyboard path
+[18/110] [390] › tests\e2e\home.spec.ts:76:1 › category and sort queries still filter the catalog
+[19/110] [390] › tests\e2e\home.spec.ts:104:1 › home page is the brand landing
+[20/110] [390] › tests\e2e\home.spec.ts:167:1 › a catalog row opens the product and Add stays on the catalog
+[21/110] [390] › tests\e2e\home.spec.ts:232:1 › hero copy stays put when motion is reduced
+[22/110] [390] › tests\e2e\navigation.spec.ts:3:1 › speculation rules prerender product links and skip checkout
+  6) [390] › tests\e2e\navigation.spec.ts:3:1 › speculation rules prerender product links and skip checkout 
+
+    Error: expect(locator).toHaveAttribute(expected) failed
+
+    Locator: locator('.cart-checkout')
+    Expected: "false"
+    Timeout: 5000ms
+    Error: element(s) not found
+
+    Call log:
+      - Expect "toHaveAttribute" locator('.cart-checkout') with timeout 5000ms
+      - waiting for locator('.cart-checkout')
+
+
+      15 |   await page.goto("/product/lm7805");
+      16 |   await page.locator(".qty-row .buy-add").click();
+    > 17 |   await expect(page.locator(".cart-checkout")).toHaveAttribute("data-astro-prefetch", "false");
+         |                                                ^
+      18 | });
+      19 |
+      20 | test("header condenses past 80px and restores at the top", async ({ page }) => {
+        at D:\My Coding Projects\Electronics Selling\tests\e2e\navigation.spec.ts:17:48
+
+    Error Context: test-results\navigation-speculation-rul-53afd-uct-links-and-skip-checkout-390\error-context.md
+
+
+[23/110] [390] › tests\e2e\navigation.spec.ts:42:1 › reduced motion drops morph names and condenses without a transition
+[24/110] [390] › tests\e2e\navigation.spec.ts:20:1 › header condenses past 80px and restores at the top
+[25/110] [390] › tests\e2e\navigation.spec.ts:60:1 › keyboard focus stays below the header after it condenses
+[26/110] [390] › tests\e2e\product-image.spec.ts:3:1 › product photo is sized, eager, and does not shift
+[27/110] [390] › tests\e2e\product-image.spec.ts:48:1 › catalog thumbnail and product photo share a view-transition name
+[28/110] [390] › tests\e2e\product-image.spec.ts:74:1 › cart line uses the optimized thumb
+[29/110] [390] › tests\e2e\product-image.spec.ts:90:1 › product photo stays visible with reduced motion
+[30/110] [390] › tests\e2e\product.spec.ts:4:1 › product page buy panel, specs, and no horizontal overflow
+[31/110] [390] › tests\e2e\product.spec.ts:61:1 › longest part numbers stay inside the viewport
+[32/110] [390] › tests\e2e\product.spec.ts:81:1 › search lm 7805, add, correct quantity, and match the cart price
+  7) [390] › tests\e2e\product-image.spec.ts:74:1 › cart line uses the optimized thumb ─────────────
+
+    Error: expect(locator).toBeVisible() failed
+
+    Locator: locator('.cart-line-fold .cart-photo img')
+    Expected: visible
+    Timeout: 5000ms
+    Error: element(s) not found
+
+    Call log:
+      - Expect "toBeVisible" locator('.cart-line-fold .cart-photo img') with timeout 5000ms
+      - waiting for locator('.cart-line-fold .cart-photo img')
+
+
+      76 |   await page.locator('.qty-row .buy-add').click();
+      77 |   const cartImg = page.locator('.cart-line-fold .cart-photo img');
+    > 78 |   await expect(cartImg).toBeVisible();
+         |                         ^
+      79 |   await expect(cartImg).toHaveAttribute('width', '64');
+      80 |   await expect(cartImg).toHaveAttribute('height', '64');
+      81 |   await expect(cartImg).toHaveAttribute('loading', 'lazy');
+        at D:\My Coding Projects\Electronics Selling\tests\e2e\product-image.spec.ts:78:25
+
+    Error Context: test-results\product-image-cart-line-uses-the-optimized-thumb-390\error-context.md
+
+
+[33/110] [390] › tests\e2e\product.spec.ts:185:1 › reduced motion keeps the add control still
+[34/110] [390] › tests\e2e\product.spec.ts:115:1 › mobile sticky add bar and desktop keyboard focus
+[35/110] [390] › tests\e2e\product.spec.ts:203:1 › axe finds no WCAG A/AA violations on the product page
+[36/110] [390] › tests\e2e\product.spec.ts:209:1 › layout at the 900px switch
+[37/110] [390] › tests\e2e\quick-order.spec.ts:5:1 › quick order previews matches, misses, stock limits, and adds them
+  8) [390] › tests\e2e\product.spec.ts:115:1 › mobile sticky add bar and desktop keyboard focus ────
+
+    Error: expect(locator).toBeVisible() failed
+
+    Locator: getByRole('dialog', { name: 'Cart' })
+    Expected: visible
+    Timeout: 5000ms
+    Error: element(s) not found
+
+    Call log:
+      - Expect "toBeVisible" getByRole('dialog', { name: 'Cart' }) with timeout 5000ms
+      - waiting for getByRole('dialog', { name: 'Cart' })
+
+
+      140 |     await page.locator(".buy-bar .buy-add").click();
+      141 |     const cart = page.getByRole("dialog", { name: "Cart" });
+    > 142 |     await expect(cart).toBeVisible();
+          |                        ^
+      143 |     await expect(cart.getByText("Added LM7805 to cart")).toBeVisible();
+      144 |     await expect(cart.getByRole("button", { name: "Close cart" })).toBeFocused();
+      145 |     await page.keyboard.press("Escape");
+        at D:\My Coding Projects\Electronics Selling\tests\e2e\product.spec.ts:142:24
+
+    Error Context: test-results\product-mobile-sticky-add-bar-and-desktop-keyboard-focus-390\error-context.md
+
+
+[38/110] [390] › tests\e2e\quick-order.spec.ts:35:1 › a cart link rebuilds the cart
+[39/110] [390] › tests\e2e\quick-order.spec.ts:47:1 › command palette opens with ctrl+k and highlights a match
+  9) [390] › tests\e2e\quick-order.spec.ts:5:1 › quick order previews matches, misses, stock limits, and adds them 
+
+    Error: expect(locator).toBeVisible() failed
+
+    Locator: getByRole('dialog', { name: 'Cart' })
+    Expected: visible
+    Timeout: 5000ms
+    Error: element(s) not found
+
+    Call log:
+      - Expect "toBeVisible" getByRole('dialog', { name: 'Cart' }) with timeout 5000ms
+      - waiting for getByRole('dialog', { name: 'Cart' })
+
+
+      21 |   await page.getByRole("button", { name: "Add 4 parts to cart" }).click();
+      22 |   const cart = page.getByRole("dialog", { name: "Cart" });
+    > 23 |   await expect(cart).toBeVisible();
+         |                      ^
+      24 |   await expect(cart.getByText("Added 4 parts to cart")).toBeVisible();
+      25 |   await expect(cart.getByText("LM7805")).toBeVisible();
+      26 |   await expect(cart.getByText("AMS1117-3.3")).toBeVisible();
+        at D:\My Coding Projects\Electronics Selling\tests\e2e\quick-order.spec.ts:23:22
+
+    Error Context: test-results\quick-order-quick-order-pr-8f21e--stock-limits-and-adds-them-390\error-context.md
+
+
+[40/110] [390] › tests\e2e\quick-order.spec.ts:65:1 › selection highlight slides, and jumps when reduced motion is on
+  10) [390] › tests\e2e\product.spec.ts:81:1 › search lm 7805, add, correct quantity, and match the cart price 
+
+    Error: expect(locator).toBeVisible() failed
+
+    Locator: getByRole('dialog', { name: 'Cart' })
+    Expected: visible
+    Timeout: 5000ms
+    Error: element(s) not found
+
+    Call log:
+      - Expect "toBeVisible" getByRole('dialog', { name: 'Cart' }) with timeout 5000ms
+      - waiting for getByRole('dialog', { name: 'Cart' })
+
+
+      104 |
+      105 |   const cart = page.getByRole("dialog", { name: "Cart" });
+    > 106 |   await expect(cart).toBeVisible();
+          |                      ^
+      107 |   await expect(cart.getByText("Added LM7805 to cart")).toBeVisible();
+      108 |   await expect(cart.getByText("Rs 45").first()).toBeVisible();
+      109 |
+        at D:\My Coding Projects\Electronics Selling\tests\e2e\product.spec.ts:106:22
+
+    Error Context: test-results\product-search-lm-7805-add-0fc5c-ty-and-match-the-cart-price-390\error-context.md
+
+
+[41/110] [390] › tests\e2e\quick-order.spec.ts:103:1 › palette and quick order screenshots
+[42/110] [390] › tests\e2e\search-dialog.spec.ts:3:1 › search dialog finds a part, misses cleanly, and traps focus
+[43/110] [390] › tests\e2e\search-dialog.spec.ts:100:1 › slash does not open search from a field or while the cart is open
+[44/110] [390] › tests\e2e\search-dialog.spec.ts:118:1 › a dock control opens search and returns focus
+[45/110] [390] › tests\e2e\search-dialog.spec.ts:142:1 › search dialog stays put with reduced motion
+[46/110] [390] › tests\e2e\secondary.spec.ts:18:1 › shipping and payment renders the policy modules
+[47/110] [390] › tests\e2e\secondary.spec.ts:51:1 › about states only what the catalog and the modules can prove
+[48/110] [390] › tests\e2e\secondary.spec.ts:84:1 › contact keeps the typed value and names the broken rule
+[49/110] [390] › tests\e2e\secondary.spec.ts:124:1 › missing pages and unknown parts
+[50/110] [390] › tests\e2e\secondary.spec.ts:173:1 › axe finds no WCAG A/AA violations on the secondary pages
+[51/110] [390] › tests\e2e\secondary.spec.ts:181:1 › layout at the 900px switch
+[52/110] [390] › tests\e2e\secondary.spec.ts:196:3 › reduced motion › shipping controls do not animate a transform
+[53/110] [390] › tests\e2e\secondary.spec.ts:212:1 › the header is solid when transparency is reduced
+[54/110] [390] › tests\e2e\vitals.spec.ts:3:1 › a field vital is accepted and an order id is not required
+[55/110] [390] › tests\e2e\vitals.spec.ts:30:1 › the layout loads the web vitals reporter
+[56/110] [1440] › tests\e2e\a11y.spec.ts:4:1 › axe finds no WCAG A/AA violations on the catalog
+[57/110] [1440] › tests\e2e\a11y.spec.ts:10:1 › axe finds no WCAG A/AA violations on the home page
+[58/110] [1440] › tests\e2e\a11y.spec.ts:17:1 › axe finds no WCAG A/AA violations on the longest part page
+[59/110] [1440] › tests\e2e\a11y.spec.ts:29:1 › axe finds no WCAG A/AA violations on the component gallery
+[60/110] [1440] › tests\e2e\a11y.spec.ts:23:1 › axe finds no WCAG A/AA violations on an unknown order
+[61/110] [1440] › tests\e2e\a11y.spec.ts:35:1 › axe finds no WCAG A/AA violations in the search dialog
+[62/110] [1440] › tests\e2e\a11y.spec.ts:44:1 › axe finds no WCAG A/AA violations in the cart sheet
+[63/110] [1440] › tests\e2e\cart-sheet.spec.ts:3:1 › cart sheet traps tab, closes on escape, and returns focus
+  11) [1440] › tests\e2e\a11y.spec.ts:44:1 › axe finds no WCAG A/AA violations in the cart sheet ───
+
+    Error: expect(locator).toBeVisible() failed
+
+    Locator: getByRole('dialog', { name: 'Cart' })
+    Expected: visible
+    Timeout: 5000ms
+    Error: element(s) not found
+
+    Call log:
+      - Expect "toBeVisible" getByRole('dialog', { name: 'Cart' }) with timeout 5000ms
+      - waiting for getByRole('dialog', { name: 'Cart' })
+
+
+      56 |   await page.locator("#cart-button[data-ready='true']").waitFor();
+      57 |   await page.getByRole("button", { name: /Cart \d+ parts?/ }).click();
+    > 58 |   await expect(page.getByRole("dialog", { name: "Cart" })).toBeVisible();
+         |                                                            ^
+      59 |   await expectNoAxeViolations(page);
+      60 | });
+      61 |
+        at D:\My Coding Projects\Electronics Selling\tests\e2e\a11y.spec.ts:58:60
+
+    Error Context: test-results\a11y-axe-finds-no-WCAG-A-AA-violations-in-the-cart-sheet-1440\error-context.md
+
+
+[64/110] [1440] › tests\e2e\cart-sheet.spec.ts:57:1 › cart sheet flags a part the shop no longer sells
+  12) [1440] › tests\e2e\cart-sheet.spec.ts:3:1 › cart sheet traps tab, closes on escape, and returns focus 
+
+    Error: expect(locator).toBeVisible() failed
+
+    Locator: getByRole('dialog', { name: 'Cart' })
+    Expected: visible
+    Timeout: 5000ms
+    Error: element(s) not found
+
+    Call log:
+      - Expect "toBeVisible" getByRole('dialog', { name: 'Cart' }) with timeout 5000ms
+      - waiting for getByRole('dialog', { name: 'Cart' })
+
+
+      17 |   await cart.click();
+      18 |   const dialog = page.getByRole('dialog', { name: 'Cart' });
+    > 19 |   await expect(dialog).toBeVisible();
+         |                        ^
+      20 |   await expect(dialog.getByText('Added LM7805 to cart')).toHaveCount(0);
+      21 |   const close = dialog.getByRole('button', { name: 'Close cart' });
+      22 |   await expect(close).toBeFocused();
+        at D:\My Coding Projects\Electronics Selling\tests\e2e\cart-sheet.spec.ts:19:24
+
+    Error Context: test-results\cart-sheet-cart-sheet-trap-94f45-on-escape-and-returns-focus-1440\error-context.md
+
+
+[65/110] [1440] › tests\e2e\cart-sheet.spec.ts:73:1 › dev gallery renders the new components
+[66/110] [1440] › tests\e2e\checkout.spec.ts:48:1 › add to cart, clear field errors, and save the order
+  13) [1440] › tests\e2e\cart-sheet.spec.ts:57:1 › cart sheet flags a part the shop no longer sells 
+
+    Error: expect(locator).toBeVisible() failed
+
+    Locator: getByRole('dialog', { name: 'Cart' }).getByText('The shop no longer sells LM317.')
+    Expected: visible
+    Timeout: 5000ms
+    Error: element(s) not found
+
+    Call log:
+      - Expect "toBeVisible" getByRole('dialog', { name: 'Cart' }).getByText('The shop no longer sells LM317.') with timeout 5000ms
+      - waiting for getByRole('dialog', { name: 'Cart' }).getByText('The shop no longer sells LM317.')
+
+
+      66 |   await page.getByRole('button', { name: /Cart \d+ parts?/ }).click();
+      67 |   const dialog = page.getByRole('dialog', { name: 'Cart' });
+    > 68 |   await expect(dialog.getByText('The shop no longer sells LM317.')).toBeVisible();
+         |                                                                     ^
+      69 |   await expect(dialog.getByRole('link', { name: /Check out/ })).toHaveCount(0);
+      70 |   await expect(dialog.getByText('Rs 0')).toBeVisible();
+      71 | });
+        at D:\My Coding Projects\Electronics Selling\tests\e2e\cart-sheet.spec.ts:68:69
+
+    Error Context: test-results\cart-sheet-cart-sheet-flags-a-part-the-shop-no-longer-sells-1440\error-context.md
+
+
+[67/110] [1440] › tests\e2e\checkout.spec.ts:167:1 › an empty cart shows an empty state instead of the form
+  14) [1440] › tests\e2e\cart-sheet.spec.ts:73:1 › dev gallery renders the new components ──────────
+
+    Error: expect(locator).toBeVisible() failed
+
+    Locator: getByRole('dialog', { name: 'Cart' }).getByText('Added LM7805 to cart')
+    Expected: visible
+    Timeout: 5000ms
+    Error: element(s) not found
+
+    Call log:
+      - Expect "toBeVisible" getByRole('dialog', { name: 'Cart' }).getByText('Added LM7805 to cart') with timeout 5000ms
+      - waiting for getByRole('dialog', { name: 'Cart' }).getByText('Added LM7805 to cart')
+
+
+       96 |   await page.getByRole('button', { name: 'Open the cart sheet' }).click();
+       97 |   const dialog = page.getByRole('dialog', { name: 'Cart' });
+    >  98 |   await expect(dialog.getByText('Added LM7805 to cart')).toBeVisible();
+          |                                                          ^
+       99 |   await expect(dialog.getByRole('link', { name: 'Check out · Rs 2,545' })).toBeVisible();
+      100 |   await page.keyboard.press('Escape');
+      101 |   await expect(page.getByRole('button', { name: /Cart \d+ parts?/ })).toBeFocused();
+        at D:\My Coding Projects\Electronics Selling\tests\e2e\cart-sheet.spec.ts:98:58
+
+    Error Context: test-results\cart-sheet-dev-gallery-renders-the-new-components-1440\error-context.md
+
+
+[68/110] [1440] › tests\e2e\checkout.spec.ts:186:1 › axe finds no WCAG A/AA violations on checkout
+  15) [1440] › tests\e2e\checkout.spec.ts:48:1 › add to cart, clear field errors, and save the order 
+
+    Error: expect(locator).toBeVisible() failed
+
+    Locator: getByRole('dialog', { name: 'Cart' })
+    Expected: visible
+    Timeout: 5000ms
+    Error: element(s) not found
+
+    Call log:
+      - Expect "toBeVisible" getByRole('dialog', { name: 'Cart' }) with timeout 5000ms
+      - waiting for getByRole('dialog', { name: 'Cart' })
+
+
+      59 |
+      60 |   const cart = page.getByRole('dialog', { name: 'Cart' });
+    > 61 |   await expect(cart).toBeVisible();
+         |                      ^
+      62 |   await expect(cart.getByText('Added ESP32-WROOM-32D to cart')).toBeVisible();
+      63 |   await cart.getByRole('link', { name: /Check out/ }).click();
+      64 |
+        at D:\My Coding Projects\Electronics Selling\tests\e2e\checkout.spec.ts:61:22
+
+    Error Context: test-results\checkout-add-to-cart-clear-field-errors-and-save-the-order-1440\error-context.md
+
+
+[69/110] [1440] › tests\e2e\checkout.spec.ts:205:3 › reduced motion › the place order button does not animate a transform
+[70/110] [1440] › tests\e2e\home.spec.ts:3:1 › catalog is the front door
+[71/110] [1440] › tests\e2e\home.spec.ts:25:1 › header and footer shell
+[72/110] [1440] › tests\e2e\home.spec.ts:52:1 › header search and cart keyboard path
+[73/110] [1440] › tests\e2e\home.spec.ts:76:1 › category and sort queries still filter the catalog
+[74/110] [1440] › tests\e2e\home.spec.ts:104:1 › home page is the brand landing
+[75/110] [1440] › tests\e2e\home.spec.ts:167:1 › a catalog row opens the product and Add stays on the catalog
+  16) [1440] › tests\e2e\home.spec.ts:167:1 › a catalog row opens the product and Add stays on the catalog 
+
+    Error: expect(locator).toBeVisible() failed
+
+    Locator: getByRole('dialog', { name: 'Cart' })
+    Expected: visible
+    Timeout: 5000ms
+    Error: element(s) not found
+
+    Call log:
+      - Expect "toBeVisible" getByRole('dialog', { name: 'Cart' }) with timeout 5000ms
+      - waiting for getByRole('dialog', { name: 'Cart' })
+
+
+      215 |   expect(new URL(page.url()).pathname).toBe('/');
+      216 |   const cart = page.getByRole('dialog', { name: 'Cart' });
+    > 217 |   await expect(cart).toBeVisible();
+          |                      ^
+      218 |   await expect(cart.getByText('Added LM7805 to cart')).toBeVisible();
+      219 |   const cartImg = cart.locator('.cart-photo img');
+      220 |   await expect(cartImg).toBeVisible();
+        at D:\My Coding Projects\Electronics Selling\tests\e2e\home.spec.ts:217:22
+
+    Error Context: test-results\home-a-catalog-row-opens-t-a8997-nd-Add-stays-on-the-catalog-1440\error-context.md
+
+
+[76/110] [1440] › tests\e2e\navigation.spec.ts:3:1 › speculation rules prerender product links and skip checkout
+[77/110] [1440] › tests\e2e\navigation.spec.ts:20:1 › header condenses past 80px and restores at the top
+[78/110] [1440] › tests\e2e\home.spec.ts:232:1 › hero copy stays put when motion is reduced
+[79/110] [1440] › tests\e2e\navigation.spec.ts:42:1 › reduced motion drops morph names and condenses without a transition
+[80/110] [1440] › tests\e2e\navigation.spec.ts:60:1 › keyboard focus stays below the header after it condenses
+[81/110] [1440] › tests\e2e\product-image.spec.ts:3:1 › product photo is sized, eager, and does not shift
+[82/110] [1440] › tests\e2e\product-image.spec.ts:48:1 › catalog thumbnail and product photo share a view-transition name
+  17) [1440] › tests\e2e\navigation.spec.ts:3:1 › speculation rules prerender product links and skip checkout 
+
+    Error: expect(locator).toHaveAttribute(expected) failed
+
+    Locator: locator('.cart-checkout')
+    Expected: "false"
+    Timeout: 5000ms
+    Error: element(s) not found
+
+    Call log:
+      - Expect "toHaveAttribute" locator('.cart-checkout') with timeout 5000ms
+      - waiting for locator('.cart-checkout')
+
+
+      15 |   await page.goto("/product/lm7805");
+      16 |   await page.locator(".qty-row .buy-add").click();
+    > 17 |   await expect(page.locator(".cart-checkout")).toHaveAttribute("data-astro-prefetch", "false");
+         |                                                ^
+      18 | });
+      19 |
+      20 | test("header condenses past 80px and restores at the top", async ({ page }) => {
+        at D:\My Coding Projects\Electronics Selling\tests\e2e\navigation.spec.ts:17:48
+
+    Error Context: test-results\navigation-speculation-rul-53afd-uct-links-and-skip-checkout-1440\error-context.md
+
+
+[83/110] [1440] › tests\e2e\product-image.spec.ts:90:1 › product photo stays visible with reduced motion
+[84/110] [1440] › tests\e2e\product-image.spec.ts:74:1 › cart line uses the optimized thumb
+[85/110] [1440] › tests\e2e\product.spec.ts:4:1 › product page buy panel, specs, and no horizontal overflow
+[86/110] [1440] › tests\e2e\product.spec.ts:61:1 › longest part numbers stay inside the viewport
+[87/110] [1440] › tests\e2e\product.spec.ts:81:1 › search lm 7805, add, correct quantity, and match the cart price
+  18) [1440] › tests\e2e\product-image.spec.ts:74:1 › cart line uses the optimized thumb ───────────
+
+    Error: expect(locator).toBeVisible() failed
+
+    Locator: locator('.cart-line-fold .cart-photo img')
+    Expected: visible
+    Timeout: 5000ms
+    Error: element(s) not found
+
+    Call log:
+      - Expect "toBeVisible" locator('.cart-line-fold .cart-photo img') with timeout 5000ms
+      - waiting for locator('.cart-line-fold .cart-photo img')
+
+
+      76 |   await page.locator('.qty-row .buy-add').click();
+      77 |   const cartImg = page.locator('.cart-line-fold .cart-photo img');
+    > 78 |   await expect(cartImg).toBeVisible();
+         |                         ^
+      79 |   await expect(cartImg).toHaveAttribute('width', '64');
+      80 |   await expect(cartImg).toHaveAttribute('height', '64');
+      81 |   await expect(cartImg).toHaveAttribute('loading', 'lazy');
+        at D:\My Coding Projects\Electronics Selling\tests\e2e\product-image.spec.ts:78:25
+
+    Error Context: test-results\product-image-cart-line-uses-the-optimized-thumb-1440\error-context.md
+
+
+[88/110] [1440] › tests\e2e\product.spec.ts:115:1 › mobile sticky add bar and desktop keyboard focus
+[89/110] [1440] › tests\e2e\product.spec.ts:185:1 › reduced motion keeps the add control still
+[90/110] [1440] › tests\e2e\product.spec.ts:203:1 › axe finds no WCAG A/AA violations on the product page
+[91/110] [1440] › tests\e2e\product.spec.ts:209:1 › layout at the 900px switch
+[92/110] [1440] › tests\e2e\quick-order.spec.ts:5:1 › quick order previews matches, misses, stock limits, and adds them
+[93/110] [1440] › tests\e2e\quick-order.spec.ts:35:1 › a cart link rebuilds the cart
+  19) [1440] › tests\e2e\product.spec.ts:81:1 › search lm 7805, add, correct quantity, and match the cart price 
+
+    Error: expect(locator).toBeVisible() failed
+
+    Locator: getByRole('dialog', { name: 'Cart' })
+    Expected: visible
+    Timeout: 5000ms
+    Error: element(s) not found
+
+    Call log:
+      - Expect "toBeVisible" getByRole('dialog', { name: 'Cart' }) with timeout 5000ms
+      - waiting for getByRole('dialog', { name: 'Cart' })
+
+
+      104 |
+      105 |   const cart = page.getByRole("dialog", { name: "Cart" });
+    > 106 |   await expect(cart).toBeVisible();
+          |                      ^
+      107 |   await expect(cart.getByText("Added LM7805 to cart")).toBeVisible();
+      108 |   await expect(cart.getByText("Rs 45").first()).toBeVisible();
+      109 |
+        at D:\My Coding Projects\Electronics Selling\tests\e2e\product.spec.ts:106:22
+
+    Error Context: test-results\product-search-lm-7805-add-0fc5c-ty-and-match-the-cart-price-1440\error-context.md
+
+
+[94/110] [1440] › tests\e2e\quick-order.spec.ts:65:1 › selection highlight slides, and jumps when reduced motion is on
+[95/110] [1440] › tests\e2e\quick-order.spec.ts:47:1 › command palette opens with ctrl+k and highlights a match
+  20) [1440] › tests\e2e\quick-order.spec.ts:5:1 › quick order previews matches, misses, stock limits, and adds them 
+
+    Error: expect(locator).toBeVisible() failed
+
+    Locator: getByRole('dialog', { name: 'Cart' })
+    Expected: visible
+    Timeout: 5000ms
+    Error: element(s) not found
+
+    Call log:
+      - Expect "toBeVisible" getByRole('dialog', { name: 'Cart' }) with timeout 5000ms
+      - waiting for getByRole('dialog', { name: 'Cart' })
+
+
+      21 |   await page.getByRole("button", { name: "Add 4 parts to cart" }).click();
+      22 |   const cart = page.getByRole("dialog", { name: "Cart" });
+    > 23 |   await expect(cart).toBeVisible();
+         |                      ^
+      24 |   await expect(cart.getByText("Added 4 parts to cart")).toBeVisible();
+      25 |   await expect(cart.getByText("LM7805")).toBeVisible();
+      26 |   await expect(cart.getByText("AMS1117-3.3")).toBeVisible();
+        at D:\My Coding Projects\Electronics Selling\tests\e2e\quick-order.spec.ts:23:22
+
+    Error Context: test-results\quick-order-quick-order-pr-8f21e--stock-limits-and-adds-them-1440\error-context.md
+
+
+[96/110] [1440] › tests\e2e\quick-order.spec.ts:103:1 › palette and quick order screenshots
+[97/110] [1440] › tests\e2e\search-dialog.spec.ts:3:1 › search dialog finds a part, misses cleanly, and traps focus
+[98/110] [1440] › tests\e2e\search-dialog.spec.ts:100:1 › slash does not open search from a field or while the cart is open
+[99/110] [1440] › tests\e2e\search-dialog.spec.ts:118:1 › a dock control opens search and returns focus
+[100/110] [1440] › tests\e2e\search-dialog.spec.ts:142:1 › search dialog stays put with reduced motion
+[101/110] [1440] › tests\e2e\secondary.spec.ts:18:1 › shipping and payment renders the policy modules
+[102/110] [1440] › tests\e2e\secondary.spec.ts:51:1 › about states only what the catalog and the modules can prove
+[103/110] [1440] › tests\e2e\secondary.spec.ts:84:1 › contact keeps the typed value and names the broken rule
+[104/110] [1440] › tests\e2e\secondary.spec.ts:124:1 › missing pages and unknown parts
+[105/110] [1440] › tests\e2e\secondary.spec.ts:173:1 › axe finds no WCAG A/AA violations on the secondary pages
+[106/110] [1440] › tests\e2e\secondary.spec.ts:181:1 › layout at the 900px switch
+[107/110] [1440] › tests\e2e\secondary.spec.ts:196:3 › reduced motion › shipping controls do not animate a transform
+[108/110] [1440] › tests\e2e\secondary.spec.ts:212:1 › the header is solid when transparency is reduced
+[109/110] [1440] › tests\e2e\vitals.spec.ts:3:1 › a field vital is accepted and an order id is not required
+[110/110] [1440] › tests\e2e\vitals.spec.ts:30:1 › the layout loads the web vitals reporter
+  20 failed
+    [390] › tests\e2e\a11y.spec.ts:44:1 › axe finds no WCAG A/AA violations in the cart sheet ──────
+    [390] › tests\e2e\cart-sheet.spec.ts:3:1 › cart sheet traps tab, closes on escape, and returns focus 
+    [390] › tests\e2e\cart-sheet.spec.ts:57:1 › cart sheet flags a part the shop no longer sells ───
+    [390] › tests\e2e\cart-sheet.spec.ts:73:1 › dev gallery renders the new components ─────────────
+    [390] › tests\e2e\checkout.spec.ts:48:1 › add to cart, clear field errors, and save the order ──
+    [390] › tests\e2e\navigation.spec.ts:3:1 › speculation rules prerender product links and skip checkout 
+    [390] › tests\e2e\product-image.spec.ts:74:1 › cart line uses the optimized thumb ──────────────
+    [390] › tests\e2e\product.spec.ts:81:1 › search lm 7805, add, correct quantity, and match the cart price 
+    [390] › tests\e2e\product.spec.ts:115:1 › mobile sticky add bar and desktop keyboard focus ─────
+    [390] › tests\e2e\quick-order.spec.ts:5:1 › quick order previews matches, misses, stock limits, and adds them 
+    [1440] › tests\e2e\a11y.spec.ts:44:1 › axe finds no WCAG A/AA violations in the cart sheet ─────
+    [1440] › tests\e2e\cart-sheet.spec.ts:3:1 › cart sheet traps tab, closes on escape, and returns focus 
+    [1440] › tests\e2e\cart-sheet.spec.ts:57:1 › cart sheet flags a part the shop no longer sells ──
+    [1440] › tests\e2e\cart-sheet.spec.ts:73:1 › dev gallery renders the new components ────────────
+    [1440] › tests\e2e\checkout.spec.ts:48:1 › add to cart, clear field errors, and save the order ─
+    [1440] › tests\e2e\home.spec.ts:167:1 › a catalog row opens the product and Add stays on the catalog 
+    [1440] › tests\e2e\navigation.spec.ts:3:1 › speculation rules prerender product links and skip checkout 
+    [1440] › tests\e2e\product-image.spec.ts:74:1 › cart line uses the optimized thumb ─────────────
+    [1440] › tests\e2e\product.spec.ts:81:1 › search lm 7805, add, correct quantity, and match the cart price 
+    [1440] › tests\e2e\quick-order.spec.ts:5:1 › quick order previews matches, misses, stock limits, and adds them 
+  3 skipped
+  87 passed (6.8m)

@@ -1,6 +1,6 @@
 /* Signature connect. docs/motion.md#signature-moment-connect.
-   The page stays live (root snapshots hidden) so the plug, ring and badge
-   can move while the button and photo are the only view-transition groups.
+   The new root snapshot is live, so the plug, ring and badge keep moving
+   while the button and photo are the only named view-transition groups.
    Button width uses spring-snappy, sampled to linear(); it settles by --dur-3.
    The photo group is styled by the existing part-morph rule (dur-page, ease-out). */
 
@@ -15,16 +15,30 @@ html.is-connect .buy-panel > .kv {
 }
 
 html.is-connect::view-transition-group(root),
-html.is-connect::view-transition-old(root),
 html.is-connect::view-transition-new(root) {
   animation: none;
-  display: none;
   mix-blend-mode: normal;
 }
 
+html.is-connect::view-transition-old(root) {
+  animation: none;
+  display: none;
+}
+
+html.is-connect:not(.is-connect-photo) [class*="vt-part-"] {
+  view-transition-name: none;
+}
+
+@keyframes connect-hand-off {
+  from { opacity: 1; }
+  to { opacity: 0; }
+}
+
 html.is-connect::view-transition-group(buy-connect) {
+  animation-name: -ua-view-transition-group-anim-buy-connect, connect-hand-off;
   animation-duration: var(--dur-3);
   animation-timing-function: linear(0, 0.247, 0.577, 0.797, 0.914, 0.967, 0.989, 0.997, 1);
+  animation-fill-mode: both;
 }
 
 html.is-connect::view-transition-old(buy-connect),

@@ -1,0 +1,230 @@
+[2m21:33:01[22m [34m[@astrojs/cloudflare][39m Enabling image processing with Cloudflare Images for production with the "IMAGES" Images binding.
+[2m21:33:01[22m [34m[@astrojs/cloudflare][39m Enabling sessions with Cloudflare KV with the "SESSION" KV binding.
+[2m21:33:02[22m [34m[content][39m Syncing content
+[2m21:33:02[22m [34m[content][39m Synced content
+[2m21:33:02[22m [34m[types][39m Generated [2m972ms[22m
+[2m21:33:02[22m [34m[check][39m Getting diagnostics for Astro files in D:\My Coding Projects\Electronics Selling...
+[96mscripts/v-verify/checks-catalog.mjs[0m:[93m519[0m:[93m15[0m - [93mwarning[0m[90m ts(6133): [0m'cs' is declared but its value is never read.
+
+[7m519[0m         const cs = getComputedStyle(el);
+[7m   [0m [93m              ~~[0m
+
+[96mscripts/v-verify/checks-product.mjs[0m:[93m210[0m:[93m13[0m - [93mwarning[0m[90m ts(6133): [0m'back' is declared but its value is never read.
+
+[7m210[0m       const back = frames.slice().reverse().find((f) => /Add to cart/.test(label(f)));
+[7m   [0m [93m            ~~~~[0m
+
+[96msrc/content.config.ts[0m:[93m115[0m:[93m20[0m - [93mwarning[0m[90m ts(6385): [0m'z' is deprecated.
+
+[7m115[0m       description: z.string().min(1),
+[7m   [0m [93m                   ~[0m
+[96msrc/content.config.ts[0m:[93m111[0m:[93m25[0m - [93mwarning[0m[90m ts(6385): [0m'z' is deprecated.
+
+[7m111[0m             unit_price: z.number().int().nonnegative(),
+[7m   [0m [93m                        ~[0m
+[96msrc/content.config.ts[0m:[93m110[0m:[93m22[0m - [93mwarning[0m[90m ts(6385): [0m'z' is deprecated.
+
+[7m110[0m             min_qty: z.number().int().positive(),
+[7m   [0m [93m                     ~[0m
+[96msrc/content.config.ts[0m:[93m109[0m:[93m11[0m - [93mwarning[0m[90m ts(6385): [0m'z' is deprecated.
+
+[7m109[0m           z.object({
+[7m   [0m [93m          ~[0m
+[96msrc/content.config.ts[0m:[93m107[0m:[93m15[0m - [93mwarning[0m[90m ts(6385): [0m'z' is deprecated.
+
+[7m107[0m       breaks: z
+[7m   [0m [93m              ~[0m
+[96msrc/content.config.ts[0m:[93m106[0m:[93m21[0m - [93mwarning[0m[90m ts(6385): [0m'z' is deprecated.
+
+[7m106[0m       qty_multiple: z.number().int().positive().default(1),
+[7m   [0m [93m                    ~[0m
+[96msrc/content.config.ts[0m:[93m105[0m:[93m16[0m - [93mwarning[0m[90m ts(6385): [0m'z' is deprecated.
+
+[7m105[0m       min_qty: z.number().int().positive().default(1),
+[7m   [0m [93m               ~[0m
+[96msrc/content.config.ts[0m:[93m104[0m:[93m15[0m - [93mwarning[0m[90m ts(6385): [0m'z' is deprecated.
+
+[7m104[0m       limits: z.string().min(1).optional(),
+[7m   [0m [93m              ~[0m
+[96msrc/content.config.ts[0m:[93m103[0m:[93m19[0m - [93mwarning[0m[90m ts(6385): [0m'z' is deprecated.
+
+[7m103[0m       in_the_bag: z.string().min(1),
+[7m   [0m [93m                  ~[0m
+[96msrc/content.config.ts[0m:[93m98[0m:[93m19[0m - [93mwarning[0m[90m ts(6385): [0m'z' is deprecated.
+
+[7m98[0m             note: z.string().min(1).optional(),
+[7m  [0m [93m                  ~[0m
+[96msrc/content.config.ts[0m:[93m97[0m:[93m18[0m - [93mwarning[0m[90m ts(6385): [0m'z' is deprecated.
+
+[7m97[0m             alt: z.string().min(1),
+[7m  [0m [93m                 ~[0m
+[96msrc/content.config.ts[0m:[93m86[0m:[93m11[0m - [93mwarning[0m[90m ts(6385): [0m'z' is deprecated.
+
+[7m86[0m           z.object({
+[7m  [0m [93m          ~[0m
+[96msrc/content.config.ts[0m:[93m84[0m:[93m15[0m - [93mwarning[0m[90m ts(6385): [0m'z' is deprecated.
+
+[7m84[0m       images: z
+[7m  [0m [93m              ~[0m
+[96msrc/content.config.ts[0m:[93m72[0m:[93m18[0m - [93mwarning[0m[90m ts(6385): [0m'z' is deprecated.
+
+[7m72[0m       datasheet: z
+[7m  [0m [93m                 ~[0m
+[96msrc/content.config.ts[0m:[93m71[0m:[93m18[0m - [93mwarning[0m[90m ts(6385): [0m'z' is deprecated.
+
+[7m71[0m       shelf_qty: z.number().int().positive().optional(),
+[7m  [0m [93m                 ~[0m
+[96msrc/content.config.ts[0m:[93m69[0m:[93m21[0m - [93mwarning[0m[90m ts(6385): [0m'z' is deprecated.
+
+[7m69[0m       low_stock_at: z.number().int().nonnegative().default(10),
+[7m  [0m [93m                    ~[0m
+[96msrc/content.config.ts[0m:[93m62[0m:[93m16[0m - [93mwarning[0m[90m ts(6385): [0m'z' is deprecated.
+
+[7m62[0m             a: z.string().min(1),
+[7m  [0m [93m               ~[0m
+[96msrc/content.config.ts[0m:[93m61[0m:[93m16[0m - [93mwarning[0m[90m ts(6385): [0m'z' is deprecated.
+
+[7m61[0m             q: z.string().min(1),
+[7m  [0m [93m               ~[0m
+[96msrc/content.config.ts[0m:[93m60[0m:[93m11[0m - [93mwarning[0m[90m ts(6385): [0m'z' is deprecated.
+
+[7m60[0m           z.object({
+[7m  [0m [93m          ~[0m
+[96msrc/content.config.ts[0m:[93m58[0m:[93m12[0m - [93mwarning[0m[90m ts(6385): [0m'z' is deprecated.
+
+[7m58[0m       faq: z
+[7m  [0m [93m           ~[0m
+[96msrc/content.config.ts[0m:[93m57[0m:[93m21[0m - [93mwarning[0m[90m ts(6385): [0m'z' is deprecated.
+
+[7m57[0m       not_included: z.string().min(1).optional(),
+[7m  [0m [93m                    ~[0m
+[96msrc/content.config.ts[0m:[93m56[0m:[93m27[0m - [93mwarning[0m[90m ts(6385): [0m'z' is deprecated.
+
+[7m56[0m       companions: z.array(z.string().min(1)).min(1).optional(),
+[7m  [0m [93m                          ~[0m
+[96msrc/content.config.ts[0m:[93m56[0m:[93m19[0m - [93mwarning[0m[90m ts(6385): [0m'z' is deprecated.
+
+[7m56[0m       companions: z.array(z.string().min(1)).min(1).optional(),
+[7m  [0m [93m                  ~[0m
+[96msrc/content.config.ts[0m:[93m51[0m:[93m19[0m - [93mwarning[0m[90m ts(6385): [0m'z' is deprecated.
+
+[7m51[0m             note: z.string().min(1).optional(),
+[7m  [0m [93m                  ~[0m
+[96msrc/content.config.ts[0m:[93m50[0m:[93m20[0m - [93mwarning[0m[90m ts(6385): [0m'z' is deprecated.
+
+[7m50[0m             label: z.string().min(1),
+[7m  [0m [93m                   ~[0m
+[96msrc/content.config.ts[0m:[93m49[0m:[93m18[0m - [93mwarning[0m[90m ts(6385): [0m'z' is deprecated.
+
+[7m49[0m             pin: z.string().min(1),
+[7m  [0m [93m                 ~[0m
+[96msrc/content.config.ts[0m:[93m48[0m:[93m11[0m - [93mwarning[0m[90m ts(6385): [0m'z' is deprecated.
+
+[7m48[0m           z.object({
+[7m  [0m [93m          ~[0m
+[96msrc/content.config.ts[0m:[93m46[0m:[93m15[0m - [93mwarning[0m[90m ts(6385): [0m'z' is deprecated.
+
+[7m46[0m       pinout: z
+[7m  [0m [93m              ~[0m
+[96msrc/content.config.ts[0m:[93m45[0m:[93m20[0m - [93mwarning[0m[90m ts(6385): [0m'z' is deprecated.
+
+[7m45[0m       logic_level: z.enum(LOGIC_LEVELS).optional(),
+[7m  [0m [93m                   ~[0m
+[96msrc/content.config.ts[0m:[93m44[0m:[93m26[0m - [93mwarning[0m[90m ts(6385): [0m'z' is deprecated.
+
+[7m44[0m       key_specs: z.array(z.string().min(1)).min(2).max(4),
+[7m  [0m [93m                         ~[0m
+[96msrc/content.config.ts[0m:[93m44[0m:[93m18[0m - [93mwarning[0m[90m ts(6385): [0m'z' is deprecated.
+
+[7m44[0m       key_specs: z.array(z.string().min(1)).min(2).max(4),
+[7m  [0m [93m                 ~[0m
+[96msrc/content.config.ts[0m:[93m42[0m:[93m16[0m - [93mwarning[0m[90m ts(6385): [0m'z' is deprecated.
+
+[7m42[0m       summary: z.string().min(1).max(160),
+[7m  [0m [93m               ~[0m
+[96msrc/content.config.ts[0m:[93m40[0m:[93m14[0m - [93mwarning[0m[90m ts(6385): [0m'z' is deprecated.
+
+[7m40[0m       specs: z.array(specSchema).min(1),
+[7m  [0m [93m             ~[0m
+[96msrc/content.config.ts[0m:[93m39[0m:[93m16[0m - [93mwarning[0m[90m ts(6385): [0m'z' is deprecated.
+
+[7m39[0m       voltage: z.string().min(1).optional(),
+[7m  [0m [93m               ~[0m
+[96msrc/content.config.ts[0m:[93m38[0m:[93m22[0m - [93mwarning[0m[90m ts(6385): [0m'z' is deprecated.
+
+[7m38[0m       mounting_type: z.string().min(1),
+[7m  [0m [93m                     ~[0m
+[96msrc/content.config.ts[0m:[93m37[0m:[93m21[0m - [93mwarning[0m[90m ts(6385): [0m'z' is deprecated.
+
+[7m37[0m       package_type: z.string().min(1),
+[7m  [0m [93m                    ~[0m
+[96msrc/content.config.ts[0m:[93m33[0m:[93m19[0m - [93mwarning[0m[90m ts(6385): [0m'z' is deprecated.
+
+[7m33[0m       restock_on: z
+[7m  [0m [93m                  ~[0m
+[96msrc/content.config.ts[0m:[93m32[0m:[93m18[0m - [93mwarning[0m[90m ts(6385): [0m'z' is deprecated.
+
+[7m32[0m       stock_qty: z.number().int().nonnegative(),
+[7m  [0m [93m                 ~[0m
+[96msrc/content.config.ts[0m:[93m31[0m:[93m17[0m - [93mwarning[0m[90m ts(6385): [0m'z' is deprecated.
+
+[7m31[0m       currency: z.literal("PKR"),
+[7m  [0m [93m                ~[0m
+[96msrc/content.config.ts[0m:[93m30[0m:[93m14[0m - [93mwarning[0m[90m ts(6385): [0m'z' is deprecated.
+
+[7m30[0m       price: z.number().int().nonnegative(),
+[7m  [0m [93m             ~[0m
+[96msrc/content.config.ts[0m:[93m29[0m:[93m17[0m - [93mwarning[0m[90m ts(6385): [0m'z' is deprecated.
+
+[7m29[0m       featured: z.boolean().optional(),
+[7m  [0m [93m                ~[0m
+[96msrc/content.config.ts[0m:[93m27[0m:[93m17[0m - [93mwarning[0m[90m ts(6385): [0m'z' is deprecated.
+
+[7m27[0m       category: z.enum(CATEGORIES),
+[7m  [0m [93m                ~[0m
+[96msrc/content.config.ts[0m:[93m26[0m:[93m13[0m - [93mwarning[0m[90m ts(6385): [0m'z' is deprecated.
+
+[7m26[0m       name: z.string().min(1),
+[7m  [0m [93m            ~[0m
+[96msrc/content.config.ts[0m:[93m25[0m:[93m12[0m - [93mwarning[0m[90m ts(6385): [0m'z' is deprecated.
+
+[7m25[0m       mpn: z.string().min(1),
+[7m  [0m [93m           ~[0m
+[96msrc/content.config.ts[0m:[93m19[0m:[93m21[0m - [93mwarning[0m[90m ts(6385): [0m'z' is deprecated.
+
+[7m19[0m       manufacturer: z
+[7m  [0m [93m                    ~[0m
+[96msrc/content.config.ts[0m:[93m18[0m:[93m20[0m - [93mwarning[0m[90m ts(6385): [0m'z' is deprecated.
+
+[7m18[0m       part_number: z.string().min(1),
+[7m  [0m [93m                   ~[0m
+[96msrc/content.config.ts[0m:[93m16[0m:[93m5[0m - [93mwarning[0m[90m ts(6385): [0m'z' is deprecated.
+
+[7m16[0m     z
+[7m  [0m [93m    ~[0m
+[96msrc/content.config.ts[0m:[93m8[0m:[93m9[0m - [93mwarning[0m[90m ts(6385): [0m'z' is deprecated.
+
+[7m8[0m   unit: z.string().min(1).optional(),
+[7m [0m [93m        ~[0m
+[96msrc/content.config.ts[0m:[93m7[0m:[93m10[0m - [93mwarning[0m[90m ts(6385): [0m'z' is deprecated.
+
+[7m7[0m   value: z.string().min(1),
+[7m [0m [93m         ~[0m
+[96msrc/content.config.ts[0m:[93m6[0m:[93m10[0m - [93mwarning[0m[90m ts(6385): [0m'z' is deprecated.
+
+[7m6[0m   label: z.string().min(1),
+[7m [0m [93m         ~[0m
+[96msrc/content.config.ts[0m:[93m5[0m:[93m20[0m - [93mwarning[0m[90m ts(6385): [0m'z' is deprecated.
+
+[7m5[0m const specSchema = z.object({
+[7m [0m [93m                   ~[0m
+[96msrc/content.config.ts[0m:[93m1[0m:[93m28[0m - [93mwarning[0m[90m ts(6385): [0m'z' is deprecated.
+
+[7m1[0m import { defineCollection, z } from 'astro:content';
+[7m [0m [93m                           ~[0m
+
+Result (181 files): 
+- 0 errors
+- 0 warnings
+- 54 hints
+

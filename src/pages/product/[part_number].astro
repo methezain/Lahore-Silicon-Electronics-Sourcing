@@ -22,6 +22,7 @@ import { partChipClass, productPhoto } from "../../lib/part-image";
 import { keyFigures, productMetaDescription, specGroups } from "../../lib/product";
 import { pageTitle, shopName, whatsappHref } from "../../lib/shop";
 import { defectFact } from "../../lib/shipping";
+import { ogPath } from "../../lib/og";
 
 export const prerender = true;
 
@@ -104,7 +105,7 @@ const jsonLd = JSON.stringify(schemaLD);
 if (Astro.csp) Astro.csp.insertScriptHash(await cspSha256(jsonLd));
 ---
 
-<Layout title={pageTitle(`${data.part_number} ${data.name}`)} description={productMetaDescription(data.summary)}>
+<Layout title={pageTitle(`${data.part_number} ${data.name}`)} description={productMetaDescription(data.summary)} ogImage={ogPath(data.part_number)}>
   <Fragment slot="head">
     <script type="application/ld+json" is:inline set:html={jsonLd} />
   </Fragment>
@@ -337,7 +338,7 @@ if (Astro.csp) Astro.csp.insertScriptHash(await cspSha256(jsonLd));
     color: var(--color-ink);
     font-size: var(--text-body);
     line-height: var(--text-body--line-height);
-    text-wrap: pretty;
+    text-wrap: balance;
   }
 
   .rule {

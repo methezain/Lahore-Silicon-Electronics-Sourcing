@@ -1,0 +1,10 @@
+base 
+  grid n=51 max=67 over20=6 worst=33,33,67
+  list n=48 max=100 over20=7 worst=33,50,100
+  grid n=43 max=150 over20=8 worst=33,50,150
+  list n=41 max=183 over20=7 worst=50,50,183
+base 
+  grid n=50 max=67 over20=7 worst=33,33,67
+  list n=50 max=83 over20=7 worst=33,33,83
+  grid n=50 max=83 over20=6 worst=33,33,83
+  list n=46 max=117 over20=7 worst=33,50,117

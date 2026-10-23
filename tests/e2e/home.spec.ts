@@ -52,6 +52,7 @@ test('header and footer shell', async ({ page }) => {
 test('header search and cart keyboard path', async ({ page }) => {
   await page.goto('/');
   const openSearch = page.locator('#search-open');
+  await page.locator('#search-open').hover();
   await page.locator('#search-open[data-ready="true"]').waitFor();
   await page.keyboard.press('/');
   const dialog = page.getByRole('dialog', { name: 'Search parts' });
@@ -140,6 +141,7 @@ test('home page is the brand landing', async ({ page }) => {
     await expect(nav).toBeHidden();
   }
 
+  await page.locator('#search-open').hover();
   await page.locator('#search-open[data-ready="true"]').waitFor();
   const dock = page.locator('#hero-search');
   await dock.click();

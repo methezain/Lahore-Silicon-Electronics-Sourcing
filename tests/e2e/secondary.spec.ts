@@ -132,6 +132,7 @@ test('missing pages and unknown parts', async ({ page }, testInfo) => {
     fullPage: true,
   });
 
+  await page.locator('#search-open').hover();
   await page.locator('#search-open[data-ready="true"]').waitFor();
   await page.getByRole('button', { name: 'Search parts' }).click();
   const dialog = page.getByRole('dialog', { name: 'Search parts' });

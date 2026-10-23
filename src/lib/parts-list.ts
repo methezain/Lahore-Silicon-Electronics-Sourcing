@@ -97,7 +97,9 @@ function stripMarker(line: string): { body: string; indexQty?: number } {
   return { body: line };
 }
 
-type RawHit = { query: string; quantity: number };
+type RawHit = { query: string; quantity: number; loose: boolean };
+
+const looseRequests = new WeakSet<ParsedRequest>();
 
 function tryPatterns(input: string): RawHit | null {
   const line = input.trim();
@@ -127,7 +129,7 @@ function tryPatterns(input: string): RawHit | null {
     const query = okQuery(firstIsQty ? match[2] : match[1]);
     const quantity = Number(firstIsQty ? match[1] : match[2]);
     if (!query || !Number.isInteger(quantity) || quantity < 1) continue;
-    return { query, quantity };
+    return { query, quantity, loose: index >= 10 };
   }
   return null;
 }
@@ -143,7 +145,9 @@ export function parsePartsList(text: string): ParsedRequest[] {
     const { body, indexQty } = stripMarker(raw);
     const hit = tryPatterns(body);
     if (hit) {
-      requests.push({ line: index + 1, raw, query: hit.query, quantity: hit.quantity, explicit: true });
+      const request: ParsedRequest = { line: index + 1, raw, query: hit.query, quantity: hit.quantity, explicit: true };
+      if (hit.loose) looseRequests.add(request);
+      requests.push(request);
       return;
     }
     if (indexQty && /[a-z]/i.test(body)) {
@@ -162,6 +166,7 @@ export function parsePartsList(text: string): ParsedRequest[] {
 /** A pasted BOM, not a single part-number search. */
 export function looksLikePartsList(text: string): boolean {
   const parsed = parsePartsList(text);
+  if (parsed.length === 1 && looseRequests.has(parsed[0])) return false;
   if (parsed.some((line) => line.explicit)) return true;
   return parsed.length >= 2;
 }

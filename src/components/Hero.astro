@@ -748,13 +748,17 @@ const gridVertical = Array.from({ length: gridW - 1 }, (_, index) => `M${index +
       return String(Math.max(0, Math.min(100, Math.round(percent / 5) * 5)));
     }
 
+    function setData(el: HTMLElement, key: string, value: string) {
+      if (el.dataset[key] !== value) el.dataset[key] = value;
+    }
+
     function write() {
       const dx = (x - rect.left) / rect.width - 0.5;
       const dy = (y - rect.top) / rect.height - 0.5;
-      tiltEl.dataset.ry = String(Math.max(-6, Math.min(6, Math.round(dx * 12))));
-      tiltEl.dataset.rx = String(Math.max(-6, Math.min(6, Math.round(dy * -12))));
-      frameEl.dataset.sx = step(((x - rect.left) / rect.width) * 100);
-      frameEl.dataset.sy = step(((y - rect.top) / rect.height) * 100);
+      setData(tiltEl, "ry", String(Math.max(-6, Math.min(6, Math.round(dx * 12)))));
+      setData(tiltEl, "rx", String(Math.max(-6, Math.min(6, Math.round(dy * -12)))));
+      setData(frameEl, "sx", step(((x - rect.left) / rect.width) * 100));
+      setData(frameEl, "sy", step(((y - rect.top) / rect.height) * 100));
     }
 
     frameEl.addEventListener("pointerenter", (event) => {

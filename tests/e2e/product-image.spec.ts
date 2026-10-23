@@ -74,7 +74,7 @@ test('catalog thumbnail and product photo share a view-transition name', async (
 test('cart line uses the optimized thumb', async ({ page }) => {
   await page.goto('/product/esp32-wroom-32d');
   await page.locator('.qty-row .buy-add').click();
-  const cartImg = page.locator('.cart-photo img');
+  const cartImg = page.locator('.cart-line-fold .cart-photo img');
   await expect(cartImg).toBeVisible();
   await expect(cartImg).toHaveAttribute('width', '64');
   await expect(cartImg).toHaveAttribute('height', '64');

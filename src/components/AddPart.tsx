@@ -1,4 +1,5 @@
 import { addToCart, cartStore, isCartDrawerOpen, setQuantityNote } from "../store/cartStore";
+import { connectHaptic } from "../lib/connect";
 import { correctQuantity } from "../lib/quantity";
 
 type Props = {
@@ -26,6 +27,7 @@ export default function AddPart(props: Props) {
     setQuantityNote(props.partNumber, corrected.message);
     if (delta > 0) {
       addToCart({ part_number: props.partNumber, name: props.name }, delta);
+      connectHaptic();
       return;
     }
     isCartDrawerOpen.set(true);
