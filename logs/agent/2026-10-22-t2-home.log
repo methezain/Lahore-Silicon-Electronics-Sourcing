@@ -1,0 +1,10 @@
+H1   390      PASS  
+H1   1440     FAIL  deck cards do not animate in
+H1   390-rm   PASS  
+H1   1440-rm  PASS  
+H2   390      PASS  
+H2   1440     PASS  
+H2   390-rm   PASS  
+H2   1440-rm  PASS  
+H3   390      PASS  
+H3   1440     PASS  

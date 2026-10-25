@@ -1,0 +1,7 @@
+User-agent: *
+Allow: /
+Disallow: /dev/
+Disallow: /admin
+
+Sitemap: https://lahoresilicon.com/sitemap-index.xml
+Sitemap: https://lahoresilicon.com/sitemap-products.xml

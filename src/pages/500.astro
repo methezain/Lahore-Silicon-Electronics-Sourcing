@@ -1,0 +1,28 @@
+---
+/**
+ * Server error. docs/pages.md#not-found-and-errors.
+ * The cart lives in the browser, so this page can say it is still there.
+ */
+import "./info.css";
+import Layout from "../layouts/Layout.astro";
+import Button from "../components/Button.astro";
+import PackageMark from "../components/illustrations/PackageMark.tsx";
+import { serverBroke, tryAgain } from "../lib/order";
+import { pageTitle } from "../lib/shop";
+
+export const prerender = false;
+
+Astro.response.status = 500;
+const retry = `${Astro.url.pathname}${Astro.url.search}`;
+---
+
+<Layout title={pageTitle("Something broke")} description={serverBroke} robots="noindex, nofollow">
+  <article class="info-page state">
+    <PackageMark kind="module" empty />
+    <h1 class="title">{serverBroke}</h1>
+    <div class="actions">
+      <Button href={retry} variant="primary">{tryAgain}</Button>
+      <Button href="/" variant="ghost">All parts</Button>
+    </div>
+  </article>
+</Layout>

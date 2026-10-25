@@ -1,0 +1,201 @@
+/* Lahore Silicon tokens. Values from docs/design-system.md sections 1–6.
+   Hex equivalents live in that file only. Specimen: docs/design/specimen.html.
+   Tailwind namespaces: --color-*, --font-*, --text-*, --radius-*, --shadow-*, --breakpoint-*.
+   Design-system names r-* and dur-* are --radius-* and --dur-* here. */
+
+/* `static` keeps every token in the stylesheet. Plain `@theme` drops unused names. */
+@theme static {
+  --color-*: initial;
+
+  /* 1. Color — neutrals */
+  --color-canvas: oklch(0.972 0.006 247);
+  --color-surface: oklch(1 0 0);
+  --color-sunken: oklch(0.948 0.009 247);
+  --color-line: oklch(0.905 0.012 247);
+  --color-control-line: oklch(0.62 0.02 250);
+  --color-ink-muted: oklch(0.47 0.03 252);
+  --color-ink: oklch(0.228 0.047 254.7);
+
+  /* 1. Color — navy */
+  --color-navy: oklch(0.228 0.047 254.7);
+  --color-navy-raised: oklch(0.27 0.045 254);
+  --color-navy-raised-2: oklch(0.31 0.043 253);
+  --color-navy-line: oklch(0.36 0.04 252);
+  --color-on-navy: oklch(0.97 0.008 247);
+  --color-on-navy-muted: oklch(0.76 0.03 248);
+
+  /* 1. Color — blue */
+  --color-blue-50: oklch(0.975 0.012 236.5);
+  --color-blue-100: oklch(0.95 0.026 236.5);
+  --color-blue-200: oklch(0.9 0.056 236.5);
+  --color-signal: oklch(0.74 0.154 236.5);
+  --color-action: oklch(0.549 0.118 236.5);
+  --color-action-hover: oklch(0.5 0.11 236.5);
+  --color-link: oklch(0.47 0.102 236.5);
+
+  /* 1. Color — status (always with text) */
+  --color-ok: oklch(0.5 0.12 155);
+  --color-ok-bg: oklch(0.96 0.03 155);
+  --color-low: oklch(0.52 0.11 65);
+  --color-low-bg: oklch(0.965 0.035 80);
+  --color-out: oklch(0.52 0.17 25);
+  --color-out-bg: oklch(0.965 0.02 25);
+
+  /* 2. Type — families. --font-mona and --font-geist-mono come from the Astro Fonts API. */
+  --font-sans: var(--font-mona);
+  --font-mono: var(--font-geist-mono);
+  --font-serif: initial;
+  --font-sans--font-variation-settings: "wdth" 100;
+  --font-label: var(--font-mono);
+  --font-part: var(--font-mono);
+  --font-num: var(--font-sans);
+
+  --text-display-xl: clamp(2.5rem, 1.2rem + 4.2vw, 4.5rem);
+  --text-display-xl--line-height: 0.98;
+  --text-display-xl--letter-spacing: -0.035em;
+  --text-display-xl--font-weight: 640;
+
+  --text-display: clamp(2rem, 1.3rem + 2.2vw, 3rem);
+  --text-display--line-height: 1.04;
+  --text-display--letter-spacing: -0.03em;
+  --text-display--font-weight: 620;
+
+  --text-title: clamp(1.625rem, 1.3rem + 1vw, 2rem);
+  --text-title--line-height: 1.1;
+  --text-title--letter-spacing: -0.02em;
+  --text-title--font-weight: 600;
+
+  --text-heading: 1.25rem;
+  --text-heading--line-height: 1.3;
+  --text-heading--letter-spacing: -0.01em;
+  --text-heading--font-weight: 600;
+
+  --text-body-lg: 1.125rem;
+  --text-body-lg--line-height: 1.55;
+  --text-body-lg--letter-spacing: 0em;
+  --text-body-lg--font-weight: 400;
+
+  --text-body: 1rem;
+  --text-body--line-height: 1.55;
+  --text-body--letter-spacing: 0em;
+  --text-body--font-weight: 400;
+
+  --text-small: 0.875rem;
+  --text-small--line-height: 1.45;
+  --text-small--letter-spacing: 0em;
+  --text-small--font-weight: 400;
+
+  --text-caption: 0.8125rem;
+  --text-caption--line-height: 1.4;
+  --text-caption--letter-spacing: 0em;
+  --text-caption--font-weight: 400;
+
+  --text-label: 0.6875rem;
+  --text-label--line-height: 1.2;
+  --text-label--letter-spacing: 0.06em;
+  --text-label--font-weight: 500;
+
+  --font-weight-strong: 560;
+  --font-weight-part: 500;
+  --font-weight-num: 600;
+  --tracking-part: -0.01em;
+  --tracking-num: -0.02em;
+  --wdth-display-xl: 112;
+  --wdth-display: 110;
+  --wdth-title: 106;
+  --wdth-heading: 100;
+  --wdth-body: 100;
+  --wdth-num: 108;
+  --measure: 65ch;
+
+  /* 3. Space (px) and layout */
+  --space-2: 2px;
+  --space-4: 4px;
+  --space-8: 8px;
+  --space-12: 12px;
+  --space-16: 16px;
+  --space-20: 20px;
+  --space-24: 24px;
+  --space-32: 32px;
+  --space-40: 40px;
+  --space-48: 48px;
+  --space-56: 56px;
+  --space-64: 64px;
+  --space-80: 80px;
+  --space-96: 96px;
+  --space-128: 128px;
+
+  --page-max: 1280px;
+  --gutter: var(--space-16);
+  --gutter-lg: var(--space-32);
+  --inset: var(--space-8);
+  --inset-lg: var(--space-12);
+  --columns: 4;
+  --columns-lg: 12;
+  --column-gap: var(--space-12);
+  --column-gap-lg: var(--space-24);
+
+  --breakpoint-sm: 640px;
+  --breakpoint-md: 900px;
+  --breakpoint-lg: 1200px;
+  --breakpoint-xl: 1440px;
+  --breakpoint-2xl: initial;
+
+  /* 4. Shape. r-frame → --radius-frame, and the same for the rest. */
+  --radius-frame: 28px;
+  --radius-panel: 20px;
+  --radius-card: 16px;
+  --radius-control: 12px;
+  --radius-chip: 8px;
+  --radius-pill: 999px;
+
+  /* 5. Elevation. Ink is oklch(0.228 0.047 254.7). */
+  --shadow-1: 0 1px 2px oklch(0.228 0.047 254.7 / 0.06), 0 1px 1px oklch(0.228 0.047 254.7 / 0.04);
+  --shadow-2: 0 2px 4px oklch(0.228 0.047 254.7 / 0.05), 0 8px 24px -6px oklch(0.228 0.047 254.7 / 0.12);
+  --shadow-3: 0 4px 8px oklch(0.228 0.047 254.7 / 0.06), 0 24px 48px -12px oklch(0.228 0.047 254.7 / 0.28);
+
+  /* Motion durations and easing. docs/motion.md.
+     dur-1, dur-2 and dur-3 stay for transitions not yet on the new scale. */
+  --dur-1: 120ms;
+  --dur-2: 200ms;
+  --dur-3: 320ms;
+  --dur-instant: 80ms;
+  --dur-fast: 140ms;
+  --dur-base: 220ms;
+  --dur-slow: 360ms;
+  --dur-page: 420ms;
+  --ease-out: cubic-bezier(0.22, 1, 0.36, 1);
+  --ease-in-out: cubic-bezier(0.65, 0, 0.35, 1);
+  --ease-exit: cubic-bezier(0.4, 0, 1, 1);
+  --default-transition-duration: var(--dur-1);
+  --default-transition-timing-function: var(--ease-out);
+}
+
+/* Spring presets, stagger and rise. Seconds in CSS time where motion.ts uses seconds. */
+:root {
+  --spring-snappy-stiffness: 520;
+  --spring-snappy-damping: 42;
+  --spring-snappy-mass: 1;
+  --spring-smooth-duration: 0.4s;
+  --spring-smooth-bounce: 0;
+  --spring-flick-duration: 0.45s;
+  --spring-flick-bounce: 0.18;
+  --stagger: 30ms;
+  --stagger-max: 8;
+  --distance-rise: 12px;
+}
+
+/* Utilities inline the Astro variables. --font-sans above stays available to custom CSS. */
+@theme inline {
+  --font-sans: var(--font-mona);
+  --font-mono: var(--font-geist-mono);
+}
+
+@media (width >= theme(--breakpoint-md)) {
+  :root {
+    --gutter: var(--gutter-lg);
+    --inset: var(--inset-lg);
+    --columns: var(--columns-lg);
+    --column-gap: var(--column-gap-lg);
+  }
+}

@@ -1,0 +1,88 @@
+---
+/**
+ * Brand landing. docs/pages.md (Home `/home`). Motion: docs/motion.md items 23–26.
+ * Server-rendered so the dispatch chip reads Asia/Karachi on each request.
+ * The catalog lives at `/`.
+ */
+import Layout from "../layouts/Layout.astro";
+import CategoryBento from "../components/CategoryBento.astro";
+import Hero, { type HeroCard } from "../components/Hero.astro";
+import HomeClose from "../components/HomeClose.astro";
+import HomeStory from "../components/HomeStory.astro";
+import ProcessBand from "../components/ProcessBand.astro";
+import StockStrip from "../components/StockStrip.astro";
+import "../components/home-reveal.css";
+import { CATEGORIES, CATEGORY_HEADINGS, FEATURED_CATEGORY, FEATURED_TILE_PART } from "../lib/categories";
+import { loadCounterParts, type CounterPart } from "../lib/counter-parts";
+import {
+  bentoOrder,
+  categoryCounts,
+  categoryPhoto,
+  orderedParts,
+  pickHeroDeck,
+  resolveFeaturedCategory,
+} from "../lib/home";
+import { pageTitle } from "../lib/shop";
+
+const records = await loadCounterParts();
+const counts = categoryCounts(records, CATEGORIES);
+const feature = resolveFeaturedCategory(records, CATEGORIES, FEATURED_CATEGORY);
+const deck = pickHeroDeck(records, CATEGORIES, feature);
+const ordered = orderedParts(records, CATEGORIES);
+
+function productHref(partNumber: string) {
+  return `/product/${encodeURIComponent(partNumber.toLowerCase())}`;
+}
+
+function toCard(part: CounterPart): HeroCard {
+  return {
+    href: productHref(part.part_number),
+    partNumber: part.part_number,
+    name: part.name,
+    price: part.price,
+    breaks: part.breaks,
+    stockQty: part.stock_qty,
+    restockOn: part.restock_on,
+    packageType: part.package_type,
+    voltage: part.voltage,
+    image: part.image,
+  };
+}
+
+const tiles = bentoOrder(counts, CATEGORIES, feature).map((row) => {
+  const members = ordered.filter((part) => part.category === row.category);
+  const photo = categoryPhoto(records, row.category, CATEGORIES, row.category === feature ? FEATURED_TILE_PART : undefined);
+  const heading = CATEGORY_HEADINGS[row.category as keyof typeof CATEGORY_HEADINGS] ?? row.category;
+  return {
+    href: `/?category=${encodeURIComponent(row.category)}#catalog`,
+    category: row.category,
+    heading,
+    count: row.count,
+    featured: row.category === feature,
+    partNumbers: row.category === feature ? members.map((part) => part.part_number) : undefined,
+    image: photo?.image,
+    imagePart: photo?.part_number,
+  };
+});
+---
+
+<Layout
+  title={pageTitle("Home")}
+  description="Regulators, boards, sensors and relays. Every price is the price at checkout. Every stock number is a real count."
+>
+  <Hero front={deck ? toCard(deck.front) : null} behind={deck ? deck.behind.map(toCard) : []} />
+  <HomeStory parts={records} />
+  <CategoryBento tiles={tiles} total={records.length} allHref="/" />
+  <StockStrip
+    catalogHref="/"
+    rows={ordered.map((part) => ({
+      href: productHref(part.part_number),
+      partNumber: part.part_number,
+      stockQty: part.stock_qty,
+      restockOn: part.restock_on,
+      price: part.price,
+    }))}
+  />
+  <ProcessBand />
+  <HomeClose total={records.length} href="/" />
+</Layout>

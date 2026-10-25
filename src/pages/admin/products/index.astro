@@ -1,0 +1,104 @@
+---
+import "../../../components/admin/admin-orders.css";
+import "../../../components/illustrations/package-mark.css";
+import { env } from "cloudflare:workers";
+import AdminLayout from "../../../layouts/AdminLayout.astro";
+import Button from "../../../components/Button.astro";
+import PackageMark from "../../../components/illustrations/PackageMark.tsx";
+import StockIndicator from "../../../components/StockIndicator.astro";
+import type { AdminDatabase } from "../../../lib/admin/db";
+import { listProducts, type ProductListRow } from "../../../lib/admin/products";
+import { formatPkr } from "../../../lib/money";
+import { CATEGORIES } from "../../../lib/categories";
+
+export const prerender = false;
+
+const db = env?.DB as unknown as AdminDatabase | undefined;
+let rows: ProductListRow[] = [];
+let failed = !db;
+if (db) {
+  try {
+    rows = await listProducts(db);
+  } catch (error) {
+    failed = true;
+    console.error("Admin products failed:", error instanceof Error ? error.name : "unknown");
+  }
+}
+if (failed) Astro.response.status = 500;
+
+const q = (Astro.url.searchParams.get("q") ?? "").trim().slice(0, 80);
+const category = Astro.url.searchParams.get("category") ?? "";
+const shown = rows.filter(
+  (row) =>
+    (!category || row.category === category) &&
+    (!q || `${row.part_number} ${row.name ?? ""}`.toLowerCase().includes(q.toLowerCase())),
+);
+const hidden = rows.filter((row) => row.published !== 1).length;
+---
+
+<AdminLayout title="Products" current="products">
+  <div class="admin-page">
+    <div class="admin-head">
+      <div>
+        <p class="label">Products</p>
+        <h1 class="title">The catalog</h1>
+        <p class="count">{failed ? "Products could not be read." : `${rows.length} products · ${hidden} hidden`}</p>
+      </div>
+      <div class="admin-tools">
+        <Button variant="secondary" href="/admin/products/export.csv">Export CSV</Button>
+        <Button variant="primary" href="/admin/products/new">New product</Button>
+      </div>
+    </div>
+
+    <div class="admin-toolbar">
+      <form class="admin-search" method="GET" action="/admin/products" role="search">
+        <label>
+          <svg width="18" height="18" aria-hidden="true" focusable="false"><use href="#search" /></svg>
+          <span class="sr-only">Search products</span>
+          <input type="search" name="q" value={q} placeholder="Part number or name" autocomplete="off" />
+        </label>
+        <select class="in-select" name="category" aria-label="Category">
+          <option value="">All categories</option>
+          {CATEGORIES.map((name) => <option value={name} selected={category === name}>{name}</option>)}
+        </select>
+        <Button variant="secondary" type="submit">Filter</Button>
+      </form>
+    </div>
+
+    {shown.length === 0 ? (
+      <section class="admin-panel admin-empty" aria-labelledby="products-empty">
+        <PackageMark kind="module" empty />
+        <h2 class="heading" id="products-empty">{failed ? "Products could not be read" : rows.length === 0 ? "No products yet" : "No products match"}</h2>
+        <p>{rows.length === 0 ? "Add the first product to put it on the shop." : "Try a part number or a name."}</p>
+        {rows.length === 0 ? <Button variant="primary" href="/admin/products/new">New product</Button> : <Button variant="secondary" href="/admin/products">Clear filters</Button>}
+      </section>
+    ) : (
+      <div class="admin-table-panel">
+        <table class="admin-table">
+          <thead><tr><th>Part</th><th>Name</th><th>Category</th><th>Price</th><th>Stock</th><th>Status</th></tr></thead>
+          <tbody>
+            {shown.map((row) => (
+              <tr>
+                <td><a class="order-link" href={`/admin/products/${encodeURIComponent(row.part_number)}`}>{row.part_number}</a></td>
+                <td>{row.name}</td>
+                <td class="muted">{row.category}</td>
+                <td class="num">{formatPkr(row.price)}</td>
+                <td><StockIndicator stockQty={row.qty ?? 0} /></td>
+                <td><span class:list={["chip", row.published === 1 ? "delivered" : "awaiting"]}>{row.published === 1 ? "Shown" : "Hidden"}</span></td>
+              </tr>
+            ))}
+          </tbody>
+        </table>
+        <div class="admin-cards">
+          {shown.map((row) => (
+            <a class="order-card" href={`/admin/products/${encodeURIComponent(row.part_number)}`}>
+              <span class="order-card-row"><span class="order-link">{row.part_number}</span><span class:list={["chip", row.published === 1 ? "delivered" : "awaiting"]}>{row.published === 1 ? "Shown" : "Hidden"}</span></span>
+              <span class="order-card-row"><span class="buyer">{row.name}</span><span class="num">{formatPkr(row.price)}</span></span>
+              <span class="meta">{row.category} · <StockIndicator stockQty={row.qty ?? 0} /></span>
+            </a>
+          ))}
+        </div>
+      </div>
+    )}
+  </div>
+</AdminLayout>

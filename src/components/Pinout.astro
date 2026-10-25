@@ -1,0 +1,449 @@
+---
+/**
+ * Interactive pin diagram. docs/motion.md interaction 15.
+ * Hover, focus, or tap a pin row to light that pin. Names come from `pinout`.
+ */
+import { pinFigure, type PinoutPin } from "../lib/pinout-figure";
+
+interface Props {
+  packageType: string;
+  pins: PinoutPin[];
+  connector?: string;
+}
+
+const { packageType, pins, connector } = Astro.props;
+const figure = pinFigure({ packageType, pins, connector });
+---
+
+<div class="pinout" data-pinout>
+  <div class="pin-layout">
+    <div class="pin-stage">
+      <svg
+        class="pin-svg"
+        viewBox={`0 0 ${figure.width} ${figure.height}`}
+        aria-hidden="true"
+        focusable="false"
+      >
+        {figure.shapes.map((shape) => {
+          if (shape.kind === "rect") {
+            return (
+              <rect
+                class={shape.tone === "metal" ? "metal" : "body"}
+                x={shape.x}
+                y={shape.y}
+                width={shape.w}
+                height={shape.h}
+                rx={shape.rx ?? 8}
+              />
+            );
+          }
+          if (shape.kind === "circle") {
+            return <circle class="hole" cx={shape.cx} cy={shape.cy} r={shape.r} />;
+          }
+          return <rect class="notch" x={shape.x} y={shape.y} width={shape.w} height={shape.h} rx="2" />;
+        })}
+        {figure.connector && (
+          <g>
+            <rect
+              class="metal"
+              x={figure.connector.x}
+              y={figure.connector.y}
+              width={figure.connector.w}
+              height={figure.connector.h}
+              rx="4"
+            />
+            <text
+              class="usb"
+              x={figure.connector.x + figure.connector.w / 2}
+              y={figure.connector.y + figure.connector.h / 2 + 1}
+              text-anchor="middle"
+              dominant-baseline="middle"
+            >
+              {figure.connector.text}
+            </text>
+          </g>
+        )}
+        {figure.marks.map((mark) => (
+          <g class="pin-mark" data-pin={mark.pin}>
+            {mark.wide && (
+              <rect class="wide" x={mark.wide.x} y={mark.wide.y} width={mark.wide.w} height={mark.wide.h} rx="8" />
+            )}
+            {(mark.x1 !== mark.x || mark.y1 !== mark.y) && (
+              <line class="lead" x1={mark.x1} y1={mark.y1} x2={mark.x} y2={mark.y} />
+            )}
+            <circle class="hit" cx={mark.x} cy={mark.y} r="5" />
+            <circle class="halo" cx={mark.x} cy={mark.y} r="7" />
+            <circle class="pad" cx={mark.x} cy={mark.y} r="4.5" />
+          </g>
+        ))}
+      </svg>
+      <p class="pin-callout" aria-hidden="true"></p>
+    </div>
+    <ul class="pin-rows">
+      {pins.map((pin) => (
+        <li>
+          <button
+            type="button"
+            class="pin-row"
+            data-pin-row={pin.pin}
+            data-callout={pin.label}
+            aria-pressed="false"
+          >
+            <span class="pin-id">{pin.pin}</span>
+            <span class="pin-name">{pin.label}</span>
+            {pin.note && <span class="pin-note">{pin.note}</span>}
+          </button>
+        </li>
+      ))}
+    </ul>
+  </div>
+  {figure.caveat && <p class="caveat">{figure.caveat}</p>}
+</div>
+
+<script>
+  function bindPinout(root: HTMLElement) {
+    if (root.dataset.bound === "true") return;
+    root.dataset.bound = "true";
+    const stageNode = root.querySelector(".pin-stage");
+    const calloutNode = root.querySelector(".pin-callout");
+    if (!(stageNode instanceof HTMLElement) || !(calloutNode instanceof HTMLElement)) return;
+    const stage: HTMLElement = stageNode;
+    const callout: HTMLElement = calloutNode;
+
+    const rows = [...root.querySelectorAll<HTMLButtonElement>("[data-pin-row]")];
+    const fine = window.matchMedia("(hover: hover) and (pointer: fine)");
+    let pointerId: string | null = null;
+    let focusId: string | null = null;
+    let lockedId: string | null = null;
+
+    function marksFor(id: string) {
+      return [...root.querySelectorAll<SVGElement>("[data-pin]")].filter((mark) => mark.dataset.pin === id);
+    }
+
+    function shownId() {
+      return lockedId ?? focusId ?? pointerId;
+    }
+
+    function paint(anchor?: Element) {
+      const id = shownId();
+      root.querySelectorAll(".is-lit").forEach((mark) => mark.classList.remove("is-lit"));
+      for (const row of rows) {
+        const on = row.dataset.pinRow === id;
+        row.classList.toggle("is-active", on);
+        row.setAttribute("aria-pressed", String(lockedId !== null && row.dataset.pinRow === lockedId));
+      }
+      if (!id) {
+        callout.classList.remove("is-on");
+        return;
+      }
+      const group = marksFor(id);
+      group.forEach((mark) => mark.classList.add("is-lit"));
+      const row = rows.find((item) => item.dataset.pinRow === id);
+      const mark = anchor instanceof SVGElement && anchor.dataset.pin === id ? anchor : group[0];
+      callout.textContent = row?.dataset.callout ?? "";
+      if (!mark) return;
+      const stageBox = stage.getBoundingClientRect();
+      const box = mark.getBoundingClientRect();
+      const width = callout.offsetWidth;
+      const height = callout.offsetHeight;
+      let x = box.left - stageBox.left + box.width / 2 - width / 2;
+      let y = box.top - stageBox.top - height - 8;
+      if (y < 8) y = box.bottom - stageBox.top + 8;
+      const maxX = Math.max(8, stage.clientWidth - width - 8);
+      if (x < 8) x = 8;
+      if (x > maxX) x = maxX;
+      const maxY = Math.max(8, stage.clientHeight - height - 8);
+      if (y > maxY) y = maxY;
+      stage.style.setProperty("--callout-x", `${Math.round(x)}px`);
+      stage.style.setProperty("--callout-y", `${Math.round(y)}px`);
+      callout.classList.add("is-on");
+    }
+
+    for (const row of rows) {
+      const id = row.dataset.pinRow ?? "";
+      row.addEventListener("pointerenter", () => {
+        if (!fine.matches) return;
+        pointerId = id;
+        paint();
+      });
+      row.addEventListener("pointerleave", () => {
+        if (pointerId === id) pointerId = null;
+        paint();
+      });
+      row.addEventListener("focus", () => {
+        if (!fine.matches) return;
+        focusId = id;
+        paint();
+      });
+      row.addEventListener("blur", () => {
+        if (focusId === id) focusId = null;
+        paint();
+      });
+      row.addEventListener("click", () => {
+        if (fine.matches) return;
+        lockedId = lockedId === id ? null : id;
+        pointerId = null;
+        paint();
+      });
+    }
+
+    root.querySelectorAll<SVGElement>("[data-pin]").forEach((mark) => {
+      mark.addEventListener("pointerenter", () => {
+        if (!fine.matches) return;
+        pointerId = mark.dataset.pin ?? null;
+        paint(mark);
+      });
+      mark.addEventListener("pointerleave", () => {
+        if (pointerId === mark.dataset.pin) pointerId = null;
+        paint();
+      });
+      mark.addEventListener("pointerup", () => {
+        if (fine.matches) return;
+        const id = mark.dataset.pin ?? "";
+        lockedId = lockedId === id ? null : id;
+        paint(mark);
+      });
+    });
+
+    root.addEventListener("keydown", (event) => {
+      if (event.key !== "Escape" || lockedId === null) return;
+      lockedId = null;
+      paint();
+    });
+  }
+
+  document.querySelectorAll<HTMLElement>("[data-pinout]").forEach((root) => bindPinout(root));
+</script>
+
+<style>
+  .pin-layout {
+    display: grid;
+    gap: var(--space-16);
+    align-items: start;
+  }
+
+  .pin-stage {
+    position: relative;
+    padding: var(--space-16);
+    border-radius: var(--radius-control);
+    background: var(--color-sunken);
+  }
+
+  .pin-svg {
+    display: block;
+    width: 100%;
+    height: auto;
+    color: var(--color-ink);
+  }
+
+  .body,
+  .metal,
+  .hole,
+  .notch,
+  .lead,
+  .wide {
+    stroke: currentColor;
+    stroke-width: 1.75;
+  }
+
+  .body {
+    fill: var(--color-surface);
+  }
+
+  .metal,
+  .wide {
+    fill: var(--color-surface);
+  }
+
+  .hole,
+  .notch {
+    fill: var(--color-sunken);
+  }
+
+  .lead {
+    fill: none;
+    stroke-linecap: round;
+  }
+
+  .hit {
+    fill: transparent;
+  }
+
+  .halo {
+    fill: var(--color-signal);
+    opacity: 0;
+    pointer-events: none;
+    transition: opacity var(--dur-fast, var(--dur-1)) var(--ease-out);
+  }
+
+  .pad {
+    fill: currentColor;
+    transition: fill var(--dur-fast, var(--dur-1)) var(--ease-out);
+  }
+
+  .lead,
+  .wide {
+    transition: stroke var(--dur-fast, var(--dur-1)) var(--ease-out), fill var(--dur-fast, var(--dur-1)) var(--ease-out);
+  }
+
+  .pin-mark.is-lit .halo {
+    opacity: 0.55;
+  }
+
+  .pin-mark.is-lit .pad,
+  .pin-mark.is-lit .lead {
+    fill: var(--color-signal);
+    stroke: var(--color-signal);
+  }
+
+  .pin-mark.is-lit .wide {
+    fill: var(--color-blue-100);
+    stroke: var(--color-signal);
+  }
+
+  .pin-callout {
+    position: absolute;
+    z-index: 1;
+    left: var(--callout-x, 0px);
+    top: var(--callout-y, 0px);
+    max-width: calc(100% - var(--space-32));
+    margin: 0;
+    padding: var(--space-4) var(--space-8);
+    border-radius: var(--radius-chip);
+    background: var(--color-surface);
+    box-shadow: var(--shadow-1), inset 0 0 0 1px var(--color-line);
+    color: var(--color-ink);
+    font-size: var(--text-small);
+    font-weight: var(--font-weight-strong);
+    line-height: var(--text-small--line-height);
+    opacity: 0;
+    pointer-events: none;
+    transition: opacity var(--dur-fast, var(--dur-1)) var(--ease-out);
+  }
+
+  .pin-callout.is-on {
+    opacity: 1;
+  }
+
+  .pin-rows {
+    margin: 0;
+    padding: 0;
+    overflow: hidden;
+    list-style: none;
+    border-radius: var(--radius-panel);
+    background: var(--color-surface);
+    box-shadow: inset 0 0 0 1px var(--color-line);
+  }
+
+  .pin-row {
+    display: grid;
+    grid-template-columns: auto minmax(0, 1fr);
+    grid-template-areas:
+      "id name"
+      "id note";
+    column-gap: var(--space-12);
+    row-gap: var(--space-2);
+    align-items: center;
+    width: 100%;
+    min-height: 44px;
+    padding: var(--space-8) var(--space-16);
+    border: 0;
+    border-top: 1px solid var(--color-line);
+    background: transparent;
+    color: var(--color-ink);
+    font: inherit;
+    text-align: left;
+    cursor: pointer;
+    transition: background-color var(--dur-fast, var(--dur-1)) var(--ease-out), transform var(--dur-1) var(--ease-out);
+  }
+
+  .pin-rows li:first-child .pin-row {
+    border-top: 0;
+  }
+
+  .pin-row.is-active,
+  .pin-row[aria-pressed="true"] {
+    background: var(--color-blue-50);
+  }
+
+  .pin-row:active {
+    transform: scale(0.97);
+  }
+
+  .pin-id {
+    grid-area: id;
+    font-family: var(--font-part);
+    font-size: var(--text-small);
+    font-weight: var(--font-weight-part);
+    font-variation-settings: normal;
+    font-variant-numeric: slashed-zero;
+    letter-spacing: var(--tracking-part);
+    line-height: var(--text-small--line-height);
+  }
+
+  .pin-name {
+    grid-area: name;
+    font-size: var(--text-small);
+    font-weight: var(--font-weight-strong);
+    line-height: var(--text-small--line-height);
+    text-wrap: pretty;
+    overflow-wrap: anywhere;
+  }
+
+  .pin-note {
+    grid-area: note;
+    color: var(--color-ink-muted);
+    font-size: var(--text-caption);
+    line-height: var(--text-caption--line-height);
+    text-wrap: pretty;
+  }
+
+  .pin-row:not(:has(.pin-note)) {
+    grid-template-areas: "id name";
+  }
+
+  .caveat {
+    margin: var(--space-12) 0 0;
+    color: var(--color-ink-muted);
+    font-size: var(--text-caption);
+    line-height: var(--text-caption--line-height);
+    text-wrap: pretty;
+  }
+
+  .usb {
+    fill: var(--color-ink);
+    font-family: var(--font-part);
+    font-size: var(--text-caption);
+    font-weight: var(--font-weight-part);
+  }
+
+  @media (min-width: 900px) {
+    .pin-layout {
+      grid-template-columns: minmax(0, 0.82fr) minmax(0, 1.18fr);
+    }
+
+    .pin-stage {
+      position: sticky;
+      top: calc(var(--header-clearance) + var(--space-80));
+    }
+  }
+
+  @media (prefers-reduced-motion: reduce) {
+    .halo,
+    .pad,
+    .lead,
+    .wide,
+    .pin-callout,
+    .pin-row {
+      transition: none;
+    }
+
+    .pin-mark.is-lit .halo {
+      opacity: 0;
+    }
+
+    .pin-row:active {
+      transform: none;
+    }
+  }
+</style>

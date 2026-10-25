@@ -1,0 +1,56 @@
+---
+/**
+ * About. docs/pages.md#about-about.
+ * No counter photo and no street address until the owner supplies them.
+ */
+import "./info.css";
+import { getProducts } from "../lib/catalog-db";
+import Layout from "../layouts/Layout.astro";
+import Button from "../components/Button.astro";
+import { counterPlace, deskHours, inspectedBeforeDispatch } from "../lib/desk";
+import { pageTitle, shopName } from "../lib/shop";
+import { noCashOnDelivery, shippingWindows } from "../lib/shipping";
+
+const name = shopName();
+const count = (await getProducts()).length;
+const noun = count === 1 ? "part" : "parts";
+---
+
+<Layout
+  title={pageTitle("About")}
+  description={`${name} is a counter on Hall Road, Lahore. The catalog has ${count} ${noun}.`}
+>
+  <article class="info-page">
+    <p class="eyebrow">The counter</p>
+    <h1 class="title">A counter on Hall Road.</h1>
+    <p class="lede">{name} is that counter for someone who is not standing in the lane.</p>
+
+    <div class="split">
+      <div class="story">
+        <p>Hall Road is where Lahore buys electronic parts.</p>
+        {count === 0 ? (
+          <p>The catalog has no parts yet.</p>
+        ) : (
+          <p>
+            The catalog has {count} {noun}. Each one shows the part number, what it does, how many are in the drawer, and the price in rupees.
+          </p>
+        )}
+        <p>{inspectedBeforeDispatch}</p>
+        <p>{shippingWindows}</p>
+        <p>{noCashOnDelivery}</p>
+        <p><a href="/shipping-and-payments">Shipping and payment</a></p>
+      </div>
+      <aside class="sheet side">
+        <h2 class="heading">Hours</h2>
+        <p>{deskHours}</p>
+        <h2 class="heading">Counter</h2>
+        <p>{counterPlace}</p>
+      </aside>
+    </div>
+
+    <div class="actions">
+      <Button href="/" variant="primary">All parts</Button>
+      <Button href="/contact" variant="ghost">Contact</Button>
+    </div>
+  </article>
+</Layout>

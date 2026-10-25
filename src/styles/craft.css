@@ -1,0 +1,392 @@
+/* R8 craft layer. Selection, scrollbars, cursors, focus, toasts, offline, print. */
+
+:root {
+  accent-color: var(--color-action);
+  color-scheme: light;
+  scrollbar-color: var(--color-control-line) transparent;
+  scrollbar-width: thin;
+}
+
+::selection {
+  background: var(--color-action);
+  color: var(--color-surface);
+}
+
+.site-footer ::selection,
+.on-navy ::selection {
+  background: var(--color-signal);
+  color: var(--color-navy);
+}
+
+* {
+  scrollbar-color: var(--color-control-line) transparent;
+}
+
+::-webkit-scrollbar {
+  width: var(--space-12);
+  height: var(--space-12);
+}
+
+::-webkit-scrollbar-thumb {
+  border: var(--space-2) solid transparent;
+  border-radius: var(--radius-pill);
+  background: var(--color-control-line);
+  background-clip: content-box;
+}
+
+::-webkit-scrollbar-track {
+  background: transparent;
+}
+
+a[href],
+button:not(:disabled),
+summary,
+label[for],
+select,
+[role="button"],
+input[type="checkbox"],
+input[type="radio"] {
+  cursor: pointer;
+}
+
+button:disabled,
+[aria-disabled="true"],
+input:disabled,
+select:disabled,
+textarea:disabled {
+  cursor: not-allowed;
+}
+
+input:not([type="checkbox"], [type="radio"], [type="button"], [type="submit"]),
+textarea {
+  cursor: text;
+}
+
+[aria-busy="true"] {
+  cursor: progress;
+}
+
+@media (prefers-reduced-motion: no-preference) {
+  :focus-visible {
+    animation: focus-ring var(--dur-base) var(--ease-out);
+  }
+}
+
+@keyframes focus-ring {
+  from {
+    outline-offset: var(--space-8);
+    outline-color: transparent;
+  }
+  to {
+    outline-offset: var(--space-2);
+    outline-color: var(--color-action);
+  }
+}
+
+:focus-visible {
+  outline-offset: var(--space-2);
+}
+
+.site-footer :focus-visible,
+.on-navy :focus-visible {
+  outline-color: var(--color-signal);
+}
+
+/* Toasts. One polite region, one alert region. */
+.toast-region {
+  position: fixed;
+  z-index: 90;
+  right: var(--inset);
+  bottom: calc(var(--inset) + env(safe-area-inset-bottom, 0px));
+  left: var(--inset);
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: var(--space-8);
+  pointer-events: none;
+}
+
+body:has(.buy-bar:not(.is-off)) .toast-region {
+  bottom: calc(var(--space-96) + env(safe-area-inset-bottom, 0px));
+}
+
+.toast-region > div {
+  display: contents;
+}
+
+.toast {
+  display: inline-flex;
+  margin: 0;
+  align-items: center;
+  gap: var(--space-8);
+  max-width: min(100%, 420px);
+  padding: var(--space-12) var(--space-16);
+  border-radius: var(--radius-pill);
+  background: var(--color-navy);
+  color: var(--color-on-navy);
+  box-shadow: var(--shadow-3);
+  font-size: var(--text-small);
+  font-weight: var(--font-weight-strong);
+  line-height: var(--text-small--line-height);
+  text-wrap: balance;
+  animation: toast-in var(--dur-base) var(--ease-out) both;
+}
+
+.toast svg {
+  flex: none;
+  width: var(--space-20);
+  height: var(--space-20);
+  color: var(--color-signal);
+}
+
+.toast[data-tone="error"] svg {
+  color: var(--color-out-bg);
+}
+
+.toast[data-leaving] {
+  animation: toast-out var(--dur-fast) var(--ease-exit) both;
+}
+
+@keyframes toast-in {
+  from {
+    opacity: 0;
+    transform: translateY(var(--space-12));
+  }
+  to {
+    opacity: 1;
+    transform: none;
+  }
+}
+
+@keyframes toast-out {
+  from {
+    opacity: 1;
+  }
+  to {
+    opacity: 0;
+  }
+}
+
+@media (min-width: 900px) {
+  .toast-region {
+    right: var(--inset-lg);
+    left: auto;
+    align-items: flex-end;
+  }
+
+  body:has(.buy-bar:not(.is-off)) .toast-region,
+  body:has(.buy-bar:not(.is-off)) .offline-banner {
+    bottom: calc(var(--inset) + env(safe-area-inset-bottom, 0px));
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .toast,
+  .toast[data-leaving] {
+    animation: none;
+  }
+}
+
+/* Offline banner. Hidden until the browser reports no network. */
+.offline-banner {
+  position: fixed;
+  z-index: 85;
+  right: var(--inset);
+  bottom: calc(var(--inset) + env(safe-area-inset-bottom, 0px));
+  left: var(--inset);
+  display: flex;
+  align-items: center;
+  gap: var(--space-16);
+  max-width: 560px;
+  margin-inline: auto;
+  padding: var(--space-12) var(--space-16);
+  border-radius: var(--radius-panel);
+  background: var(--color-surface);
+  box-shadow: var(--shadow-3), inset 0 0 0 1px var(--color-line);
+  animation: toast-in var(--dur-base) var(--ease-out) both;
+}
+
+.offline-banner[hidden] {
+  display: none;
+}
+
+body:has(.buy-bar:not(.is-off)) .offline-banner {
+  bottom: calc(var(--space-96) + env(safe-area-inset-bottom, 0px));
+}
+
+.offline-banner .empty-mark {
+  flex: none;
+  margin: 0;
+}
+
+.offline-banner-copy {
+  display: flex;
+  flex: 1;
+  flex-direction: column;
+  gap: var(--space-2);
+  min-width: 0;
+  font-size: var(--text-small);
+  line-height: var(--text-small--line-height);
+  text-wrap: pretty;
+}
+
+.offline-banner-copy strong {
+  font-weight: var(--font-weight-strong);
+}
+
+.offline-banner-copy span {
+  color: var(--color-ink-muted);
+}
+
+.offline-retry {
+  flex: none;
+  min-width: 44px;
+  min-height: 44px;
+  padding: 0 var(--space-16);
+  border: 0;
+  border-radius: var(--radius-pill);
+  background: var(--color-action);
+  color: var(--color-surface);
+  font: inherit;
+  font-size: var(--text-small);
+  font-weight: var(--font-weight-strong);
+}
+
+.offline-retry:hover {
+  background: var(--color-action-hover);
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .offline-banner {
+    animation: none;
+  }
+}
+
+/* Empty and error states shared by 404, 500 and a missing order. */
+.state {
+  display: flex;
+  flex-direction: column;
+  align-items: flex-start;
+}
+
+.state .empty-mark {
+  width: var(--space-80);
+  height: var(--space-80);
+  margin-bottom: var(--space-24);
+}
+
+/* Short text balances so the last line is never one word. Long paragraphs keep `pretty` from the body. */
+:is(dd, li, figcaption, .value, .job, .summary, .site-footer-blurb, .promise, .step-title, h1, h2, h3, h4) {
+  text-wrap: balance;
+}
+
+.nowrap {
+  white-space: nowrap;
+}
+
+/* Loading: static blocks, no shimmer. */
+.skeleton {
+  display: block;
+  border-radius: var(--radius-control);
+  background: var(--color-sunken);
+}
+
+.skeleton-row {
+  height: var(--space-56);
+}
+
+/* Copy buttons: glyph morphs to a check. */
+.copy-ico {
+  position: relative;
+  flex: none;
+  width: var(--space-16);
+  height: var(--space-16);
+}
+
+.copy-glyph,
+.copy-check {
+  position: absolute;
+  inset: 0;
+  display: block;
+  width: var(--space-16);
+  height: var(--space-16);
+  transition: opacity var(--dur-fast) var(--ease-out), clip-path var(--dur-base) var(--ease-out);
+}
+
+.copy-check {
+  opacity: 0;
+  clip-path: inset(0 100% 0 0);
+  color: var(--color-ok);
+}
+
+.copy-btn[data-state="copied"] .copy-glyph,
+.copy-share[data-state="copied"] .copy-glyph {
+  opacity: 0;
+}
+
+.copy-btn[data-state="copied"] .copy-check,
+.copy-share[data-state="copied"] .copy-check {
+  opacity: 1;
+  clip-path: inset(0 0 0 0);
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .copy-glyph,
+  .copy-check {
+    transition: none;
+  }
+}
+
+/* Print: receipt only. */
+@media print {
+  @page {
+    margin: 16mm;
+  }
+
+  html,
+  body {
+    background: var(--color-surface);
+    color: var(--color-ink);
+  }
+
+  .site-header,
+  .site-footer,
+  .header-sentinel-anchor,
+  .toast-region,
+  .offline-banner,
+  .cart-sheet,
+  .connect-bay,
+  .info-page .actions,
+  .order-received .lede,
+  .order-received .sheet:not(.receipt-sheet),
+  [data-print="hide"] {
+    display: none !important;
+  }
+
+  .info-page {
+    max-width: none;
+    margin: 0;
+    padding: 0;
+  }
+
+  .order-received .print-window {
+    overflow: visible;
+  }
+
+  .order-received .receipt-sheet {
+    animation: none;
+    transform: none;
+    border-radius: 0;
+    box-shadow: none;
+    background: var(--color-surface);
+    break-inside: avoid;
+  }
+
+  .order-received .receipt-sheet * {
+    color: var(--color-ink);
+  }
+
+  a[href]::after {
+    content: none;
+  }
+}

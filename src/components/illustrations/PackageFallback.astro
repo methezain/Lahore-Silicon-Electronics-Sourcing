@@ -1,0 +1,19 @@
+---
+/**
+ * No-photo well. A known package draws its illustration.
+ * Anything else keeps the caller's text fallback.
+ */
+import PackageMark from "./PackageMark.tsx";
+import { resolveKind } from "./packages";
+
+interface Props {
+  packageType?: string | null;
+  partNumber?: string | null;
+  stage?: boolean;
+}
+
+const { packageType, partNumber, stage = false } = Astro.props;
+const kind = resolveKind(packageType, partNumber);
+---
+
+{kind ? <PackageMark kind={kind} label={packageType ?? undefined} stage={stage} /> : <slot />}

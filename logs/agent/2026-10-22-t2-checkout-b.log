@@ -1,0 +1,9 @@
+K5   390      FAIL  check did not draw
+K5   1440     FAIL  threw: page.waitForURL: Timeout 30000ms exceeded.
+K5   1440-rm  FAIL  threw: page.waitForURL: Timeout 30000ms exceeded.
+S2   390      PASS  
+S2   1440     PASS  
+S2   390-rm   PASS  
+S2   1440-rm  PASS  
+S3   390      FAIL  link http://localhost:4321/quick-order?cart=LM7805%3A1%2CESP32-WROOM-32D%3A2
+S3   1440     FAIL  link http://localhost:4321/quick-order?cart=LM7805%3A1%2CESP32-WROOM-32D%3A2

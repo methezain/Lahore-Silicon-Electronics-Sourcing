@@ -1,0 +1,12 @@
+
+Running 8 tests using 3 workers
+
+[1/8] [390] › tests\e2e\checkout.spec.ts:48:1 › add to cart, clear field errors, and save the order
+[2/8] [390] › tests\e2e\checkout.spec.ts:186:1 › axe finds no WCAG A/AA violations on checkout
+[3/8] [390] › tests\e2e\checkout.spec.ts:167:1 › an empty cart shows an empty state instead of the form
+[4/8] [390] › tests\e2e\checkout.spec.ts:205:3 › reduced motion › the place order button does not animate a transform
+[5/8] [1440] › tests\e2e\checkout.spec.ts:48:1 › add to cart, clear field errors, and save the order
+[6/8] [1440] › tests\e2e\checkout.spec.ts:167:1 › an empty cart shows an empty state instead of the form
+[7/8] [1440] › tests\e2e\checkout.spec.ts:186:1 › axe finds no WCAG A/AA violations on checkout
+[8/8] [1440] › tests\e2e\checkout.spec.ts:205:3 › reduced motion › the place order button does not animate a transform
+  8 passed (51.6s)

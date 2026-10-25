@@ -1,0 +1,75 @@
+---
+import CartButton from "./CartButton.tsx";
+import SiteSearch from "./SiteSearch.tsx";
+import Logo from "./Logo.astro";
+import { CATEGORIES } from "../lib/categories";
+import { whatsappHref } from "../lib/shop";
+import type { CatalogPart } from "../lib/catalog";
+
+interface Props {
+  parts: CatalogPart[];
+}
+
+const { parts } = Astro.props;
+const path = Astro.url.pathname.replace(/\/$/, "") || "/";
+const searchParts = parts.map((part) => ({
+  part_number: part.part_number,
+  mpn: part.mpn,
+  name: part.name,
+  summary: part.summary,
+  category: part.category,
+  voltage: part.voltage,
+  specs: part.specs,
+  price: part.price,
+  stock_qty: part.stock_qty,
+  min_qty: part.min_qty,
+  qty_multiple: part.qty_multiple,
+  package_type: part.package_type,
+  image: part.image,
+  restock_on: part.restock_on,
+}));
+const searchCategories = CATEGORIES.map((name) => ({
+  name,
+  count: parts.filter((part) => part.category === name).length,
+  href: `/?category=${encodeURIComponent(name)}#catalog`,
+}));
+const whatsappBase = whatsappHref();
+
+const nav = [
+  { label: "Catalog", href: "/", current: path === "/" },
+  { label: "Home", href: "/home", current: path === "/home" },
+  { label: "Shipping", href: "/shipping-and-payments", current: path === "/shipping-and-payments" },
+  { label: "Contact", href: "/contact", current: path === "/contact" },
+];
+---
+
+<a class="skip-link" href="#main">Skip to content</a>
+<header class="site-header">
+  <div class="site-bar">
+    <Logo href="/" />
+    <nav class="site-seg" aria-label="Primary">
+      {nav.map((item) => (
+        <a href={item.href} aria-current={item.current ? "page" : undefined}>{item.label}</a>
+      ))}
+    </nav>
+    <SiteSearch client:intent="#search-open|[data-search-open]|keys" parts={searchParts} categories={searchCategories} whatsappBase={whatsappBase} />
+    <CartButton client:load />
+  </div>
+  <p id="cart-status" class="sr-only" aria-live="polite"></p>
+</header>
+<script>
+  const header = document.querySelector(".site-header");
+  const sentinel = document.querySelector(".header-sentinel");
+  if (header instanceof HTMLElement && sentinel instanceof HTMLElement) {
+    const parsed = Number.parseFloat(getComputedStyle(sentinel).top);
+    const threshold = Number.isFinite(parsed) ? parsed : 80;
+    const apply = (condensed: boolean) => header.classList.toggle("is-condensed", condensed);
+    apply(window.scrollY > threshold);
+    window.addEventListener("scroll", () => apply(window.scrollY > threshold), { passive: true });
+    if ("IntersectionObserver" in window) {
+      new IntersectionObserver(([entry]) => {
+        if (entry) apply(!entry.isIntersecting);
+      }).observe(sentinel);
+    }
+  }
+</script>

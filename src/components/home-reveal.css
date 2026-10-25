@@ -1,0 +1,30 @@
+/* Scroll reveal for /home story sections. docs/motion.md item 26.
+   Runs only where view timelines exist. Otherwise the section stays put. */
+
+@media (prefers-reduced-motion: no-preference) {
+  @supports (animation-timeline: view()) {
+    .home-reveal {
+      animation: home-view-rise linear both;
+      animation-timeline: view();
+      animation-range: 0% 30%;
+    }
+
+    .home-reveal:focus-within {
+      animation: none;
+      opacity: 1;
+      transform: none;
+    }
+  }
+}
+
+@keyframes home-view-rise {
+  from {
+    opacity: 0;
+    transform: translateY(var(--space-24));
+  }
+
+  to {
+    opacity: 1;
+    transform: none;
+  }
+}

@@ -1,0 +1,143 @@
+---
+/** Admin sign-in. docs/admin-plan.md section 8. */
+import { env } from "cloudflare:workers";
+import AdminLayout from "../../layouts/AdminLayout.astro";
+import Button from "../../components/Button.astro";
+import Input from "../../components/Input.astro";
+import { attemptLogin, loginMessages, loginStatus, type LoginFailure } from "../../lib/admin/auth";
+import { recordAudit, type AuditDatabase } from "../../lib/admin/audit";
+import { adminActor, adminCookie, adminHomePath, sessionSeconds } from "../../lib/admin/constants";
+
+export const prerender = false;
+
+if (Astro.locals.admin) return Astro.redirect(adminHomePath);
+
+const sitekey = (env?.PUBLIC_TURNSTILE_SITEKEY || import.meta.env.PUBLIC_TURNSTILE_SITEKEY || "").trim();
+Astro.csp?.insertScriptResource("https://challenges.cloudflare.com");
+Astro.csp?.insertDirective("frame-src https://challenges.cloudflare.com");
+Astro.csp?.insertDirective("connect-src 'self' https://challenges.cloudflare.com");
+
+let failure: LoginFailure | null = sitekey ? null : "misconfigured";
+
+if (Astro.request.method === "POST") {
+  const form = await Astro.request.formData();
+  const outcome = await attemptLogin(
+    {
+      key: String(form.get("key") ?? ""),
+      turnstileToken: String(form.get("cf-turnstile-response") ?? ""),
+      remoteip: Astro.request.headers.get("cf-connecting-ip"),
+    },
+    {
+      adminKey: env?.ADMIN_KEY,
+      sessionSecret: env?.SESSION_SECRET,
+      turnstileSecret: env?.TURNSTILE_SECRET,
+      hostnames: env?.TURNSTILE_HOSTNAMES,
+      limiter: env?.ADMIN_LOGIN_LIMIT,
+      nowSeconds: Math.floor(Date.now() / 1000),
+    },
+  );
+  if (outcome.ok) {
+    Astro.cookies.set(adminCookie, outcome.token, {
+      httpOnly: true,
+      secure: true,
+      sameSite: "strict",
+      path: "/",
+      maxAge: sessionSeconds,
+    });
+    await recordAudit(env?.DB as AuditDatabase | undefined, { actor: adminActor, action: "admin.login" });
+    return Astro.redirect(adminHomePath, 303);
+  }
+  failure = outcome.reason;
+  Astro.response.status = loginStatus[outcome.reason];
+  console.error("Admin sign-in refused:", outcome.reason);
+}
+
+const problem = failure ? loginMessages[failure] : "";
+const checkProblem = failure === "captcha" || failure === "unavailable" ? problem : "";
+const keyProblem = failure === "wrong-key" || failure === "throttled" || failure === "misconfigured" ? problem : "";
+---
+
+<AdminLayout title="Sign in" signedIn={false}>
+  <div class="admin-login">
+    <section class="admin-panel" aria-labelledby="login-title">
+      <div class="admin-login-head">
+        <p class="label">Admin</p>
+        <h1 class="title" id="login-title">Sign in</h1>
+        <p class="lede">Enter the admin key to manage orders, stock and products.</p>
+      </div>
+      <form id="login-form" method="POST" action="/admin/login" novalidate>
+        <Input
+          id="admin-key"
+          name="key"
+          type="password"
+          label="Admin key"
+          autocomplete="current-password"
+          required
+          error={keyProblem || undefined}
+        />
+        {sitekey ? (
+          <div id="login-turnstile" class="turnstile" data-sitekey={sitekey}></div>
+        ) : (
+          <div id="login-turnstile" class="turnstile" hidden></div>
+        )}
+        <input type="hidden" name="cf-turnstile-response" id="login-turnstile-token" value="" />
+        <p id="login-check-error" class="admin-problem" role="alert" hidden={!checkProblem}>{checkProblem}</p>
+        <Button type="submit" size="large" block>Sign in</Button>
+      </form>
+    </section>
+  </div>
+</AdminLayout>
+
+<script>
+  import { adminTurnstileAction } from "../../lib/admin/constants";
+
+  const box = document.getElementById("login-turnstile");
+  const token = document.getElementById("login-turnstile-token");
+  const note = document.getElementById("login-check-error");
+  const form = document.getElementById("login-form");
+  const sitekey = box instanceof HTMLElement ? (box.dataset.sitekey ?? "") : "";
+  let widget: string | undefined;
+
+  function write(value: string): void {
+    if (token instanceof HTMLInputElement) token.value = value;
+  }
+
+  function mount(): void {
+    if (!(box instanceof HTMLElement) || !sitekey || !window.turnstile || widget !== undefined) return;
+    widget = window.turnstile.render(box, {
+      sitekey,
+      action: adminTurnstileAction,
+      size: "flexible",
+      theme: "light",
+      callback: (value) => {
+        write(value);
+        if (note) note.hidden = true;
+      },
+      "expired-callback": () => write(""),
+      "error-callback": () => write(""),
+    });
+  }
+
+  if (sitekey) {
+    if (window.turnstile) {
+      mount();
+    } else {
+      const script = document.createElement("script");
+      script.src = "https://challenges.cloudflare.com/turnstile/v0/api.js?render=explicit";
+      script.async = true;
+      script.addEventListener("load", mount, { once: true });
+      document.head.appendChild(script);
+    }
+  }
+
+  if (form instanceof HTMLFormElement) {
+    form.addEventListener("submit", (event) => {
+      if (!sitekey || (token instanceof HTMLInputElement && token.value)) return;
+      event.preventDefault();
+      if (note) {
+        note.textContent = "Complete the check above.";
+        note.hidden = false;
+      }
+    });
+  }
+</script>

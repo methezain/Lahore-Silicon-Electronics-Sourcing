@@ -1,4 +1,5 @@
 # build output
+.wrangler/
 dist/
 
 # generated types
@@ -13,9 +14,11 @@ yarn-debug.log*
 yarn-error.log*
 pnpm-debug.log*
 
+logs/
 # environment variables
 .env
 .env.production
+.dev.vars
 .vscode/
 # macOS-specific files
 .DS_Store
@@ -23,5 +26,15 @@ pnpm-debug.log*
 # jetbrains setting folder
 .idea/
 
+# tests and audits
+test-results/
+playwright-report/
+blob-report/
+.lighthouseci/
+
 documents/
 design_language/
+docs/
+reports/
+research_notes/
+logs/

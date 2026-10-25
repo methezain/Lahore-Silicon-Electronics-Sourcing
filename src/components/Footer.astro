@@ -1,0 +1,78 @@
+---
+import Logo from './Logo.astro';
+import { CATEGORIES } from '../lib/categories';
+import { deskHours } from '../lib/desk';
+import { returnRule, sameDayDispatch } from '../lib/shipping';
+import { shopName, shopPhone, whatsappHref } from '../lib/shop';
+
+const name = shopName();
+const phone = shopPhone();
+const wa = whatsappHref();
+const path = Astro.url.pathname.replace(/\/$/, '') || '/';
+const home = path === '/home';
+const category = Astro.url.searchParams.get('category');
+
+const catalogLinks = [
+  { label: 'All parts', href: '/', current: path === '/' && !category },
+  ...CATEGORIES.map((label) => ({
+    label,
+    href: `/?category=${encodeURIComponent(label)}#catalog`,
+    current: path === '/' && category === label,
+  })),
+];
+
+const counterLinks = [
+  { label: 'Shipping and payment', href: '/shipping-and-payments', current: path === '/shipping-and-payments' },
+  { label: 'About', href: '/about', current: path === '/about' },
+  { label: 'Contact', href: '/contact', current: path === '/contact' },
+  ...(wa && phone ? [{ label: 'WhatsApp', number: phone.display, href: wa, current: false }] : []),
+];
+---
+
+<footer class="site-footer">
+  <div class="site-footer-grid">
+    <div class="site-footer-brand">
+      <Logo href="/" surface="navy" />
+      <p class="site-footer-blurb">Parts from Hall Road, Lahore. {deskHours}</p>
+    </div>
+    <div>
+      <h2 class="label">Catalog</h2>
+      <ul>
+        {catalogLinks.map((link) => (
+          <li><a href={link.href} aria-current={link.current ? 'page' : undefined}>{link.label}</a></li>
+        ))}
+      </ul>
+    </div>
+    <div>
+      <h2 class="label">Counter</h2>
+      <ul>
+        {counterLinks.map((link) => (
+          <li><a href={link.href} aria-current={link.current ? 'page' : undefined}>{link.label}{'number' in link && <>{' '}<span class="nowrap">{link.number}</span></>}</a></li>
+        ))}
+      </ul>
+    </div>
+    <div>
+      <h2 class="label">Dispatch</h2>
+      <ul>
+        <li>{sameDayDispatch}</li>
+        <li>{returnRule}</li>
+      </ul>
+    </div>
+  </div>
+  {home && <p class="footer-wordmark">{name}</p>}
+</footer>
+
+<style>
+  .footer-wordmark {
+    margin: var(--space-56) 0 0;
+    max-width: 100%;
+    color: var(--color-on-navy);
+    font-size: var(--text-display-xl);
+    font-weight: var(--text-display-xl--font-weight);
+    line-height: 0.92;
+    letter-spacing: var(--text-display-xl--letter-spacing);
+    font-stretch: calc(var(--wdth-display-xl) * 1%);
+    font-variation-settings: "wdth" var(--wdth-display-xl);
+    text-wrap: balance;
+  }
+</style>

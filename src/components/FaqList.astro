@@ -1,0 +1,176 @@
+---
+/**
+ * Questions as accordions. docs/motion.md interaction 20.
+ * Closed until opened. Without the script, the native disclosure still opens.
+ */
+interface Item {
+  q: string;
+  a: string;
+}
+
+interface Props {
+  items: Item[];
+}
+
+const { items } = Astro.props;
+---
+
+<div class="faq-list" data-faq>
+  {items.map((item) => (
+    <details class="faq-item">
+      <summary>
+        <span class="q">{item.q}</span>
+        <svg class="chevron" width="20" height="20" viewBox="0 0 24 24" aria-hidden="true" focusable="false">
+          <path d="M6 9.5 12 15.5 18 9.5" fill="none" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round" />
+        </svg>
+      </summary>
+      <div class="faq-panel">
+        <div class="faq-inner">
+          <p>{item.a}</p>
+        </div>
+      </div>
+    </details>
+  ))}
+</div>
+
+<script>
+  const reduceMotion = window.matchMedia("(prefers-reduced-motion: reduce)");
+
+  document.querySelectorAll<HTMLElement>("[data-faq]").forEach((list) => {
+    if (list.dataset.bound === "true") return;
+    list.dataset.bound = "true";
+    list.classList.add("is-enhanced");
+    list.querySelectorAll<HTMLDetailsElement>(".faq-item").forEach((item) => {
+      const summary = item.querySelector("summary");
+      const panel = item.querySelector(".faq-panel");
+      if (!(summary instanceof HTMLElement) || !(panel instanceof HTMLElement)) return;
+
+      summary.addEventListener("click", (event) => {
+        event.preventDefault();
+        const open = item.classList.contains("is-open");
+        if (reduceMotion.matches) {
+          item.classList.toggle("is-open", !open);
+          if (open) item.removeAttribute("open");
+          else item.setAttribute("open", "");
+          return;
+        }
+        if (open) {
+          item.classList.remove("is-open");
+          let settled = false;
+          const finish = () => {
+            if (settled) return;
+            settled = true;
+            if (!item.classList.contains("is-open")) item.removeAttribute("open");
+          };
+          panel.addEventListener("transitionend", (end) => {
+            if (end.target !== panel || end.propertyName !== "grid-template-rows") return;
+            finish();
+          });
+          window.setTimeout(finish, 320);
+          return;
+        }
+        item.setAttribute("open", "");
+        window.requestAnimationFrame(() => item.classList.add("is-open"));
+      });
+    });
+  });
+</script>
+
+<style>
+  .faq-list {
+    overflow: hidden;
+    border-radius: var(--radius-panel);
+    background: var(--color-surface);
+    box-shadow: inset 0 0 0 1px var(--color-line);
+  }
+
+  .faq-item + .faq-item {
+    border-top: 1px solid var(--color-line);
+  }
+
+  summary {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: var(--space-16);
+    min-height: 44px;
+    padding: var(--space-12) var(--space-16);
+    color: var(--color-ink);
+    cursor: pointer;
+    list-style: none;
+  }
+
+  summary::-webkit-details-marker {
+    display: none;
+  }
+
+  summary::marker {
+    content: "";
+  }
+
+  .q {
+    font-size: var(--text-small);
+    font-weight: var(--font-weight-strong);
+    line-height: var(--text-small--line-height);
+    text-wrap: pretty;
+  }
+
+  .chevron {
+    flex: none;
+    color: var(--color-ink-muted);
+    transition: transform var(--dur-base, var(--dur-2)) var(--ease-in-out, var(--ease-out));
+  }
+
+  .faq-item[open] .chevron {
+    transform: rotate(180deg);
+  }
+
+  .faq-panel {
+    display: grid;
+    grid-template-rows: 0fr;
+  }
+
+  .faq-item[open] .faq-panel {
+    grid-template-rows: 1fr;
+  }
+
+  .faq-list.is-enhanced .faq-panel {
+    grid-template-rows: 0fr;
+    transition: grid-template-rows var(--dur-base, var(--dur-2)) var(--ease-in-out, var(--ease-out));
+  }
+
+  .faq-list.is-enhanced .faq-item.is-open .faq-panel {
+    grid-template-rows: 1fr;
+  }
+
+  .faq-list.is-enhanced .chevron {
+    transform: none;
+  }
+
+  .faq-list.is-enhanced .faq-item.is-open .chevron {
+    transform: rotate(180deg);
+  }
+
+  .faq-inner {
+    min-height: 0;
+    overflow: hidden;
+  }
+
+  p {
+    margin: 0;
+    padding: 0 var(--space-16) var(--space-16);
+    max-width: var(--measure);
+    color: var(--color-ink);
+    font-size: var(--text-body);
+    line-height: var(--text-body--line-height);
+    text-wrap: pretty;
+  }
+
+  @media (prefers-reduced-motion: reduce) {
+    .chevron,
+    .faq-panel,
+    .faq-list.is-enhanced .faq-panel {
+      transition: none;
+    }
+  }
+</style>

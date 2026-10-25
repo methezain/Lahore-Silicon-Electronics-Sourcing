@@ -1,0 +1,169 @@
+---
+/** Admin overview. docs/admin-plan.md A3: tiles, chart, top parts, last orders, low stock. */
+import "../../components/admin/admin-orders.css";
+import "../../components/admin/admin-overview.css";
+import "../../components/illustrations/package-mark.css";
+import { env } from "cloudflare:workers";
+import AdminLayout from "../../layouts/AdminLayout.astro";
+import BarChart from "../../components/admin/BarChart.astro";
+import StatusChip from "../../components/admin/StatusChip.astro";
+import StockIndicator from "../../components/StockIndicator.astro";
+import PackageMark from "../../components/illustrations/PackageMark.tsx";
+import { dispatchZone } from "../../lib/clock";
+import type { AdminDatabase } from "../../lib/admin/db";
+import { overview, type Overview } from "../../lib/admin/stats";
+import { formatPlaced } from "../../lib/admin/time";
+import { loadCatalog } from "../../lib/catalog";
+import { formatPkr } from "../../lib/money";
+
+export const prerender = false;
+
+const db = env?.DB as unknown as AdminDatabase | undefined;
+let data: Overview | null = null;
+if (db) {
+  try {
+    data = await overview(db);
+  } catch (error) {
+    console.error("Admin overview failed:", error instanceof Error ? error.name : "unknown");
+  }
+}
+if (!data) Astro.response.status = 500;
+
+const catalog = data ? await loadCatalog() : [];
+const names = new Map(catalog.map((part) => [part.part_number, part.name]));
+
+const seen = Astro.cookies.get("admin_seen")?.value === "1";
+if (!seen) Astro.cookies.set("admin_seen", "1", { path: "/admin", httpOnly: true, secure: true, sameSite: "strict" });
+
+const today = new Intl.DateTimeFormat("en-GB", { timeZone: dispatchZone, weekday: "long", day: "numeric", month: "short" }).format(new Date());
+const booked = data?.today.booked ?? 0;
+const line = data ? `${today} · ${booked} ${booked === 1 ? "order" : "orders"} so far` : today;
+const oldest = data?.awaiting.oldestHours;
+const awaitingNote = !data || data.awaiting.count === 0 ? "Nothing waiting" : oldest === null || oldest === undefined ? "Waiting for a payment check" : oldest < 1 ? "Oldest is under 1 h old" : `Oldest is ${oldest} h old`;
+---
+
+<AdminLayout title="Overview" current="overview" htmlClass={seen ? undefined : "admin-play"}>
+  <div class="admin-page">
+    <div class="admin-head">
+      <div>
+        <p class="label">Overview</p>
+        <h1 class="title">Today at the counter</h1>
+        <p class="count">{line}</p>
+      </div>
+    </div>
+
+    {!data ? (
+      <section class="admin-panel admin-empty" aria-labelledby="overview-empty">
+        <PackageMark kind="module" empty />
+        <h2 class="heading" id="overview-empty">The overview could not be read</h2>
+        <p>The database did not answer. Reload the page.</p>
+      </section>
+    ) : (
+      <>
+        <div class="admin-tiles">
+          <div class="admin-tile is-navy">
+            <p class="label">Orders today</p>
+            <p class="num figure">{data.today.booked}</p>
+            <p class="caption">Every order that is not cancelled</p>
+          </div>
+          <div class="admin-tile">
+            <p class="label">Confirmed sales today</p>
+            <p class="num figure"><small>Rs</small>{formatPkr(data.today.confirmedSales).slice(3)}</p>
+            <p class="caption">7 days {formatPkr(data.weekSales)} · month {formatPkr(data.monthSales)}</p>
+          </div>
+          <a class="admin-tile" href="/admin/orders?status=Pending">
+            <p class="label">Awaiting payment</p>
+            <p class="num figure">{data.awaiting.count}</p>
+            <p class="caption">{awaitingNote}</p>
+          </a>
+          <a class="admin-tile" href="/admin/orders?status=Paid">
+            <p class="label">To dispatch</p>
+            <p class="num figure">{data.toDispatch}</p>
+            <p class="caption">Paid, not yet sent</p>
+          </a>
+        </div>
+        <p class="admin-definitions">
+          Confirmed sales are Paid, Dispatched and Delivered orders, counted on the day the order was placed (Asia/Karachi). The chart and top parts cover the last 30 days.
+        </p>
+
+        <div class="admin-grid">
+          <section class="admin-panel" aria-labelledby="chart-title">
+            <div class="admin-panel-head">
+              <h2 class="heading" id="chart-title">Confirmed sales, last 30 days</h2>
+              <span class="total">{formatPkr(data.rangeSales)}</span>
+            </div>
+            <BarChart days={data.days} title="Confirmed sales per day for the last 30 days" />
+          </section>
+
+          <section class="admin-panel" aria-labelledby="top-title">
+            <div class="admin-panel-head">
+              <h2 class="heading" id="top-title">Top parts</h2>
+              <span class="label">30 days</span>
+            </div>
+            {data.topParts.length === 0 ? (
+              <p class="caption">No parts sold in the last 30 days.</p>
+            ) : (
+              <ul class="admin-list">
+                {data.topParts.map((part) => (
+                  <li>
+                    <span class="grow">
+                      <span class="pn">{part.part_number}</span>
+                      <span class="caption">{names.get(part.part_number) ?? ""}</span>
+                    </span>
+                    <span class="num">{part.units} sold</span>
+                  </li>
+                ))}
+              </ul>
+            )}
+          </section>
+
+          <section class="admin-panel" aria-labelledby="last-title">
+            <div class="admin-panel-head">
+              <h2 class="heading" id="last-title">Last orders</h2>
+              <a class="admin-panel-link" href="/admin/orders">All orders</a>
+            </div>
+            {data.recent.length === 0 ? (
+              <p class="caption">No orders yet. They appear here the moment a buyer checks out.</p>
+            ) : (
+              <ul class="admin-list">
+                {data.recent.map((order) => (
+                  <li>
+                    <a class="grow" href={`/admin/orders?order=${encodeURIComponent(order.id)}`}>
+                      <span class="pn">{order.id}</span>
+                      <span class="caption">{order.customer_name} · {order.destination ?? ""} · {formatPlaced(order.created_at)}</span>
+                    </a>
+                    <span class="end">
+                      <span class="num">{formatPkr(order.total_price)}</span>
+                      <StatusChip status={order.status} />
+                    </span>
+                  </li>
+                ))}
+              </ul>
+            )}
+          </section>
+
+          <section class="admin-panel" aria-labelledby="low-title">
+            <div class="admin-panel-head">
+              <h2 class="heading" id="low-title">Low stock</h2>
+            </div>
+            {data.lowStock.length === 0 ? (
+              <p class="caption">Every part is above its low-stock level.</p>
+            ) : (
+              <ul class="admin-list">
+                {data.lowStock.map((row) => (
+                  <li>
+                    <span class="grow">
+                      <span class="pn">{row.part_number}</span>
+                    </span>
+                    <StockIndicator stockQty={row.qty} />
+                  </li>
+                ))}
+              </ul>
+            )}
+          </section>
+        </div>
+      </>
+    )}
+    <p class="admin-definitions"><a class="admin-panel-link" href="/admin/audit">Audit log</a> · every change made here is recorded.</p>
+  </div>
+</AdminLayout>

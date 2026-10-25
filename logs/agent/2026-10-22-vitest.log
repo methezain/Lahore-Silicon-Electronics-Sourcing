@@ -1,0 +1,12 @@
+
+ RUN  v5.0.5 D:/My Coding Projects/Electronics Selling
+
+
+ Test Files  30 passed (30)
+      Tests  243 passed (243)
+   Start at  21:32:39
+   Duration  6.81s (import 46%, tests 43%, transform 8%, worker 3%)
+
+    Isolate  30 workers spawned · ~375ms startup each (spawn + environment, per file)
+             at least ~1.23s faster with isolate: false — reuses workers across files instead of one per file
+

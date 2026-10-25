@@ -1,0 +1,53 @@
+{
+  "part_number": "LM2596S",
+  "manufacturer": "Texas Instruments",
+  "mpn": "LM2596S",
+  "name": "Adjustable step-down module, 3 A",
+  "category": "Power",
+  "featured": true,
+  "price": 280,
+  "currency": "PKR",
+  "stock_qty": 16,
+  "package_type": "Module",
+  "mounting_type": "Through-hole",
+  "voltage": "4–40 V in, 1.25–35 V out",
+  "summary": "Turns 4–40 V into an adjustable 1.25–35 V at up to 3 A.",
+  "key_specs": ["Output current", "Input voltage", "Output voltage"],
+  "specs": [
+    { "label": "Output current", "value": "3", "unit": "A" },
+    { "label": "Input voltage", "value": "4–40", "unit": "V" },
+    { "label": "Output voltage", "value": "1.25–35", "unit": "V" },
+    { "label": "Package", "value": "Module" },
+    { "label": "Mounting", "value": "Through-hole" },
+    { "label": "Regulator", "value": "LM2596S" }
+  ],
+  "faq": [
+    {
+      "q": "What does it do?",
+      "a": "Turns 4–40 V into an adjustable 1.25–35 V at up to 3 A."
+    },
+    {
+      "q": "What is in the bag?",
+      "a": "An assembled module in an antistatic bag."
+    },
+    {
+      "q": "Which regulator is on the module?",
+      "a": "LM2596S."
+    },
+    {
+      "q": "Which terminal is the input?",
+      "a": "This page does not say. The listing does not name the screw terminals, and no module datasheet is linked."
+    }
+  ],
+  "images": [
+    {
+      "src": "../../assets/parts/cutouts/lm2596.webp",
+      "alt": "LM2596S module on a blue board, with an inductor, a blue adjustment screw, and two green screw terminals.",
+      "note": "Representative studio photograph, not a photo of the lot in the drawer."
+    }
+  ],
+  "in_the_bag": "Assembled module in an antistatic bag.",
+  "min_qty": 1,
+  "qty_multiple": 1,
+  "description": "LM2596S step-down module. Input 4–40 V, adjustable output 1.25–35 V, rated 3 A. Sourced from Hall Road, Lahore."
+}

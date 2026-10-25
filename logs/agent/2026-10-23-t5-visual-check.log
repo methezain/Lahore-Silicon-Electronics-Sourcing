@@ -1,0 +1,16 @@
+
+> lahore-silicon@0.0.1 test:visual
+> playwright test --grep @visual --reporter=line --workers=2
+
+
+Running 8 tests using 2 workers
+
+[1/8] [390] › tests\e2e\visual.spec.ts:58:3 › @visual › product
+[2/8] [390] › tests\e2e\visual.spec.ts:51:3 › @visual › home
+[3/8] [390] › tests\e2e\visual.spec.ts:65:3 › @visual › cart open
+[4/8] [390] › tests\e2e\visual.spec.ts:77:3 › @visual › checkout
+[5/8] [1440] › tests\e2e\visual.spec.ts:51:3 › @visual › home
+[6/8] [1440] › tests\e2e\visual.spec.ts:58:3 › @visual › product
+[7/8] [1440] › tests\e2e\visual.spec.ts:65:3 › @visual › cart open
+[8/8] [1440] › tests\e2e\visual.spec.ts:77:3 › @visual › checkout
+  8 passed (27.7s)

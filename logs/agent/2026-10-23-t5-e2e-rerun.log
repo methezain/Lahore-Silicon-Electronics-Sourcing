@@ -1,0 +1,26 @@
+
+Running 22 tests using 1 worker
+
+[1/22] [390] › tests\e2e\a11y.spec.ts:4:1 › axe finds no WCAG A/AA violations on the catalog
+[2/22] [390] › tests\e2e\a11y.spec.ts:10:1 › axe finds no WCAG A/AA violations on the home page
+[3/22] [390] › tests\e2e\a11y.spec.ts:17:1 › axe finds no WCAG A/AA violations on the longest part page
+[4/22] [390] › tests\e2e\a11y.spec.ts:23:1 › axe finds no WCAG A/AA violations on an unknown order
+[5/22] [390] › tests\e2e\a11y.spec.ts:29:1 › axe finds no WCAG A/AA violations on the component gallery
+[6/22] [390] › tests\e2e\a11y.spec.ts:35:1 › axe finds no WCAG A/AA violations in the search dialog
+[7/22] [390] › tests\e2e\a11y.spec.ts:43:1 › axe finds no WCAG A/AA violations in the cart sheet
+[8/22] [390] › tests\e2e\checkout.spec.ts:48:1 › add to cart, clear field errors, and save the order
+[9/22] [390] › tests\e2e\checkout.spec.ts:167:1 › an empty cart shows an empty state instead of the form
+[10/22] [390] › tests\e2e\checkout.spec.ts:186:1 › axe finds no WCAG A/AA violations on checkout
+[11/22] [390] › tests\e2e\checkout.spec.ts:205:3 › reduced motion › the place order button does not animate a transform
+[12/22] [1440] › tests\e2e\a11y.spec.ts:4:1 › axe finds no WCAG A/AA violations on the catalog
+[13/22] [1440] › tests\e2e\a11y.spec.ts:10:1 › axe finds no WCAG A/AA violations on the home page
+[14/22] [1440] › tests\e2e\a11y.spec.ts:17:1 › axe finds no WCAG A/AA violations on the longest part page
+[15/22] [1440] › tests\e2e\a11y.spec.ts:23:1 › axe finds no WCAG A/AA violations on an unknown order
+[16/22] [1440] › tests\e2e\a11y.spec.ts:29:1 › axe finds no WCAG A/AA violations on the component gallery
+[17/22] [1440] › tests\e2e\a11y.spec.ts:35:1 › axe finds no WCAG A/AA violations in the search dialog
+[18/22] [1440] › tests\e2e\a11y.spec.ts:43:1 › axe finds no WCAG A/AA violations in the cart sheet
+[19/22] [1440] › tests\e2e\checkout.spec.ts:48:1 › add to cart, clear field errors, and save the order
+[20/22] [1440] › tests\e2e\checkout.spec.ts:167:1 › an empty cart shows an empty state instead of the form
+[21/22] [1440] › tests\e2e\checkout.spec.ts:186:1 › axe finds no WCAG A/AA violations on checkout
+[22/22] [1440] › tests\e2e\checkout.spec.ts:205:3 › reduced motion › the place order button does not animate a transform
+  22 passed (1.6m)

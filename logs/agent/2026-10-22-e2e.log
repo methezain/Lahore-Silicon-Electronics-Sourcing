@@ -1,0 +1,254 @@
+
+Running 110 tests using 4 workers
+
+  ok   4 [390] › tests\e2e\a11y.spec.ts:23:1 › axe finds no WCAG A/AA violations on an unknown order (5.3s)
+  ok   1 [390] › tests\e2e\a11y.spec.ts:10:1 › axe finds no WCAG A/AA violations on the home page (7.1s)
+  ok   2 [390] › tests\e2e\a11y.spec.ts:4:1 › axe finds no WCAG A/AA violations on the catalog (7.1s)
+  ok   3 [390] › tests\e2e\a11y.spec.ts:17:1 › axe finds no WCAG A/AA violations on the longest part page (12.8s)
+  ok   7 [390] › tests\e2e\a11y.spec.ts:43:1 › axe finds no WCAG A/AA violations in the cart sheet (7.8s)
+  ok   5 [390] › tests\e2e\a11y.spec.ts:29:1 › axe finds no WCAG A/AA violations on the component gallery (11.3s)
+  ok   9 [390] › tests\e2e\cart-sheet.spec.ts:57:1 › cart sheet flags a part the shop no longer sells (3.2s)
+  ok   6 [390] › tests\e2e\a11y.spec.ts:35:1 › axe finds no WCAG A/AA violations in the search dialog (11.5s)
+  ok   8 [390] › tests\e2e\cart-sheet.spec.ts:3:1 › cart sheet traps tab, closes on escape, and returns focus (6.2s)
+  ok  10 [390] › tests\e2e\cart-sheet.spec.ts:73:1 › dev gallery renders the new components (6.3s)
+  ok  13 [390] › tests\e2e\checkout.spec.ts:186:1 › axe finds no WCAG A/AA violations on checkout (6.4s)
+  ok  12 [390] › tests\e2e\checkout.spec.ts:167:1 › an empty cart shows an empty state instead of the form (7.4s)
+  ok  14 [390] › tests\e2e\checkout.spec.ts:205:3 › reduced motion › the place order button does not animate a transform (5.0s)
+  ok  15 [390] › tests\e2e\home.spec.ts:3:1 › catalog is the front door (3.2s)
+  ok  17 [390] › tests\e2e\home.spec.ts:52:1 › header search and cart keyboard path (4.6s)
+  x   16 [390] › tests\e2e\home.spec.ts:25:1 › header and footer shell (8.1s)
+  ok  18 [390] › tests\e2e\home.spec.ts:75:1 › category and sort queries still filter the catalog (7.4s)
+  -   21 [390] › tests\e2e\home.spec.ts:165:1 › a catalog row opens the product and Add stays on the catalog
+  ok  19 [390] › tests\e2e\home.spec.ts:103:1 › home page is the brand landing (4.9s)
+  ok  20 [390] › tests\e2e\home.spec.ts:230:1 › hero copy stays put when motion is reduced (4.0s)
+  ok  23 [390] › tests\e2e\navigation.spec.ts:20:1 › header condenses past 80px and restores at the top (3.7s)
+  ok  22 [390] › tests\e2e\navigation.spec.ts:3:1 › speculation rules prerender product links and skip checkout (8.1s)
+  ok  25 [390] › tests\e2e\navigation.spec.ts:60:1 › keyboard focus stays below the header after it condenses (5.6s)
+  ok  24 [390] › tests\e2e\navigation.spec.ts:42:1 › reduced motion drops morph names and condenses without a transition (7.5s)
+  ok  26 [390] › tests\e2e\product-image.spec.ts:3:1 › product photo is sized, eager, and does not shift (4.3s)
+  ok  28 [390] › tests\e2e\product-image.spec.ts:74:1 › cart line uses the optimized thumb (4.5s)
+  ok  27 [390] › tests\e2e\product-image.spec.ts:48:1 › catalog thumbnail and product photo share a view-transition name (6.9s)
+  ok  29 [390] › tests\e2e\product-image.spec.ts:90:1 › product photo stays visible with reduced motion (3.7s)
+  x   11 [390] › tests\e2e\checkout.spec.ts:48:1 › add to cart, clear field errors, and save the order (36.5s)
+  ok  30 [390] › tests\e2e\product.spec.ts:4:1 › product page buy panel, specs, and no horizontal overflow (4.7s)
+  ok  34 [390] › tests\e2e\product.spec.ts:184:1 › reduced motion keeps the add control still (5.0s)
+  ok  31 [390] › tests\e2e\product.spec.ts:61:1 › longest part numbers stay inside the viewport (9.1s)
+  -   36 [390] › tests\e2e\product.spec.ts:208:1 › layout at the 900px switch
+  ok  33 [390] › tests\e2e\product.spec.ts:114:1 › mobile sticky add bar and desktop keyboard focus (7.8s)
+  ok  32 [390] › tests\e2e\product.spec.ts:81:1 › search lm 7805, add, correct quantity, and match the cart price (11.8s)
+  ok  37 [390] › tests\e2e\quick-order.spec.ts:5:1 › quick order previews matches, misses, stock limits, and adds them (3.3s)
+  ok  35 [390] › tests\e2e\product.spec.ts:202:1 › axe finds no WCAG A/AA violations on the product page (5.6s)
+  ok  38 [390] › tests\e2e\quick-order.spec.ts:35:1 › a cart link rebuilds the cart (3.5s)
+  ok  39 [390] › tests\e2e\quick-order.spec.ts:47:1 › command palette opens with ctrl+k and highlights a match (2.8s)
+  ok  40 [390] › tests\e2e\quick-order.spec.ts:64:1 › selection highlight slides, and jumps when reduced motion is on (6.0s)
+  ok  43 [390] › tests\e2e\search-dialog.spec.ts:99:1 › slash does not open search from a field or while the cart is open (6.8s)
+  ok  44 [390] › tests\e2e\search-dialog.spec.ts:116:1 › a dock control opens search and returns focus (5.4s)
+  ok  41 [390] › tests\e2e\quick-order.spec.ts:101:1 › palette and quick order screenshots (11.1s)
+  ok  42 [390] › tests\e2e\search-dialog.spec.ts:3:1 › search dialog finds a part, misses cleanly, and traps focus (12.1s)
+  ok  45 [390] › tests\e2e\search-dialog.spec.ts:139:1 › search dialog stays put with reduced motion (4.4s)
+  ok  47 [390] › tests\e2e\secondary.spec.ts:51:1 › about states only what the catalog and the modules can prove (3.0s)
+  ok  46 [390] › tests\e2e\secondary.spec.ts:18:1 › shipping and payment renders the policy modules (3.9s)
+  -   51 [390] › tests\e2e\secondary.spec.ts:180:1 › layout at the 900px switch
+  ok  48 [390] › tests\e2e\secondary.spec.ts:84:1 › contact keeps the typed value and names the broken rule (5.0s)
+  ok  52 [390] › tests\e2e\secondary.spec.ts:195:3 › reduced motion › shipping controls do not animate a transform (3.0s)
+  ok  53 [390] › tests\e2e\secondary.spec.ts:211:1 › the header is solid when transparency is reduced (3.1s)
+  ok  55 [390] › tests\e2e\vitals.spec.ts:30:1 › the layout loads the web vitals reporter (3.4s)
+  ok  54 [390] › tests\e2e\vitals.spec.ts:3:1 › a field vital is accepted and an order id is not required (7.0s)
+  ok  49 [390] › tests\e2e\secondary.spec.ts:124:1 › missing pages and unknown parts (15.4s)
+  ok  50 [390] › tests\e2e\secondary.spec.ts:172:1 › axe finds no WCAG A/AA violations on the secondary pages (17.6s)
+  ok  56 [1440] › tests\e2e\a11y.spec.ts:4:1 › axe finds no WCAG A/AA violations on the catalog (6.1s)
+  ok  57 [1440] › tests\e2e\a11y.spec.ts:10:1 › axe finds no WCAG A/AA violations on the home page (8.2s)
+  ok  60 [1440] › tests\e2e\a11y.spec.ts:23:1 › axe finds no WCAG A/AA violations on an unknown order (3.4s)
+  ok  58 [1440] › tests\e2e\a11y.spec.ts:17:1 › axe finds no WCAG A/AA violations on the longest part page (9.2s)
+  ok  59 [1440] › tests\e2e\a11y.spec.ts:29:1 › axe finds no WCAG A/AA violations on the component gallery (9.1s)
+  ok  61 [1440] › tests\e2e\a11y.spec.ts:35:1 › axe finds no WCAG A/AA violations in the search dialog (7.0s)
+  ok  62 [1440] › tests\e2e\a11y.spec.ts:43:1 › axe finds no WCAG A/AA violations in the cart sheet (6.7s)
+  ok  64 [1440] › tests\e2e\cart-sheet.spec.ts:57:1 › cart sheet flags a part the shop no longer sells (3.4s)
+  ok  63 [1440] › tests\e2e\cart-sheet.spec.ts:3:1 › cart sheet traps tab, closes on escape, and returns focus (6.2s)
+  ok  65 [1440] › tests\e2e\cart-sheet.spec.ts:73:1 › dev gallery renders the new components (7.5s)
+  ok  67 [1440] › tests\e2e\checkout.spec.ts:167:1 › an empty cart shows an empty state instead of the form (8.0s)
+  ok  68 [1440] › tests\e2e\checkout.spec.ts:186:1 › axe finds no WCAG A/AA violations on checkout (7.9s)
+  ok  69 [1440] › tests\e2e\checkout.spec.ts:205:3 › reduced motion › the place order button does not animate a transform (5.1s)
+  ok  70 [1440] › tests\e2e\home.spec.ts:3:1 › catalog is the front door (3.2s)
+  ok  72 [1440] › tests\e2e\home.spec.ts:52:1 › header search and cart keyboard path (4.3s)
+  x   71 [1440] › tests\e2e\home.spec.ts:25:1 › header and footer shell (8.7s)
+  ok  73 [1440] › tests\e2e\home.spec.ts:75:1 › category and sort queries still filter the catalog (10.3s)
+  x   74 [1440] › tests\e2e\home.spec.ts:103:1 › home page is the brand landing (10.2s)
+  ok  76 [1440] › tests\e2e\home.spec.ts:230:1 › hero copy stays put when motion is reduced (4.2s)
+  ok  75 [1440] › tests\e2e\home.spec.ts:165:1 › a catalog row opens the product and Add stays on the catalog (6.9s)
+  ok  77 [1440] › tests\e2e\navigation.spec.ts:20:1 › header condenses past 80px and restores at the top (3.3s)
+  x   66 [1440] › tests\e2e\checkout.spec.ts:48:1 › add to cart, clear field errors, and save the order (30.6s)
+  ok  81 [1440] › tests\e2e\product-image.spec.ts:3:1 › product photo is sized, eager, and does not shift (5.0s)
+  ok  80 [1440] › tests\e2e\navigation.spec.ts:60:1 › keyboard focus stays below the header after it condenses (7.5s)
+  ok  79 [1440] › tests\e2e\navigation.spec.ts:42:1 › reduced motion drops morph names and condenses without a transition (8.4s)
+  ok  78 [1440] › tests\e2e\navigation.spec.ts:3:1 › speculation rules prerender product links and skip checkout (9.7s)
+  ok  84 [1440] › tests\e2e\product-image.spec.ts:90:1 › product photo stays visible with reduced motion (4.8s)
+  ok  83 [1440] › tests\e2e\product-image.spec.ts:74:1 › cart line uses the optimized thumb (6.2s)
+  ok  82 [1440] › tests\e2e\product-image.spec.ts:48:1 › catalog thumbnail and product photo share a view-transition name (7.8s)
+  ok  85 [1440] › tests\e2e\product.spec.ts:4:1 › product page buy panel, specs, and no horizontal overflow (6.3s)
+  ok  88 [1440] › tests\e2e\product.spec.ts:184:1 › reduced motion keeps the add control still (5.6s)
+  ok  89 [1440] › tests\e2e\product.spec.ts:114:1 › mobile sticky add bar and desktop keyboard focus (5.7s)
+  ok  86 [1440] › tests\e2e\product.spec.ts:61:1 › longest part numbers stay inside the viewport (11.9s)
+  ok  91 [1440] › tests\e2e\product.spec.ts:208:1 › layout at the 900px switch (6.1s)
+  ok  87 [1440] › tests\e2e\product.spec.ts:81:1 › search lm 7805, add, correct quantity, and match the cart price (13.7s)
+  ok  92 [1440] › tests\e2e\quick-order.spec.ts:5:1 › quick order previews matches, misses, stock limits, and adds them (3.5s)
+  ok  90 [1440] › tests\e2e\product.spec.ts:202:1 › axe finds no WCAG A/AA violations on the product page (9.0s)
+  ok  93 [1440] › tests\e2e\quick-order.spec.ts:35:1 › a cart link rebuilds the cart (3.5s)
+  ok  94 [1440] › tests\e2e\quick-order.spec.ts:47:1 › command palette opens with ctrl+k and highlights a match (3.6s)
+  ok  95 [1440] › tests\e2e\quick-order.spec.ts:64:1 › selection highlight slides, and jumps when reduced motion is on (6.4s)
+  ok  96 [1440] › tests\e2e\quick-order.spec.ts:101:1 › palette and quick order screenshots (11.6s)
+  ok  99 [1440] › tests\e2e\search-dialog.spec.ts:116:1 › a dock control opens search and returns focus (8.0s)
+  ok  98 [1440] › tests\e2e\search-dialog.spec.ts:99:1 › slash does not open search from a field or while the cart is open (11.5s)
+  ok 100 [1440] › tests\e2e\search-dialog.spec.ts:139:1 › search dialog stays put with reduced motion (3.3s)
+  ok 102 [1440] › tests\e2e\secondary.spec.ts:51:1 › about states only what the catalog and the modules can prove (2.9s)
+  ok 101 [1440] › tests\e2e\secondary.spec.ts:18:1 › shipping and payment renders the policy modules (3.6s)
+  ok  97 [1440] › tests\e2e\search-dialog.spec.ts:3:1 › search dialog finds a part, misses cleanly, and traps focus (16.4s)
+  ok 103 [1440] › tests\e2e\secondary.spec.ts:84:1 › contact keeps the typed value and names the broken rule (5.1s)
+  ok 107 [1440] › tests\e2e\secondary.spec.ts:195:3 › reduced motion › shipping controls do not animate a transform (2.7s)
+  ok 108 [1440] › tests\e2e\secondary.spec.ts:211:1 › the header is solid when transparency is reduced (2.4s)
+  ok 106 [1440] › tests\e2e\secondary.spec.ts:180:1 › layout at the 900px switch (7.9s)
+  ok 110 [1440] › tests\e2e\vitals.spec.ts:30:1 › the layout loads the web vitals reporter (3.9s)
+  ok 109 [1440] › tests\e2e\vitals.spec.ts:3:1 › a field vital is accepted and an order id is not required (5.8s)
+  ok 104 [1440] › tests\e2e\secondary.spec.ts:124:1 › missing pages and unknown parts (15.6s)
+  ok 105 [1440] › tests\e2e\secondary.spec.ts:172:1 › axe finds no WCAG A/AA violations on the secondary pages (15.6s)
+
+
+  1) [390] › tests\e2e\checkout.spec.ts:48:1 › add to cart, clear field errors, and save the order ─
+
+    Error: expect(locator).toContainText(expected) failed
+
+    Locator: locator('.meta')
+    Expected pattern: /\d{1,2} [A-Za-z]+ \d{4}/
+    Received string:  "Date22 Oct 2026SellerLahore SiliconCounterHall Road, LahoreDeliveryLahore"
+    Timeout: 5000ms
+
+    Call log:
+      - Expect "toContainText" locator('.meta') with timeout 5000ms
+      - waiting for locator('.meta')
+        13 × locator resolved to <dl class="meta">…</dl>
+           - unexpected value "Date22 Oct 2026SellerLahore SiliconCounterHall Road, LahoreDeliveryLahore"
+
+
+      137 |   await expect(page.locator('.line .part')).toHaveText('ESP32-WROOM-32D');
+      138 |   await expect(page.locator('.line .job')).toHaveText('Wi-Fi and Bluetooth module, 3.3 V');
+    > 139 |   await expect(page.locator('.meta')).toContainText(/\d{1,2} [A-Za-z]+ \d{4}/);
+          |                                       ^
+      140 |   const delivery = page.locator('.meta div').filter({ hasText: 'Delivery' });
+      141 |   await expect(delivery).toContainText('Lahore');
+      142 |   await expect(page.locator('.step-name', { hasText: 'Received' })).toBeVisible();
+        at D:\My Coding Projects\Electronics Selling\tests\e2e\checkout.spec.ts:139:39
+
+    Error Context: test-results\checkout-add-to-cart-clear-field-errors-and-save-the-order-390\error-context.md
+
+  2) [390] › tests\e2e\home.spec.ts:25:1 › header and footer shell ─────────────────────────────────
+
+    Error: expect(locator).toBeVisible() failed
+
+    Locator: getByRole('contentinfo').getByText(/dispatched the same day/)
+    Expected: visible
+    Timeout: 5000ms
+    Error: element(s) not found
+
+    Call log:
+      - Expect "toBeVisible" getByRole('contentinfo').getByText(/dispatched the same day/) with timeout 5000ms
+      - waiting for getByRole('contentinfo').getByText(/dispatched the same day/)
+
+
+      33 |   await expect(footer.getByRole('link', { name: 'Shipping and payment' })).toBeVisible();
+      34 |   await expect(footer.getByText(/Parts from Hall Road, Lahore\. Monday to Saturday/)).toBeVisible();
+    > 35 |   await expect(footer.getByText(/dispatched the same day/)).toBeVisible();
+         |                                                             ^
+      36 |   await expect(page.locator('.footer-wordmark')).toHaveCount(0);
+      37 |
+      38 |   const width = page.viewportSize()?.width ?? 0;
+        at D:\My Coding Projects\Electronics Selling\tests\e2e\home.spec.ts:35:61
+
+    Error Context: test-results\home-header-and-footer-shell-390\error-context.md
+
+  3) [1440] › tests\e2e\checkout.spec.ts:48:1 › add to cart, clear field errors, and save the order 
+
+    Error: expect(locator).toContainText(expected) failed
+
+    Locator: locator('.meta')
+    Expected pattern: /\d{1,2} [A-Za-z]+ \d{4}/
+    Received string:  "Date22 Oct 2026SellerLahore SiliconCounterHall Road, LahoreDeliveryLahore"
+    Timeout: 5000ms
+
+    Call log:
+      - Expect "toContainText" locator('.meta') with timeout 5000ms
+      - waiting for locator('.meta')
+        13 × locator resolved to <dl class="meta">…</dl>
+           - unexpected value "Date22 Oct 2026SellerLahore SiliconCounterHall Road, LahoreDeliveryLahore"
+
+
+      137 |   await expect(page.locator('.line .part')).toHaveText('ESP32-WROOM-32D');
+      138 |   await expect(page.locator('.line .job')).toHaveText('Wi-Fi and Bluetooth module, 3.3 V');
+    > 139 |   await expect(page.locator('.meta')).toContainText(/\d{1,2} [A-Za-z]+ \d{4}/);
+          |                                       ^
+      140 |   const delivery = page.locator('.meta div').filter({ hasText: 'Delivery' });
+      141 |   await expect(delivery).toContainText('Lahore');
+      142 |   await expect(page.locator('.step-name', { hasText: 'Received' })).toBeVisible();
+        at D:\My Coding Projects\Electronics Selling\tests\e2e\checkout.spec.ts:139:39
+
+    Error Context: test-results\checkout-add-to-cart-clear-field-errors-and-save-the-order-1440\error-context.md
+
+  4) [1440] › tests\e2e\home.spec.ts:25:1 › header and footer shell ────────────────────────────────
+
+    Error: expect(locator).toBeVisible() failed
+
+    Locator: getByRole('contentinfo').getByText(/dispatched the same day/)
+    Expected: visible
+    Timeout: 5000ms
+    Error: element(s) not found
+
+    Call log:
+      - Expect "toBeVisible" getByRole('contentinfo').getByText(/dispatched the same day/) with timeout 5000ms
+      - waiting for getByRole('contentinfo').getByText(/dispatched the same day/)
+
+
+      33 |   await expect(footer.getByRole('link', { name: 'Shipping and payment' })).toBeVisible();
+      34 |   await expect(footer.getByText(/Parts from Hall Road, Lahore\. Monday to Saturday/)).toBeVisible();
+    > 35 |   await expect(footer.getByText(/dispatched the same day/)).toBeVisible();
+         |                                                             ^
+      36 |   await expect(page.locator('.footer-wordmark')).toHaveCount(0);
+      37 |
+      38 |   const width = page.viewportSize()?.width ?? 0;
+        at D:\My Coding Projects\Electronics Selling\tests\e2e\home.spec.ts:35:61
+
+    Error Context: test-results\home-header-and-footer-shell-1440\error-context.md
+
+  5) [1440] › tests\e2e\home.spec.ts:103:1 › home page is the brand landing ────────────────────────
+
+    Error: expect(locator).toBeFocused() failed
+
+    Locator:  locator('#stock a').nth(1)
+    Expected: focused
+    Received: inactive
+    Timeout:  5000ms
+
+    Call log:
+      - Expect "toBeFocused" locator('#stock a').nth(1) with timeout 5000ms
+      - waiting for locator('#stock a').nth(1)
+        13 × locator resolved to <a class="row" data-astro-cid-wia67xlp="" href="/product/ams1117-3.3">…</a>
+           - unexpected value "inactive"
+
+
+      153 |   await page.keyboard.press('Tab');
+      154 |   const nextStock = page.locator('#stock a').nth(1);
+    > 155 |   await expect(nextStock).toBeFocused();
+          |                           ^
+      156 |   const stockOutline = await nextStock.evaluate((el) => getComputedStyle(el).outlineStyle);
+      157 |   expect(stockOutline).not.toBe('none');
+      158 |
+        at D:\My Coding Projects\Electronics Selling\tests\e2e\home.spec.ts:155:27
+
+    Error Context: test-results\home-home-page-is-the-brand-landing-1440\error-context.md
+
+  5 failed
+    [390] › tests\e2e\checkout.spec.ts:48:1 › add to cart, clear field errors, and save the order ──
+    [390] › tests\e2e\home.spec.ts:25:1 › header and footer shell ──────────────────────────────────
+    [1440] › tests\e2e\checkout.spec.ts:48:1 › add to cart, clear field errors, and save the order ─
+    [1440] › tests\e2e\home.spec.ts:25:1 › header and footer shell ─────────────────────────────────
+    [1440] › tests\e2e\home.spec.ts:103:1 › home page is the brand landing ─────────────────────────
+  3 skipped
+  102 passed (3.5m)

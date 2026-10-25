@@ -1,0 +1,34 @@
+---
+/**
+ * Reports LCP, INP, and CLS to the shop. docs/engineering.md#performance-budgets.
+ * The endpoint is first-party. Nothing here is a third-party request.
+ */
+---
+
+<script>
+  import { onCLS } from "web-vitals/onCLS.js";
+  import { onINP } from "web-vitals/onINP.js";
+  import { onLCP } from "web-vitals/onLCP.js";
+  import type { Metric } from "web-vitals";
+  import { VITALS_PATH } from "../lib/vitals";
+
+  function send(metric: Metric) {
+    const body = JSON.stringify({
+      name: metric.name,
+      value: metric.value,
+      path: location.pathname,
+    });
+    const blob = new Blob([body], { type: "application/json" });
+    if (navigator.sendBeacon(VITALS_PATH, blob)) return;
+    void fetch(VITALS_PATH, {
+      method: "POST",
+      headers: { "content-type": "application/json" },
+      body,
+      keepalive: true,
+    }).catch(() => {});
+  }
+
+  onCLS(send);
+  onINP(send);
+  onLCP(send);
+</script>

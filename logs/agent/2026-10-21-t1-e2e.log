@@ -1,0 +1,980 @@
+
+Running 110 tests using 4 workers
+
+  x    3 [390] › tests\e2e\a11y.spec.ts:10:1 › axe finds no WCAG A/AA violations on the home page (848ms)
+  x    2 [390] › tests\e2e\a11y.spec.ts:16:1 › axe finds no WCAG A/AA violations on the longest part page (884ms)
+  x    1 [390] › tests\e2e\a11y.spec.ts:4:1 › axe finds no WCAG A/AA violations on the catalog (1.0s)
+  x    5 [390] › tests\e2e\a11y.spec.ts:28:1 › axe finds no WCAG A/AA violations on the component gallery (31.9s)
+  x    7 [390] › tests\e2e\a11y.spec.ts:42:1 › axe finds no WCAG A/AA violations in the cart sheet (30.8s)
+  x    6 [390] › tests\e2e\a11y.spec.ts:34:1 › axe finds no WCAG A/AA violations in the search dialog (30.6s)
+  ok   8 [390] › tests\e2e\cart-sheet.spec.ts:3:1 › cart sheet traps tab, closes on escape, and returns focus (9.9s)
+  ok   9 [390] › tests\e2e\cart-sheet.spec.ts:57:1 › cart sheet flags a part the shop no longer sells (5.4s)
+  x    4 [390] › tests\e2e\a11y.spec.ts:22:1 › axe finds no WCAG A/AA violations on an unknown order (948ms)
+  ok  11 [390] › tests\e2e\cart-sheet.spec.ts:73:1 › dev gallery renders the new components (8.9s)
+  x   10 [390] › tests\e2e\checkout.spec.ts:48:1 › add to cart, clear field errors, and save the order (31.1s)
+  x   13 [390] › tests\e2e\checkout.spec.ts:186:1 › axe finds no WCAG A/AA violations on checkout (35.1s)
+  x   14 [390] › tests\e2e\checkout.spec.ts:205:3 › reduced motion › the place order button does not animate a transform (35.0s)
+  ok  15 [390] › tests\e2e\home.spec.ts:3:1 › catalog is the front door (7.6s)
+  x   12 [390] › tests\e2e\checkout.spec.ts:167:1 › an empty cart shows an empty state instead of the form (35.1s)
+  ok  17 [390] › tests\e2e\home.spec.ts:25:1 › header and footer shell (5.7s)
+  -   19 [390] › tests\e2e\home.spec.ts:165:1 › a catalog row opens the product and Add stays on the catalog
+  ok  18 [390] › tests\e2e\home.spec.ts:52:1 › header search and cart keyboard path (8.0s)
+  x   16 [390] › tests\e2e\home.spec.ts:75:1 › category and sort queries still filter the catalog (34.6s)
+  x   21 [390] › tests\e2e\navigation.spec.ts:3:1 › speculation rules prerender product links and skip checkout (35.2s)
+  x   22 [390] › tests\e2e\home.spec.ts:103:1 › home page is the brand landing (30.7s)
+  x   20 [390] › tests\e2e\home.spec.ts:230:1 › hero copy stays put when motion is reduced (30.5s)
+  ok  23 [390] › tests\e2e\navigation.spec.ts:20:1 › header condenses past 80px and restores at the top (25.5s)
+  ok  25 [390] › tests\e2e\navigation.spec.ts:60:1 › keyboard focus stays below the header after it condenses (21.1s)
+  x   24 [390] › tests\e2e\navigation.spec.ts:42:1 › reduced motion drops morph names and condenses without a transition (35.2s)
+  ok  29 [390] › tests\e2e\product-image.spec.ts:90:1 › product photo stays visible with reduced motion (12.4s)
+  x   27 [390] › tests\e2e\product-image.spec.ts:48:1 › catalog thumbnail and product photo share a view-transition name (30.5s)
+  x   26 [390] › tests\e2e\product-image.spec.ts:3:1 › product photo is sized, eager, and does not shift (30.5s)
+  ok  30 [390] › tests\e2e\product.spec.ts:4:1 › product page buy panel, specs, and no horizontal overflow (3.9s)
+  x   28 [390] › tests\e2e\product-image.spec.ts:74:1 › cart line uses the optimized thumb (30.6s)
+  ok  32 [390] › tests\e2e\product.spec.ts:114:1 › mobile sticky add bar and desktop keyboard focus (8.8s)
+  ok  31 [390] › tests\e2e\product.spec.ts:61:1 › longest part numbers stay inside the viewport (14.0s)
+  -   36 [390] › tests\e2e\product.spec.ts:208:1 › layout at the 900px switch
+  ok  34 [390] › tests\e2e\product.spec.ts:184:1 › reduced motion keeps the add control still (7.0s)
+  ok  35 [390] › tests\e2e\product.spec.ts:202:1 › axe finds no WCAG A/AA violations on the product page (11.3s)
+  ok  38 [390] › tests\e2e\quick-order.spec.ts:35:1 › a cart link rebuilds the cart (8.1s)
+  x   37 [390] › tests\e2e\quick-order.spec.ts:5:1 › quick order previews matches, misses, stock limits, and adds them (6.4s)
+  ok  40 [390] › tests\e2e\quick-order.spec.ts:64:1 › selection highlight slides, and jumps when reduced motion is on (9.9s)
+  x   39 [390] › tests\e2e\quick-order.spec.ts:47:1 › command palette opens with ctrl+k and highlights a match (10.2s)
+  ok  43 [390] › tests\e2e\search-dialog.spec.ts:99:1 › slash does not open search from a field or while the cart is open (4.0s)
+  x   33 [390] › tests\e2e\product.spec.ts:81:1 › search lm 7805, add, correct quantity, and match the cart price (30.5s)
+  ok  44 [390] › tests\e2e\search-dialog.spec.ts:116:1 › a dock control opens search and returns focus (2.3s)
+  ok  46 [390] › tests\e2e\search-dialog.spec.ts:139:1 › search dialog stays put with reduced motion (2.4s)
+  x   42 [390] › tests\e2e\quick-order.spec.ts:101:1 › palette and quick order screenshots (8.6s)
+  ok  45 [390] › tests\e2e\secondary.spec.ts:18:1 › shipping and payment renders the policy modules (10.4s)
+  ok  47 [390] › tests\e2e\secondary.spec.ts:51:1 › about states only what the catalog and the modules can prove (5.6s)
+  ok  50 [390] › tests\e2e\secondary.spec.ts:84:1 › contact keeps the typed value and names the broken rule (11.2s)
+  ok  48 [390] › tests\e2e\secondary.spec.ts:124:1 › missing pages and unknown parts (15.8s)
+  -   51 [390] › tests\e2e\secondary.spec.ts:180:1 › layout at the 900px switch
+  ok  52 [390] › tests\e2e\secondary.spec.ts:195:3 › reduced motion › shipping controls do not animate a transform (1.6s)
+  ok  53 [390] › tests\e2e\secondary.spec.ts:211:1 › the header is solid when transparency is reduced (1.8s)
+  ok  49 [390] › tests\e2e\secondary.spec.ts:172:1 › axe finds no WCAG A/AA violations on the secondary pages (23.5s)
+  ok  55 [390] › tests\e2e\vitals.spec.ts:30:1 › the layout loads the web vitals reporter (6.1s)
+  ok  54 [390] › tests\e2e\vitals.spec.ts:3:1 › a field vital is accepted and an order id is not required (9.5s)
+  ok  57 [1440] › tests\e2e\a11y.spec.ts:4:1 › axe finds no WCAG A/AA violations on the catalog (8.9s)
+  x   41 [390] › tests\e2e\search-dialog.spec.ts:3:1 › search dialog finds a part, misses cleanly, and traps focus (8.9s)
+  ok  58 [1440] › tests\e2e\a11y.spec.ts:16:1 › axe finds no WCAG A/AA violations on the longest part page (9.7s)
+  ok  59 [1440] › tests\e2e\a11y.spec.ts:22:1 › axe finds no WCAG A/AA violations on an unknown order (6.0s)
+  x   56 [1440] › tests\e2e\a11y.spec.ts:10:1 › axe finds no WCAG A/AA violations on the home page (8.0s)
+  ok  61 [1440] › tests\e2e\a11y.spec.ts:42:1 › axe finds no WCAG A/AA violations in the cart sheet (20.3s)
+  ok  60 [1440] › tests\e2e\a11y.spec.ts:34:1 › axe finds no WCAG A/AA violations in the search dialog (20.8s)
+  ok  64 [1440] › tests\e2e\cart-sheet.spec.ts:57:1 › cart sheet flags a part the shop no longer sells (17.4s)
+  x   62 [1440] › tests\e2e\a11y.spec.ts:28:1 › axe finds no WCAG A/AA violations on the component gallery (31.0s)
+  x   63 [1440] › tests\e2e\cart-sheet.spec.ts:3:1 › cart sheet traps tab, closes on escape, and returns focus (30.7s)
+  ok  65 [1440] › tests\e2e\cart-sheet.spec.ts:73:1 › dev gallery renders the new components (23.6s)
+  ok  67 [1440] › tests\e2e\checkout.spec.ts:205:3 › reduced motion › the place order button does not animate a transform (8.9s)
+  ok  68 [1440] › tests\e2e\checkout.spec.ts:167:1 › an empty cart shows an empty state instead of the form (11.2s)
+  ok  70 [1440] › tests\e2e\home.spec.ts:3:1 › catalog is the front door (6.2s)
+  ok  69 [1440] › tests\e2e\checkout.spec.ts:186:1 › axe finds no WCAG A/AA violations on checkout (11.6s)
+  ok  71 [1440] › tests\e2e\home.spec.ts:25:1 › header and footer shell (6.2s)
+  ok  72 [1440] › tests\e2e\home.spec.ts:52:1 › header search and cart keyboard path (8.6s)
+  ok  74 [1440] › tests\e2e\home.spec.ts:103:1 › home page is the brand landing (22.1s)
+  x   73 [1440] › tests\e2e\home.spec.ts:75:1 › category and sort queries still filter the catalog (24.7s)
+  x   75 [1440] › tests\e2e\home.spec.ts:165:1 › a catalog row opens the product and Add stays on the catalog (21.8s)
+  x   66 [1440] › tests\e2e\checkout.spec.ts:48:1 › add to cart, clear field errors, and save the order (9.8h)
+  ok  79 [1440] › tests\e2e\navigation.spec.ts:20:1 › header condenses past 80px and restores at the top (7.4s)
+  x   76 [1440] › tests\e2e\home.spec.ts:230:1 › hero copy stays put when motion is reduced (9.8h)
+  ok  80 [1440] › tests\e2e\navigation.spec.ts:60:1 › keyboard focus stays below the header after it condenses (9.7s)
+  ok  77 [1440] › tests\e2e\navigation.spec.ts:3:1 › speculation rules prerender product links and skip checkout (17.7s)
+  ok  78 [1440] › tests\e2e\navigation.spec.ts:42:1 › reduced motion drops morph names and condenses without a transition (18.2s)
+  ok  81 [1440] › tests\e2e\product-image.spec.ts:3:1 › product photo is sized, eager, and does not shift (12.5s)
+  ok  84 [1440] › tests\e2e\product-image.spec.ts:90:1 › product photo stays visible with reduced motion (11.0s)
+  ok  82 [1440] › tests\e2e\product-image.spec.ts:48:1 › catalog thumbnail and product photo share a view-transition name (20.3s)
+  ok  85 [1440] › tests\e2e\product.spec.ts:4:1 › product page buy panel, specs, and no horizontal overflow (12.3s)
+  ok  88 [1440] › tests\e2e\product.spec.ts:114:1 › mobile sticky add bar and desktop keyboard focus (7.3s)
+  ok  86 [1440] › tests\e2e\product.spec.ts:61:1 › longest part numbers stay inside the viewport (18.7s)
+  ok  89 [1440] › tests\e2e\product.spec.ts:184:1 › reduced motion keeps the add control still (3.5s)
+  x   83 [1440] › tests\e2e\product-image.spec.ts:74:1 › cart line uses the optimized thumb (13.5s)
+  ok  91 [1440] › tests\e2e\product.spec.ts:208:1 › layout at the 900px switch (15.3s)
+  ok  90 [1440] › tests\e2e\product.spec.ts:202:1 › axe finds no WCAG A/AA violations on the product page (21.2s)
+  x   87 [1440] › tests\e2e\product.spec.ts:81:1 › search lm 7805, add, correct quantity, and match the cart price (30.5s)
+  ok  92 [1440] › tests\e2e\quick-order.spec.ts:35:1 › a cart link rebuilds the cart (23.7s)
+  x   94 [1440] › tests\e2e\quick-order.spec.ts:5:1 › quick order previews matches, misses, stock limits, and adds them (21.3s)
+  x   95 [1440] › tests\e2e\quick-order.spec.ts:101:1 › palette and quick order screenshots (16.6s)
+  ok  96 [1440] › tests\e2e\quick-order.spec.ts:64:1 › selection highlight slides, and jumps when reduced motion is on (13.3s)
+  x   93 [1440] › tests\e2e\quick-order.spec.ts:47:1 › command palette opens with ctrl+k and highlights a match (28.1s)
+  ok  98 [1440] › tests\e2e\search-dialog.spec.ts:116:1 › a dock control opens search and returns focus (8.6s)
+  ok 100 [1440] › tests\e2e\secondary.spec.ts:18:1 › shipping and payment renders the policy modules (11.1s)
+  x   97 [1440] › tests\e2e\search-dialog.spec.ts:3:1 › search dialog finds a part, misses cleanly, and traps focus (10.7s)
+  ok  99 [1440] › tests\e2e\search-dialog.spec.ts:99:1 › slash does not open search from a field or while the cart is open (19.1s)
+  ok 101 [1440] › tests\e2e\search-dialog.spec.ts:139:1 › search dialog stays put with reduced motion (16.2s)
+  ok 102 [1440] › tests\e2e\secondary.spec.ts:51:1 › about states only what the catalog and the modules can prove (13.2s)
+  ok 103 [1440] › tests\e2e\secondary.spec.ts:84:1 › contact keeps the typed value and names the broken rule (22.6s)
+  ok 107 [1440] › tests\e2e\secondary.spec.ts:195:3 › reduced motion › shipping controls do not animate a transform (9.4s)
+  x  104 [1440] › tests\e2e\secondary.spec.ts:124:1 › missing pages and unknown parts (34.6s)
+  x  105 [1440] › tests\e2e\secondary.spec.ts:172:1 › axe finds no WCAG A/AA violations on the secondary pages (30.3s)
+  ok 108 [1440] › tests\e2e\secondary.spec.ts:211:1 › the header is solid when transparency is reduced (26.5s)
+  x  106 [1440] › tests\e2e\secondary.spec.ts:180:1 › layout at the 900px switch (34.7s)
+  ok 110 [1440] › tests\e2e\vitals.spec.ts:30:1 › the layout loads the web vitals reporter (14.9s)
+  ok 109 [1440] › tests\e2e\vitals.spec.ts:3:1 › a field vital is accepted and an order id is not required (29.9s)
+
+
+  1) [390] › tests\e2e\a11y.spec.ts:4:1 › axe finds no WCAG A/AA violations on the catalog ─────────
+
+    Error: browserContext.newPage: Target crashed 
+
+    Error Context: .pw-out\e2e\a11y-axe-finds-no-WCAG-A-AA-violations-on-the-catalog-390\error-context.md
+
+  2) [390] › tests\e2e\a11y.spec.ts:10:1 › axe finds no WCAG A/AA violations on the home page ──────
+
+    Error: browserContext.newPage: Target crashed 
+
+    Error Context: .pw-out\e2e\a11y-axe-finds-no-WCAG-A-AA-violations-on-the-home-page-390\error-context.md
+
+  3) [390] › tests\e2e\a11y.spec.ts:16:1 › axe finds no WCAG A/AA violations on the longest part page 
+
+    Error: browserContext.newPage: Target crashed 
+
+    Error Context: .pw-out\e2e\a11y-axe-finds-no-WCAG-A-A-8712b-ns-on-the-longest-part-page-390\error-context.md
+
+  4) [390] › tests\e2e\a11y.spec.ts:22:1 › axe finds no WCAG A/AA violations on an unknown order ───
+
+    Error: browserContext.newPage: Target crashed 
+
+    Error Context: .pw-out\e2e\a11y-axe-finds-no-WCAG-A-AA-violations-on-an-unknown-order-390\error-context.md
+
+  5) [390] › tests\e2e\a11y.spec.ts:28:1 › axe finds no WCAG A/AA violations on the component gallery 
+
+    Test timeout of 30000ms exceeded.
+
+    Error: page.goto: Test timeout of 30000ms exceeded.
+    Call log:
+      - navigating to "http://localhost:4321/dev/components", waiting until "load"
+
+
+      27 |
+      28 | test("axe finds no WCAG A/AA violations on the component gallery", async ({ page }) => {
+    > 29 |   await page.goto("/dev/components");
+         |              ^
+      30 |   await expect(page.getByRole("heading", { name: "Catalog table" })).toBeVisible();
+      31 |   await expectNoAxeViolations(page);
+      32 | });
+        at D:\My Coding Projects\Electronics Selling\tests\e2e\a11y.spec.ts:29:14
+
+    Error Context: .pw-out\e2e\a11y-axe-finds-no-WCAG-A-A-849ba-ns-on-the-component-gallery-390\error-context.md
+
+  6) [390] › tests\e2e\a11y.spec.ts:34:1 › axe finds no WCAG A/AA violations in the search dialog ──
+
+    Test timeout of 30000ms exceeded.
+
+    Error: page.goto: Test timeout of 30000ms exceeded.
+    Call log:
+      - navigating to "http://localhost:4321/", waiting until "load"
+
+
+      33 |
+      34 | test("axe finds no WCAG A/AA violations in the search dialog", async ({ page }) => {
+    > 35 |   await page.goto("/");
+         |              ^
+      36 |   await page.locator("#search-open[data-ready='true']").waitFor();
+      37 |   await page.keyboard.press("/");
+      38 |   await expect(page.getByRole("dialog", { name: "Search parts" })).toBeVisible();
+        at D:\My Coding Projects\Electronics Selling\tests\e2e\a11y.spec.ts:35:14
+
+    Error Context: .pw-out\e2e\a11y-axe-finds-no-WCAG-A-AA-violations-in-the-search-dialog-390\error-context.md
+
+  7) [390] › tests\e2e\a11y.spec.ts:42:1 › axe finds no WCAG A/AA violations in the cart sheet ─────
+
+    Test timeout of 30000ms exceeded.
+
+    Error: page.evaluate: Test timeout of 30000ms exceeded.
+     Please check out https://github.com/dequelabs/axe-core-npm/blob/develop/packages/playwright/error-handling.md
+
+       at axe.ts:8
+
+       6 |
+       7 | export async function expectNoAxeViolations(page: Page) {
+    >  8 |   const results = await new AxeBuilder({ page }).withTags(axeTags).analyze();
+         |                   ^
+       9 |   const violations = results.violations.map((violation) => ({
+      10 |     id: violation.id,
+      11 |     impact: violation.impact,
+        at AxeBuilder.analyze (D:\My Coding Projects\Electronics Selling\node_modules\@axe-core\playwright\dist\index.mjs:219:13)
+        at expectNoAxeViolations (D:\My Coding Projects\Electronics Selling\tests\e2e\axe.ts:8:19)
+        at D:\My Coding Projects\Electronics Selling\tests\e2e\a11y.spec.ts:57:3
+    [cause]: Error: page.evaluate: Test timeout of 30000ms exceeded.
+        at AxeBuilder.finishRun (D:\My Coding Projects\Electronics Selling\node_modules\@axe-core\playwright\dist\index.mjs:320:21)
+        at AxeBuilder.analyze (D:\My Coding Projects\Electronics Selling\node_modules\@axe-core\playwright\dist\index.mjs:217:14)
+        at expectNoAxeViolations (D:\My Coding Projects\Electronics Selling\tests\e2e\axe.ts:8:19)
+        at D:\My Coding Projects\Electronics Selling\tests\e2e\a11y.spec.ts:57:3
+
+    Error Context: .pw-out\e2e\a11y-axe-finds-no-WCAG-A-AA-violations-in-the-cart-sheet-390\error-context.md
+
+  8) [390] › tests\e2e\checkout.spec.ts:48:1 › add to cart, clear field errors, and save the order ─
+
+    Error: expect(locator).toBeEnabled() failed
+
+    Locator: getByRole('button', { name: 'Place order · Rs 10,000' })
+    Expected: enabled
+    Timeout: 5000ms
+    Error: element(s) not found
+
+    Call log:
+      - Expect "toBeEnabled" getByRole('button', { name: 'Place order · Rs 10,000' }) with timeout 5000ms
+      - waiting for getByRole('button', { name: 'Place order · Rs 10,000' })
+        - waiting for "http://localhost:4321/checkout" navigation to finish...
+
+
+      65 |   await expect(page).toHaveURL(/\/checkout$/);
+      66 |   const place = page.getByRole('button', { name: 'Place order · Rs 10,000' });
+    > 67 |   await expect(place).toBeEnabled();
+         |                       ^
+      68 |   await expect(page.locator('#summary-merchandise')).toHaveText('Rs 10,000');
+      69 |   await expect(page.locator('#summary-total')).toHaveText('Rs 10,000');
+      70 |   await expect(page.getByText('Delivery cost is confirmed from your city, before you pay.').first()).toBeVisible();
+        at D:\My Coding Projects\Electronics Selling\tests\e2e\checkout.spec.ts:67:23
+
+    Error Context: .pw-out\e2e\checkout-add-to-cart-clear-field-errors-and-save-the-order-390\error-context.md
+
+  9) [390] › tests\e2e\checkout.spec.ts:167:1 › an empty cart shows an empty state instead of the form 
+
+    Test timeout of 30000ms exceeded.
+
+    Error: page.goto: Test timeout of 30000ms exceeded.
+    Call log:
+      - navigating to "http://localhost:4321/checkout", waiting until "load"
+
+
+      166 |
+      167 | test('an empty cart shows an empty state instead of the form', async ({ page }, testInfo) => {
+    > 168 |   await page.goto('/checkout');
+          |              ^
+      169 |   const empty = page.locator('#checkout-empty');
+      170 |   await expect(empty).toBeVisible();
+      171 |   await expect(empty).toHaveText('Your cart is empty. Browse the catalog.');
+        at D:\My Coding Projects\Electronics Selling\tests\e2e\checkout.spec.ts:168:14
+
+    Error Context: .pw-out\e2e\checkout-an-empty-cart-sho-5580c-y-state-instead-of-the-form-390\error-context.md
+
+  10) [390] › tests\e2e\checkout.spec.ts:186:1 › axe finds no WCAG A/AA violations on checkout ─────
+
+    Test timeout of 30000ms exceeded.
+
+    Error: page.goto: Test timeout of 30000ms exceeded.
+    Call log:
+      - navigating to "http://localhost:4321/checkout", waiting until "load"
+
+
+      195 |     );
+      196 |   });
+    > 197 |   await page.goto('/checkout');
+          |              ^
+      198 |   await page.getByRole('button', { name: /Place order/ }).waitFor();
+      199 |   await expectNoAxeViolations(page);
+      200 | });
+        at D:\My Coding Projects\Electronics Selling\tests\e2e\checkout.spec.ts:197:14
+
+    Error Context: .pw-out\e2e\checkout-axe-finds-no-WCAG-A-AA-violations-on-checkout-390\error-context.md
+
+  11) [390] › tests\e2e\checkout.spec.ts:205:3 › reduced motion › the place order button does not animate a transform 
+
+    Test timeout of 30000ms exceeded.
+
+    Error: page.goto: Test timeout of 30000ms exceeded.
+    Call log:
+      - navigating to "http://localhost:4321/checkout", waiting until "load"
+
+
+      204 |
+      205 |   test('the place order button does not animate a transform', async ({ page }) => {
+    > 206 |     await page.goto('/checkout');
+          |                ^
+      207 |     await expect(page.getByRole('heading', { name: 'Checkout' })).toBeVisible();
+      208 |     const transition = await page.locator('#submit-btn').evaluate((el) => getComputedStyle(el).transitionProperty);
+      209 |     expect(transition).not.toContain('transform');
+        at D:\My Coding Projects\Electronics Selling\tests\e2e\checkout.spec.ts:206:16
+
+    Error Context: .pw-out\e2e\checkout-reduced-motion-th-5e344-oes-not-animate-a-transform-390\error-context.md
+
+  12) [390] › tests\e2e\home.spec.ts:75:1 › category and sort queries still filter the catalog ─────
+
+    Test timeout of 30000ms exceeded.
+
+    Error: expect(locator).toHaveCount(expected) failed
+
+    Locator: locator('#catalog').getByRole('link', { name: /SRD-05VDC-SL-C/ })
+    Expected: 0
+    Error: Test timeout of 30000ms exceeded.
+
+    Call log:
+      - Expect "toHaveCount" locator('#catalog').getByRole('link', { name: /SRD-05VDC-SL-C/ }) with timeout 5000ms
+      - waiting for locator('#catalog').getByRole('link', { name: /SRD-05VDC-SL-C/ })
+      - Test timeout of 30000ms exceeded.
+
+
+      83 |   const power = page.locator('#catalog');
+      84 |   await expect(power.getByRole('link', { name: /LM7805/ })).toBeVisible();
+    > 85 |   await expect(power.getByRole('link', { name: /SRD-05VDC-SL-C/ })).toHaveCount(0);
+         |                                                                     ^
+      86 |
+      87 |   await page.goto('/?category=Nope');
+      88 |   await expect(page.getByText('No parts in Nope.')).toBeVisible();
+        at D:\My Coding Projects\Electronics Selling\tests\e2e\home.spec.ts:85:69
+
+    Error Context: .pw-out\e2e\home-category-and-sort-queries-still-filter-the-catalog-390\error-context.md
+
+  13) [390] › tests\e2e\home.spec.ts:103:1 › home page is the brand landing ────────────────────────
+
+    Test timeout of 30000ms exceeded.
+
+    Error: page.goto: Test timeout of 30000ms exceeded.
+    Call log:
+      - navigating to "http://localhost:4321/home", waiting until "load"
+
+
+      102 |
+      103 | test('home page is the brand landing', async ({ page }) => {
+    > 104 |   await page.goto('/home');
+          |              ^
+      105 |   await expect(page).toHaveTitle(/Home \| Lahore Silicon/);
+      106 |   await expect(page.getByRole('heading', { level: 1, name: 'Parts from Hall Road, counted before you pay.' })).toBeVisible();
+      107 |   await expect(page.locator('.status')).toContainText(/Dispatching today|Order now for dispatch|Dispatch resumes/);
+        at D:\My Coding Projects\Electronics Selling\tests\e2e\home.spec.ts:104:14
+
+    Error Context: .pw-out\e2e\home-home-page-is-the-brand-landing-390\error-context.md
+
+  14) [390] › tests\e2e\home.spec.ts:230:1 › hero copy stays put when motion is reduced ────────────
+
+    Test timeout of 30000ms exceeded.
+
+    Error: page.goto: Test timeout of 30000ms exceeded.
+    Call log:
+      - navigating to "http://localhost:4321/home", waiting until "load"
+
+
+      230 | test('hero copy stays put when motion is reduced', async ({ page }) => {
+      231 |   await page.emulateMedia({ reducedMotion: 'reduce' });
+    > 232 |   await page.goto('/home');
+          |              ^
+      233 |   await expect(page.locator('.intro')).toHaveCSS('animation-name', 'none');
+      234 |   await expect(page.locator('.mask .rise').first()).toHaveCSS('animation-name', 'none');
+      235 |   await expect(page.locator('.grid-lines path').first()).toHaveCSS('animation-name', 'none');
+        at D:\My Coding Projects\Electronics Selling\tests\e2e\home.spec.ts:232:14
+
+    Error Context: .pw-out\e2e\home-hero-copy-stays-put-when-motion-is-reduced-390\error-context.md
+
+  15) [390] › tests\e2e\navigation.spec.ts:3:1 › speculation rules prerender product links and skip checkout 
+
+    Test timeout of 30000ms exceeded.
+
+    Error: page.goto: net::ERR_ABORTED; maybe frame was detached?
+    Call log:
+      - navigating to "http://localhost:4321/product/lm7805", waiting until "load"
+
+
+      13 |   );
+      14 |
+    > 15 |   await page.goto("/product/lm7805");
+         |              ^
+      16 |   await page.locator(".qty-row .buy-add").click();
+      17 |   await expect(page.locator(".cart-checkout")).toHaveAttribute("data-astro-prefetch", "false");
+      18 | });
+        at D:\My Coding Projects\Electronics Selling\tests\e2e\navigation.spec.ts:15:14
+
+    Error Context: .pw-out\e2e\navigation-speculation-rul-53afd-uct-links-and-skip-checkout-390\error-context.md
+
+  16) [390] › tests\e2e\navigation.spec.ts:42:1 › reduced motion drops morph names and condenses without a transition 
+
+    Test timeout of 30000ms exceeded.
+
+    Error: page.goto: net::ERR_ABORTED; maybe frame was detached?
+    Call log:
+      - navigating to "http://localhost:4321/product/lm7805", waiting until "load"
+
+
+      49 |   expect(catalogName).toBe("none");
+      50 |
+    > 51 |   await page.goto("/product/lm7805");
+         |              ^
+      52 |   const photo = await page.locator(".gallery-well img").evaluate((el) => getComputedStyle(el).viewTransitionName);
+      53 |   const chip = await page.locator(".buy-panel .chip").evaluate((el) => getComputedStyle(el).viewTransitionName);
+      54 |   expect(photo).toBe("none");
+        at D:\My Coding Projects\Electronics Selling\tests\e2e\navigation.spec.ts:51:14
+
+    Error Context: .pw-out\e2e\navigation-reduced-motion--e0e0b-denses-without-a-transition-390\error-context.md
+
+  17) [390] › tests\e2e\product-image.spec.ts:3:1 › product photo is sized, eager, and does not shift 
+
+    Test timeout of 30000ms exceeded.
+
+    Error: page.goto: Test timeout of 30000ms exceeded.
+    Call log:
+      - navigating to "http://localhost:4321/product/lm7805", waiting until "load"
+
+
+      13 |   });
+      14 |
+    > 15 |   await page.goto('/product/lm7805');
+         |              ^
+      16 |   const img = page.locator('.gallery-well img');
+      17 |   await expect(img).toBeVisible();
+      18 |   await expect(img).toHaveAttribute('width', '640');
+        at D:\My Coding Projects\Electronics Selling\tests\e2e\product-image.spec.ts:15:14
+
+    Error Context: .pw-out\e2e\product-image-product-phot-8c43b-ed-eager-and-does-not-shift-390\error-context.md
+
+  18) [390] › tests\e2e\product-image.spec.ts:48:1 › catalog thumbnail and product photo share a view-transition name 
+
+    Test timeout of 30000ms exceeded.
+
+    Error: page.goto: Test timeout of 30000ms exceeded.
+    Call log:
+      - navigating to "http://localhost:4321/", waiting until "load"
+
+
+      47 |
+      48 | test('catalog thumbnail and product photo share a view-transition name', async ({ page }) => {
+    > 49 |   await page.goto('/');
+         |              ^
+      50 |   const thumb = page.locator('#catalog img.vt-part-photo-lm7805:visible');
+      51 |   const desktop = (page.viewportSize()?.width ?? 0) >= 900;
+      52 |   await expect(thumb).toHaveAttribute('alt', '');
+        at D:\My Coding Projects\Electronics Selling\tests\e2e\product-image.spec.ts:49:14
+
+    Error Context: .pw-out\e2e\product-image-catalog-thum-d61cf-hare-a-view-transition-name-390\error-context.md
+
+  19) [390] › tests\e2e\product-image.spec.ts:74:1 › cart line uses the optimized thumb ────────────
+
+    Test timeout of 30000ms exceeded.
+
+    Error: locator.click: Test timeout of 30000ms exceeded.
+    Call log:
+      - waiting for locator('.qty-row .buy-add')
+        - locator resolved to <button type="button" tabindex="-1" class="buy-add" aria-hidden="true">…</button>
+      - attempting click action
+        - waiting for element to be visible, enabled and stable
+
+
+      74 | test('cart line uses the optimized thumb', async ({ page }) => {
+      75 |   await page.goto('/product/esp32-wroom-32d');
+    > 76 |   await page.locator('.qty-row .buy-add').click();
+         |                                           ^
+      77 |   const cartImg = page.locator('.cart-photo img');
+      78 |   await expect(cartImg).toBeVisible();
+      79 |   await expect(cartImg).toHaveAttribute('width', '64');
+        at D:\My Coding Projects\Electronics Selling\tests\e2e\product-image.spec.ts:76:43
+
+    Error Context: .pw-out\e2e\product-image-cart-line-uses-the-optimized-thumb-390\error-context.md
+
+  20) [390] › tests\e2e\product.spec.ts:81:1 › search lm 7805, add, correct quantity, and match the cart price 
+
+    Test timeout of 30000ms exceeded.
+
+    Error: locator.click: Test timeout of 30000ms exceeded.
+    Call log:
+      - waiting for getByRole('dialog', { name: 'Search parts' }).getByRole('option', { name: /LM7805/ })
+
+
+      85 |   const search = page.getByRole("dialog", { name: "Search parts" });
+      86 |   await search.getByRole("combobox", { name: "Search parts" }).fill("lm 7805");
+    > 87 |   await search.getByRole("option", { name: /LM7805/ }).click();
+         |                                                        ^
+      88 |   await expect(page).toHaveURL(/\/product\/lm7805$/);
+      89 |   await expect(page.getByRole("heading", { level: 1 })).toContainText("5 V, 1 A, TO-220 linear regulator");
+      90 |   await expect(page.locator(".eta-lead")).not.toBeEmpty();
+        at D:\My Coding Projects\Electronics Selling\tests\e2e\product.spec.ts:87:56
+
+    Error Context: .pw-out\e2e\product-search-lm-7805-add-0fc5c-ty-and-match-the-cart-price-390\error-context.md
+
+  21) [390] › tests\e2e\quick-order.spec.ts:5:1 › quick order previews matches, misses, stock limits, and adds them 
+
+    Error: expect(locator).toBeVisible() failed
+
+    Locator: getByText('AMS1117-3.3')
+    Expected: visible
+    Error: strict mode violation: getByText('AMS1117-3.3') resolved to 4 elements:
+        1) <span class="parts-part">AMS1117-3.3</span> aka locator('#main').getByText('AMS1117-')
+        2) <span>AMS1117-3.3</span> aka getByLabel('Results').getByText('AMS1117-')
+        3) <code>{↵  "parts": [↵    [↵      0,↵      {↵        "pa…</code> aka getByText('{ "parts": [ [ 0, { "').first()
+        4) <code>{↵  "parts": [↵    [↵      0,↵      {↵        "pa…</code> aka getByText('{ "parts": [ [ 0, { "').nth(1)
+
+    Call log:
+      - Expect "toBeVisible" getByText('AMS1117-3.3') with timeout 5000ms
+      - waiting for getByText('AMS1117-3.3')
+
+
+      12 |   await expect(page.getByText("We don't stock \"TIP120\".")).toBeVisible();
+      13 |   await expect(page.getByText(/ESP32-WROOM-32D: Only \d+ in stock\. Quantity set to \d+\./)).toBeVisible();
+    > 14 |   await expect(page.getByText("AMS1117-3.3")).toBeVisible();
+         |                                               ^
+      15 |
+      16 |   const configured = await page.locator("footer a[href^='https://wa.me/']").count();
+      17 |   const send = page.getByRole("link", { name: "Send cart on WhatsApp" });
+        at D:\My Coding Projects\Electronics Selling\tests\e2e\quick-order.spec.ts:14:47
+
+    Error Context: .pw-out\e2e\quick-order-quick-order-pr-8f21e--stock-limits-and-adds-them-390\error-context.md
+
+  22) [390] › tests\e2e\quick-order.spec.ts:47:1 › command palette opens with ctrl+k and highlights a match 
+
+    Error: expect(locator).toHaveText(expected) failed
+
+    Locator: getByRole('dialog', { name: 'Search parts' }).getByRole('option', { name: /LM7805/ }).locator('mark')
+    Expected: "LM7805"
+    Timeout: 5000ms
+    Error: element(s) not found
+
+    Call log:
+      - Expect "toHaveText" getByRole('dialog', { name: 'Search parts' }).getByRole('option', { name: /LM7805/ }).locator('mark') with timeout 5000ms
+      - waiting for getByRole('dialog', { name: 'Search parts' }).getByRole('option', { name: /LM7805/ }).locator('mark')
+
+
+      57 |   await search.fill("lm 7805");
+      58 |   const hit = dialog.getByRole("option", { name: /LM7805/ });
+    > 59 |   await expect(hit.locator("mark")).toHaveText("LM7805");
+         |                                     ^
+      60 |   await page.keyboard.press("Control+k");
+      61 |   await expect(dialog).toBeHidden();
+      62 | });
+        at D:\My Coding Projects\Electronics Selling\tests\e2e\quick-order.spec.ts:59:37
+
+    Error Context: .pw-out\e2e\quick-order-command-palett-b5c1a-rl-k-and-highlights-a-match-390\error-context.md
+
+  23) [390] › tests\e2e\quick-order.spec.ts:101:1 › palette and quick order screenshots ────────────
+
+    Error: expect(locator).toBeVisible() failed
+
+    Locator: getByRole('dialog', { name: 'Search parts' }).getByRole('option', { name: /LM7805/ })
+    Expected: visible
+    Timeout: 5000ms
+    Error: element(s) not found
+
+    Call log:
+      - Expect "toBeVisible" getByRole('dialog', { name: 'Search parts' }).getByRole('option', { name: /LM7805/ }) with timeout 5000ms
+      - waiting for getByRole('dialog', { name: 'Search parts' }).getByRole('option', { name: /LM7805/ })
+
+
+      107 |   const dialog = page.getByRole("dialog", { name: "Search parts" });
+      108 |   await dialog.getByRole("combobox", { name: "Search parts" }).fill("lm 7805");
+    > 109 |   await expect(dialog.getByRole("option", { name: /LM7805/ })).toBeVisible();
+          |                                                                ^
+      110 |   await page.screenshot({ path: `${dir}/palette-${name}.png` });
+      111 |   await dialog.getByRole("button", { name: "Parts list" }).click();
+      112 |   await dialog.getByRole("textbox", { name: "Parts list" }).fill(LIST);
+        at D:\My Coding Projects\Electronics Selling\tests\e2e\quick-order.spec.ts:109:64
+
+    Error Context: .pw-out\e2e\quick-order-palette-and-quick-order-screenshots-390\error-context.md
+
+  24) [390] › tests\e2e\search-dialog.spec.ts:3:1 › search dialog finds a part, misses cleanly, and traps focus 
+
+    Error: expect(locator).toBeVisible() failed
+
+    Locator: getByRole('dialog', { name: 'Search parts' }).getByRole('option', { name: /LM7805/ })
+    Expected: visible
+    Timeout: 5000ms
+    Error: element(s) not found
+
+    Call log:
+      - Expect "toBeVisible" getByRole('dialog', { name: 'Search parts' }).getByRole('option', { name: /LM7805/ }) with timeout 5000ms
+      - waiting for getByRole('dialog', { name: 'Search parts' }).getByRole('option', { name: /LM7805/ })
+
+
+      22 |   await search.fill('lm 7805');
+      23 |   const exact = dialog.getByRole('option', { name: /LM7805/ });
+    > 24 |   await expect(exact).toBeVisible();
+         |                       ^
+      25 |   await expect(exact).toHaveAttribute('aria-selected', 'true');
+      26 |   await expect(exact).toContainText('48 in stock');
+      27 |   await expect(exact).toContainText('Rs 45');
+        at D:\My Coding Projects\Electronics Selling\tests\e2e\search-dialog.spec.ts:24:23
+
+    Error Context: .pw-out\e2e\search-dialog-search-dialo-70a86-ses-cleanly-and-traps-focus-390\error-context.md
+
+  25) [1440] › tests\e2e\a11y.spec.ts:10:1 › axe finds no WCAG A/AA violations on the home page ────
+
+    Error: expect(received).toEqual(expected) // deep equality
+
+    - Expected  -  1
+    + Received  + 12
+
+    - Array []
+    + Array [
+    +   Object {
+    +     "help": "Elements must meet minimum color contrast ratio thresholds",
+    +     "id": "color-contrast",
+    +     "impact": "serious",
+    +     "targets": Array [
+    +       ".eyebrow[data-astro-cid-757fihbz=\"\"]",
+    +       "#story-title",
+    +       ".story-lede",
+    +     ],
+    +   },
+    + ]
+
+       at axe.ts:15
+
+      13 |     targets: violation.nodes.slice(0, 3).map((node) => node.target.join(" ")),
+      14 |   }));
+    > 15 |   expect(violations).toEqual([]);
+         |                      ^
+      16 | }
+      17 |
+        at expectNoAxeViolations (D:\My Coding Projects\Electronics Selling\tests\e2e\axe.ts:15:22)
+        at D:\My Coding Projects\Electronics Selling\tests\e2e\a11y.spec.ts:13:3
+
+    Error Context: .pw-out\e2e\a11y-axe-finds-no-WCAG-A-AA-violations-on-the-home-page-1440\error-context.md
+
+  26) [1440] › tests\e2e\a11y.spec.ts:28:1 › axe finds no WCAG A/AA violations on the component gallery 
+
+    Test timeout of 30000ms exceeded.
+
+    Error: expect(locator).toBeVisible() failed
+
+    Locator: getByRole('heading', { name: 'Catalog table' })
+    Expected: visible
+    Error: Test timeout of 30000ms exceeded.
+
+    Call log:
+      - Expect "toBeVisible" getByRole('heading', { name: 'Catalog table' }) with timeout 5000ms
+      - waiting for getByRole('heading', { name: 'Catalog table' })
+      - Test timeout of 30000ms exceeded.
+
+
+      28 | test("axe finds no WCAG A/AA violations on the component gallery", async ({ page }) => {
+      29 |   await page.goto("/dev/components");
+    > 30 |   await expect(page.getByRole("heading", { name: "Catalog table" })).toBeVisible();
+         |                                                                      ^
+      31 |   await expectNoAxeViolations(page);
+      32 | });
+      33 |
+        at D:\My Coding Projects\Electronics Selling\tests\e2e\a11y.spec.ts:30:70
+
+    Error Context: .pw-out\e2e\a11y-axe-finds-no-WCAG-A-A-849ba-ns-on-the-component-gallery-1440\error-context.md
+
+  27) [1440] › tests\e2e\cart-sheet.spec.ts:3:1 › cart sheet traps tab, closes on escape, and returns focus 
+
+    Test timeout of 30000ms exceeded.
+
+    Error: page.goto: Test timeout of 30000ms exceeded.
+    Call log:
+      - navigating to "http://localhost:4321/", waiting until "load"
+
+
+      12 |     );
+      13 |   });
+    > 14 |   await page.goto('/');
+         |              ^
+      15 |   await page.locator('#cart-button[data-ready="true"]').waitFor();
+      16 |   const cart = page.getByRole('button', { name: /Cart \d+ parts?/ });
+      17 |   await cart.click();
+        at D:\My Coding Projects\Electronics Selling\tests\e2e\cart-sheet.spec.ts:14:14
+
+    Error Context: .pw-out\e2e\cart-sheet-cart-sheet-trap-94f45-on-escape-and-returns-focus-1440\error-context.md
+
+  28) [1440] › tests\e2e\checkout.spec.ts:48:1 › add to cart, clear field errors, and save the order 
+
+    Test timeout of 180000ms exceeded.
+
+    Error: Command failed: npx wrangler d1 execute electronics-sourcing-db --local --command "UPDATE stock SET qty = 9 WHERE part_number = 'ESP32-WROOM-32D'"
+
+
+    Error Context: .pw-out\e2e\checkout-add-to-cart-clear-field-errors-and-save-the-order-1440\error-context.md
+
+  29) [1440] › tests\e2e\home.spec.ts:75:1 › category and sort queries still filter the catalog ────
+
+    Error: page.goto: net::ERR_NETWORK_IO_SUSPENDED at http://localhost:4321/?category=Nope
+    Call log:
+      - navigating to "http://localhost:4321/?category=Nope", waiting until "load"
+
+
+      85 |   await expect(power.getByRole('link', { name: /SRD-05VDC-SL-C/ })).toHaveCount(0);
+      86 |
+    > 87 |   await page.goto('/?category=Nope');
+         |              ^
+      88 |   await expect(page.getByText('No parts in Nope.')).toBeVisible();
+      89 |   await expect(page.getByRole('link', { name: 'Show all' })).toHaveAttribute('href', '/');
+      90 |
+        at D:\My Coding Projects\Electronics Selling\tests\e2e\home.spec.ts:87:14
+
+    Error Context: .pw-out\e2e\home-category-and-sort-queries-still-filter-the-catalog-1440\error-context.md
+
+  30) [1440] › tests\e2e\home.spec.ts:165:1 › a catalog row opens the product and Add stays on the catalog 
+
+    Error: expect(received).toBeGreaterThan(expected)
+
+    Expected: > 0
+    Received:   0
+
+    Call Log:
+    - Timeout 5000ms exceeded while waiting on the predicate
+
+      218 |   await expect(cartImg).toBeVisible();
+      219 |   await expect(cartImg).toHaveAttribute('src', /webp/i);
+    > 220 |   await expect.poll(async () => cartImg.evaluate((node: HTMLImageElement) => node.naturalWidth)).toBeGreaterThan(0);
+          |                                                                                                  ^
+      221 |   await page.keyboard.press('Escape');
+      222 |   await expect(cart).toBeHidden();
+      223 |
+        at D:\My Coding Projects\Electronics Selling\tests\e2e\home.spec.ts:220:98
+
+    Error Context: .pw-out\e2e\home-a-catalog-row-opens-t-a8997-nd-Add-stays-on-the-catalog-1440\error-context.md
+
+  31) [1440] › tests\e2e\home.spec.ts:230:1 › hero copy stays put when motion is reduced ───────────
+
+    Test timeout of 30000ms exceeded.
+
+    Error: page.goto: net::ERR_ABORTED; maybe frame was detached?
+    Call log:
+      - navigating to "http://localhost:4321/home", waiting until "load"
+
+
+      230 | test('hero copy stays put when motion is reduced', async ({ page }) => {
+      231 |   await page.emulateMedia({ reducedMotion: 'reduce' });
+    > 232 |   await page.goto('/home');
+          |              ^
+      233 |   await expect(page.locator('.intro')).toHaveCSS('animation-name', 'none');
+      234 |   await expect(page.locator('.mask .rise').first()).toHaveCSS('animation-name', 'none');
+      235 |   await expect(page.locator('.grid-lines path').first()).toHaveCSS('animation-name', 'none');
+        at D:\My Coding Projects\Electronics Selling\tests\e2e\home.spec.ts:232:14
+
+    Error Context: .pw-out\e2e\home-hero-copy-stays-put-when-motion-is-reduced-1440\error-context.md
+
+  32) [1440] › tests\e2e\product-image.spec.ts:74:1 › cart line uses the optimized thumb ───────────
+
+    Error: expect(locator).toBeVisible() failed
+
+    Locator: locator('.cart-photo img')
+    Expected: visible
+    Error: strict mode violation: locator('.cart-photo img') resolved to 2 elements:
+        1) <img alt="" width="64" height="64" loading="lazy" decoding="async" src="/_image?href=%2F%40fs%2FD%3A%2FMy+Coding+Projects%2FElectronics+Selling%2Fsrc%2Fassets%2Fparts%2Fcutouts%2Fesp32.webp%3ForigWidth%3D1024%26origHeight%3D1024%26origFormat%3Dwebp&w=112&h=112&f=webp"/> aka getByRole('article').filter({ hasText: 'ESP32-WROOM-32DWi-Fi and' }).locator('img')
+        2) <img alt="" width="64" height="64" loading="lazy" decoding="async" src="/_image?href=%2F%40fs%2FD%3A%2FMy+Coding+Projects%2FElectronics+Selling%2Fsrc%2Fassets%2Fparts%2Fcutouts%2Fams1117.webp%3ForigWidth%3D1024%26origHeight%3D1024%26origFormat%3Dwebp&w=112&h=112&f=webp"/> aka getByRole('link', { name: 'AMS1117-3.3 3.3 V LDO regulator, SOT-223 80 in stock', exact: true })
+
+    Call log:
+      - Expect "toBeVisible" locator('.cart-photo img') with timeout 5000ms
+      - waiting for locator('.cart-photo img')
+
+
+      76 |   await page.locator('.qty-row .buy-add').click();
+      77 |   const cartImg = page.locator('.cart-photo img');
+    > 78 |   await expect(cartImg).toBeVisible();
+         |                         ^
+      79 |   await expect(cartImg).toHaveAttribute('width', '64');
+      80 |   await expect(cartImg).toHaveAttribute('height', '64');
+      81 |   await expect(cartImg).toHaveAttribute('loading', 'lazy');
+        at D:\My Coding Projects\Electronics Selling\tests\e2e\product-image.spec.ts:78:25
+
+    Error Context: .pw-out\e2e\product-image-cart-line-uses-the-optimized-thumb-1440\error-context.md
+
+  33) [1440] › tests\e2e\product.spec.ts:81:1 › search lm 7805, add, correct quantity, and match the cart price 
+
+    Test timeout of 30000ms exceeded.
+
+    Error: locator.click: Test timeout of 30000ms exceeded.
+    Call log:
+      - waiting for getByRole('dialog', { name: 'Search parts' }).getByRole('option', { name: /LM7805/ })
+
+
+      85 |   const search = page.getByRole("dialog", { name: "Search parts" });
+      86 |   await search.getByRole("combobox", { name: "Search parts" }).fill("lm 7805");
+    > 87 |   await search.getByRole("option", { name: /LM7805/ }).click();
+         |                                                        ^
+      88 |   await expect(page).toHaveURL(/\/product\/lm7805$/);
+      89 |   await expect(page.getByRole("heading", { level: 1 })).toContainText("5 V, 1 A, TO-220 linear regulator");
+      90 |   await expect(page.locator(".eta-lead")).not.toBeEmpty();
+        at D:\My Coding Projects\Electronics Selling\tests\e2e\product.spec.ts:87:56
+
+    Error Context: .pw-out\e2e\product-search-lm-7805-add-0fc5c-ty-and-match-the-cart-price-1440\error-context.md
+
+  34) [1440] › tests\e2e\quick-order.spec.ts:5:1 › quick order previews matches, misses, stock limits, and adds them 
+
+    Error: expect(locator).toBeVisible() failed
+
+    Locator: getByText('AMS1117-3.3')
+    Expected: visible
+    Error: strict mode violation: getByText('AMS1117-3.3') resolved to 4 elements:
+        1) <span class="parts-part">AMS1117-3.3</span> aka locator('#main').getByText('AMS1117-')
+        2) <span>AMS1117-3.3</span> aka getByLabel('Results').getByText('AMS1117-')
+        3) <code>{↵  "parts": [↵    [↵      0,↵      {↵        "pa…</code> aka getByText('{ "parts": [ [ 0, { "').first()
+        4) <code>{↵  "parts": [↵    [↵      0,↵      {↵        "pa…</code> aka getByText('{ "parts": [ [ 0, { "').nth(1)
+
+    Call log:
+      - Expect "toBeVisible" getByText('AMS1117-3.3') with timeout 5000ms
+      - waiting for getByText('AMS1117-3.3')
+
+
+      12 |   await expect(page.getByText("We don't stock \"TIP120\".")).toBeVisible();
+      13 |   await expect(page.getByText(/ESP32-WROOM-32D: Only \d+ in stock\. Quantity set to \d+\./)).toBeVisible();
+    > 14 |   await expect(page.getByText("AMS1117-3.3")).toBeVisible();
+         |                                               ^
+      15 |
+      16 |   const configured = await page.locator("footer a[href^='https://wa.me/']").count();
+      17 |   const send = page.getByRole("link", { name: "Send cart on WhatsApp" });
+        at D:\My Coding Projects\Electronics Selling\tests\e2e\quick-order.spec.ts:14:47
+
+    Error Context: .pw-out\e2e\quick-order-quick-order-pr-8f21e--stock-limits-and-adds-them-1440\error-context.md
+
+  35) [1440] › tests\e2e\quick-order.spec.ts:47:1 › command palette opens with ctrl+k and highlights a match 
+
+    Error: expect(locator).toHaveText(expected) failed
+
+    Locator: getByRole('dialog', { name: 'Search parts' }).getByRole('option', { name: /LM7805/ }).locator('mark')
+    Expected: "LM7805"
+    Timeout: 5000ms
+    Error: element(s) not found
+
+    Call log:
+      - Expect "toHaveText" getByRole('dialog', { name: 'Search parts' }).getByRole('option', { name: /LM7805/ }).locator('mark') with timeout 5000ms
+      - waiting for getByRole('dialog', { name: 'Search parts' }).getByRole('option', { name: /LM7805/ }).locator('mark')
+
+
+      57 |   await search.fill("lm 7805");
+      58 |   const hit = dialog.getByRole("option", { name: /LM7805/ });
+    > 59 |   await expect(hit.locator("mark")).toHaveText("LM7805");
+         |                                     ^
+      60 |   await page.keyboard.press("Control+k");
+      61 |   await expect(dialog).toBeHidden();
+      62 | });
+        at D:\My Coding Projects\Electronics Selling\tests\e2e\quick-order.spec.ts:59:37
+
+    Error Context: .pw-out\e2e\quick-order-command-palett-b5c1a-rl-k-and-highlights-a-match-1440\error-context.md
+
+  36) [1440] › tests\e2e\quick-order.spec.ts:101:1 › palette and quick order screenshots ───────────
+
+    Error: expect(locator).toBeVisible() failed
+
+    Locator: getByRole('dialog', { name: 'Search parts' }).getByRole('option', { name: /LM7805/ })
+    Expected: visible
+    Timeout: 5000ms
+    Error: element(s) not found
+
+    Call log:
+      - Expect "toBeVisible" getByRole('dialog', { name: 'Search parts' }).getByRole('option', { name: /LM7805/ }) with timeout 5000ms
+      - waiting for getByRole('dialog', { name: 'Search parts' }).getByRole('option', { name: /LM7805/ })
+
+
+      107 |   const dialog = page.getByRole("dialog", { name: "Search parts" });
+      108 |   await dialog.getByRole("combobox", { name: "Search parts" }).fill("lm 7805");
+    > 109 |   await expect(dialog.getByRole("option", { name: /LM7805/ })).toBeVisible();
+          |                                                                ^
+      110 |   await page.screenshot({ path: `${dir}/palette-${name}.png` });
+      111 |   await dialog.getByRole("button", { name: "Parts list" }).click();
+      112 |   await dialog.getByRole("textbox", { name: "Parts list" }).fill(LIST);
+        at D:\My Coding Projects\Electronics Selling\tests\e2e\quick-order.spec.ts:109:64
+
+    Error Context: .pw-out\e2e\quick-order-palette-and-quick-order-screenshots-1440\error-context.md
+
+  37) [1440] › tests\e2e\search-dialog.spec.ts:3:1 › search dialog finds a part, misses cleanly, and traps focus 
+
+    Error: expect(locator).toBeVisible() failed
+
+    Locator: getByRole('dialog', { name: 'Search parts' }).getByRole('option', { name: /LM7805/ })
+    Expected: visible
+    Timeout: 5000ms
+    Error: element(s) not found
+
+    Call log:
+      - Expect "toBeVisible" getByRole('dialog', { name: 'Search parts' }).getByRole('option', { name: /LM7805/ }) with timeout 5000ms
+      - waiting for getByRole('dialog', { name: 'Search parts' }).getByRole('option', { name: /LM7805/ })
+
+
+      22 |   await search.fill('lm 7805');
+      23 |   const exact = dialog.getByRole('option', { name: /LM7805/ });
+    > 24 |   await expect(exact).toBeVisible();
+         |                       ^
+      25 |   await expect(exact).toHaveAttribute('aria-selected', 'true');
+      26 |   await expect(exact).toContainText('48 in stock');
+      27 |   await expect(exact).toContainText('Rs 45');
+        at D:\My Coding Projects\Electronics Selling\tests\e2e\search-dialog.spec.ts:24:23
+
+    Error Context: .pw-out\e2e\search-dialog-search-dialo-70a86-ses-cleanly-and-traps-focus-1440\error-context.md
+
+  38) [1440] › tests\e2e\secondary.spec.ts:124:1 › missing pages and unknown parts ─────────────────
+
+    Test timeout of 30000ms exceeded.
+
+    Error: page.goto: Test timeout of 30000ms exceeded.
+    Call log:
+      - navigating to "http://localhost:4321/product/LM-7805", waiting until "load"
+
+
+      141 |   await expect(page.locator('#search-open')).toBeFocused();
+      142 |
+    > 143 |   const odd = await page.goto('/product/LM-7805');
+          |                          ^
+      144 |   expect(odd?.status()).toBe(200);
+      145 |   await expect(page).toHaveURL(/\/product\/lm7805$/);
+      146 |   await expect(page.getByRole('heading', { level: 1 })).toContainText('5 V');
+        at D:\My Coding Projects\Electronics Selling\tests\e2e\secondary.spec.ts:143:26
+
+    Error Context: .pw-out\e2e\secondary-missing-pages-and-unknown-parts-1440\error-context.md
+
+  39) [1440] › tests\e2e\secondary.spec.ts:172:1 › axe finds no WCAG A/AA violations on the secondary pages 
+
+    Test timeout of 30000ms exceeded.
+
+    Error: page.evaluate: Test timeout of 30000ms exceeded.
+     Please check out https://github.com/dequelabs/axe-core-npm/blob/develop/packages/playwright/error-handling.md
+
+       at axe.ts:8
+
+       6 |
+       7 | export async function expectNoAxeViolations(page: Page) {
+    >  8 |   const results = await new AxeBuilder({ page }).withTags(axeTags).analyze();
+         |                   ^
+       9 |   const violations = results.violations.map((violation) => ({
+      10 |     id: violation.id,
+      11 |     impact: violation.impact,
+        at AxeBuilder.analyze (D:\My Coding Projects\Electronics Selling\node_modules\@axe-core\playwright\dist\index.mjs:219:13)
+        at expectNoAxeViolations (D:\My Coding Projects\Electronics Selling\tests\e2e\axe.ts:8:19)
+        at D:\My Coding Projects\Electronics Selling\tests\e2e\secondary.spec.ts:176:5
+    [cause]: Error: page.evaluate: Test timeout of 30000ms exceeded.
+        at AxeBuilder.finishRun (D:\My Coding Projects\Electronics Selling\node_modules\@axe-core\playwright\dist\index.mjs:320:21)
+        at AxeBuilder.analyze (D:\My Coding Projects\Electronics Selling\node_modules\@axe-core\playwright\dist\index.mjs:217:14)
+        at expectNoAxeViolations (D:\My Coding Projects\Electronics Selling\tests\e2e\axe.ts:8:19)
+        at D:\My Coding Projects\Electronics Selling\tests\e2e\secondary.spec.ts:176:5
+
+    Error Context: .pw-out\e2e\secondary-axe-finds-no-WCA-b4f52-ions-on-the-secondary-pages-1440\error-context.md
+
+  40) [1440] › tests\e2e\secondary.spec.ts:180:1 › layout at the 900px switch ──────────────────────
+
+    Test timeout of 30000ms exceeded.
+
+    Error Context: .pw-out\e2e\secondary-layout-at-the-900px-switch-1440\error-context.md
+
+  40 failed
+    [390] › tests\e2e\a11y.spec.ts:4:1 › axe finds no WCAG A/AA violations on the catalog ──────────
+    [390] › tests\e2e\a11y.spec.ts:10:1 › axe finds no WCAG A/AA violations on the home page ───────
+    [390] › tests\e2e\a11y.spec.ts:16:1 › axe finds no WCAG A/AA violations on the longest part page 
+    [390] › tests\e2e\a11y.spec.ts:22:1 › axe finds no WCAG A/AA violations on an unknown order ────
+    [390] › tests\e2e\a11y.spec.ts:28:1 › axe finds no WCAG A/AA violations on the component gallery 
+    [390] › tests\e2e\a11y.spec.ts:34:1 › axe finds no WCAG A/AA violations in the search dialog ───
+    [390] › tests\e2e\a11y.spec.ts:42:1 › axe finds no WCAG A/AA violations in the cart sheet ──────
+    [390] › tests\e2e\checkout.spec.ts:48:1 › add to cart, clear field errors, and save the order ──
+    [390] › tests\e2e\checkout.spec.ts:167:1 › an empty cart shows an empty state instead of the form 
+    [390] › tests\e2e\checkout.spec.ts:186:1 › axe finds no WCAG A/AA violations on checkout ───────
+    [390] › tests\e2e\checkout.spec.ts:205:3 › reduced motion › the place order button does not animate a transform 
+    [390] › tests\e2e\home.spec.ts:75:1 › category and sort queries still filter the catalog ───────
+    [390] › tests\e2e\home.spec.ts:103:1 › home page is the brand landing ──────────────────────────
+    [390] › tests\e2e\home.spec.ts:230:1 › hero copy stays put when motion is reduced ──────────────
+    [390] › tests\e2e\navigation.spec.ts:3:1 › speculation rules prerender product links and skip checkout 
+    [390] › tests\e2e\navigation.spec.ts:42:1 › reduced motion drops morph names and condenses without a transition 
+    [390] › tests\e2e\product-image.spec.ts:3:1 › product photo is sized, eager, and does not shift 
+    [390] › tests\e2e\product-image.spec.ts:48:1 › catalog thumbnail and product photo share a view-transition name 
+    [390] › tests\e2e\product-image.spec.ts:74:1 › cart line uses the optimized thumb ──────────────
+    [390] › tests\e2e\product.spec.ts:81:1 › search lm 7805, add, correct quantity, and match the cart price 
+    [390] › tests\e2e\quick-order.spec.ts:5:1 › quick order previews matches, misses, stock limits, and adds them 
+    [390] › tests\e2e\quick-order.spec.ts:47:1 › command palette opens with ctrl+k and highlights a match 
+    [390] › tests\e2e\quick-order.spec.ts:101:1 › palette and quick order screenshots ──────────────
+    [390] › tests\e2e\search-dialog.spec.ts:3:1 › search dialog finds a part, misses cleanly, and traps focus 
+    [1440] › tests\e2e\a11y.spec.ts:10:1 › axe finds no WCAG A/AA violations on the home page ──────
+    [1440] › tests\e2e\a11y.spec.ts:28:1 › axe finds no WCAG A/AA violations on the component gallery 
+    [1440] › tests\e2e\cart-sheet.spec.ts:3:1 › cart sheet traps tab, closes on escape, and returns focus 
+    [1440] › tests\e2e\checkout.spec.ts:48:1 › add to cart, clear field errors, and save the order ─
+    [1440] › tests\e2e\home.spec.ts:75:1 › category and sort queries still filter the catalog ──────
+    [1440] › tests\e2e\home.spec.ts:165:1 › a catalog row opens the product and Add stays on the catalog 
+    [1440] › tests\e2e\home.spec.ts:230:1 › hero copy stays put when motion is reduced ─────────────
+    [1440] › tests\e2e\product-image.spec.ts:74:1 › cart line uses the optimized thumb ─────────────
+    [1440] › tests\e2e\product.spec.ts:81:1 › search lm 7805, add, correct quantity, and match the cart price 
+    [1440] › tests\e2e\quick-order.spec.ts:5:1 › quick order previews matches, misses, stock limits, and adds them 
+    [1440] › tests\e2e\quick-order.spec.ts:47:1 › command palette opens with ctrl+k and highlights a match 
+    [1440] › tests\e2e\quick-order.spec.ts:101:1 › palette and quick order screenshots ─────────────
+    [1440] › tests\e2e\search-dialog.spec.ts:3:1 › search dialog finds a part, misses cleanly, and traps focus 
+    [1440] › tests\e2e\secondary.spec.ts:124:1 › missing pages and unknown parts ───────────────────
+    [1440] › tests\e2e\secondary.spec.ts:172:1 › axe finds no WCAG A/AA violations on the secondary pages 
+    [1440] › tests\e2e\secondary.spec.ts:180:1 › layout at the 900px switch ────────────────────────
+  3 skipped
+  67 passed (10.0h)
+exit 1

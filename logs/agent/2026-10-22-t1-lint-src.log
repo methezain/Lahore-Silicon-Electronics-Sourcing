@@ -1,0 +1,6 @@
+
+> lahore-silicon@0.0.1 lint:src
+> node scripts/check-src.mjs
+
+src color functions, style attributes, and class values are clean.
+exit 0

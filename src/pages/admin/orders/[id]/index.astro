@@ -1,0 +1,6 @@
+---
+export const prerender = false;
+
+const id = Astro.params.id ?? "";
+return Astro.redirect(`/admin/orders?order=${encodeURIComponent(id)}`, 302);
+---

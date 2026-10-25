@@ -1,0 +1,810 @@
+---
+/**
+ * Home hero. docs/pages.md (Home) and docs/motion.md items 23–25.
+ * Words: docs/copy.md. Windows: src/lib/shipping.ts. Chip: src/lib/clock.ts.
+ * Desktop: search docks into the frame. Mobile: search sits inside the frame, deck hidden.
+ * Fan-in is a one-shot tween at spring-smooth's duration. Pointer tilt uses data attributes
+ * because style attributes are blocked by the page CSP. prefersReducedMotion() is from motion.ts.
+ */
+import type { ImageMetadata } from "astro";
+import "./hero-pointer.css";
+import { dispatchClock } from "../lib/clock";
+import { defectFact, lahoreWindow, nationwideWindow } from "../lib/shipping";
+import type { PriceBreak } from "../lib/money";
+import PackageFallback from "./illustrations/PackageFallback.astro";
+import PartPicture from "./PartPicture.astro";
+import PhotoStage from "./PhotoStage.tsx";
+import ProductCard from "./ProductCard.astro";
+
+export interface HeroCard {
+  href: string;
+  partNumber: string;
+  name: string;
+  price: number;
+  breaks?: readonly PriceBreak[];
+  stockQty: number;
+  restockOn?: string;
+  packageType: string;
+  voltage?: string;
+  image?: ImageMetadata;
+}
+
+interface Props {
+  front: HeroCard | null;
+  behind: HeroCard[];
+}
+
+const { front, behind } = Astro.props;
+const clock = dispatchClock();
+const facts = [
+  { label: "Lahore", value: lahoreWindow },
+  { label: "Nationwide", value: nationwideWindow },
+  { label: "Defects", value: defectFact },
+];
+
+const layers = [
+  behind[1] ? { card: behind[1], depth: "back-2" } : null,
+  behind[0] ? { card: behind[0], depth: "back-1" } : null,
+].filter((layer) => layer !== null);
+
+const backPhoto = {
+  width: 640,
+  height: 480,
+  sizes: "(min-width: 900px) 340px, 40vw",
+  widths: [480, 768],
+};
+
+const gridW = 40;
+const gridH = 24;
+const gridHorizontal = Array.from({ length: gridH - 1 }, (_, index) => `M0 ${index + 1}H${gridW}`).join("");
+const gridVertical = Array.from({ length: gridW - 1 }, (_, index) => `M${index + 1} 0V${gridH}`).join("");
+---
+
+<section class="home-hero" aria-labelledby="hero-title">
+  <svg class="grid-lines" viewBox={`0 0 ${gridW} ${gridH}`} preserveAspectRatio="none" aria-hidden="true">
+    <path pathLength="1" d={gridHorizontal} />
+    <path pathLength="1" d={gridVertical} />
+  </svg>
+  <div class="spot" aria-hidden="true"></div>
+  <div class="hero-grid">
+    <div class="intro">
+      {clock.chip && (
+        <p class="status">
+          <span class:list={["dot", clock.kind]} aria-hidden="true"></span>
+          {clock.within ? (
+            <>Dispatching today · order within <strong>{clock.within}</strong></>
+          ) : (
+            clock.chip
+          )}
+        </p>
+      )}
+      <h1 id="hero-title">
+        <span class="mask"><span class="rise">Parts from Hall Road, </span></span>
+        <span class="mask"><span class="rise"><em>counted</em> before you pay.</span></span>
+      </h1>
+      <p class="lede arrive">Regulators, boards, sensors and relays. Every price is the price at checkout. Every stock number is a real count.</p>
+      <dl class="facts arrive">
+        {facts.map((fact) => (
+          <div>
+            <dt>{fact.label}</dt>
+            <dd>{fact.value}</dd>
+          </div>
+        ))}
+      </dl>
+    </div>
+    {front && (
+      <div class="deck">
+        <div class="deck-tilt">
+        {layers.map((layer) => (
+          <div class:list={["back", layer.depth]} aria-hidden="true">
+            <div class="back-card">
+              <div class="well">
+                {layer.card.image ? (
+                  <PhotoStage cutout>
+                    <PartPicture
+                      src={layer.card.image}
+                      partNumber={layer.card.partNumber}
+                      alt=""
+                      width={backPhoto.width}
+                      height={backPhoto.height}
+                      sizes={backPhoto.sizes}
+                      widths={backPhoto.widths}
+                      transition={false}
+                      fit="contain"
+                      class="photo"
+                      frameClass="frame"
+                    />
+                  </PhotoStage>
+                ) : (
+                  <PackageFallback packageType={layer.card.packageType} partNumber={layer.card.partNumber}>
+                    <span class="fallback">{layer.card.packageType}</span>
+                  </PackageFallback>
+                )}
+              </div>
+            </div>
+          </div>
+        ))}
+        <div class="front">
+          <ProductCard
+            href={front.href}
+            partNumber={front.partNumber}
+            name={front.name}
+            price={front.price}
+            breaks={front.breaks}
+            stockQty={front.stockQty}
+            restockOn={front.restockOn}
+            packageType={front.packageType}
+            image={front.image}
+            variant="hero"
+            detail={front.voltage}
+            showMeter={true}
+            priority={true}
+            transition={false}
+          />
+        </div>
+        </div>
+      </div>
+    )}
+  </div>
+  <button
+    id="hero-search"
+    class="dock"
+    type="button"
+    data-search-open
+    aria-haspopup="dialog"
+    aria-controls="search-dialog"
+  >
+    <span class="dock-inner">
+      <svg width="20" height="20" aria-hidden="true" focusable="false">
+        <use href="#search" />
+      </svg>
+      <span class="query">LM7805, ESP32, "5 V regulator"</span>
+      <span class="face">Search</span>
+    </span>
+  </button>
+</section>
+
+<style>
+  .home-hero {
+    position: relative;
+    margin: var(--space-12) var(--inset) 0;
+    overflow: hidden;
+    border-radius: var(--radius-frame);
+    background: var(--color-navy);
+    color: var(--color-on-navy);
+    isolation: isolate;
+  }
+
+  .grid-lines,
+  .spot {
+    position: absolute;
+    inset: 0;
+    z-index: 0;
+    width: 100%;
+    height: 100%;
+    pointer-events: none;
+  }
+
+  .grid-lines {
+    color: color-mix(in oklch, var(--color-on-navy) 28%, transparent);
+    mask-image: radial-gradient(120% 90% at 85% 40%, var(--color-ink) 20%, transparent 70%);
+  }
+
+  .grid-lines path {
+    fill: none;
+    stroke: currentColor;
+    stroke-width: 1;
+    vector-effect: non-scaling-stroke;
+    stroke-dasharray: 1;
+    stroke-dashoffset: 1;
+    animation: draw-grid 900ms var(--ease-out) forwards;
+  }
+
+  .spot {
+    display: none;
+  }
+
+  .hero-grid {
+    position: relative;
+    z-index: 1;
+    display: grid;
+    gap: var(--space-40);
+    padding: var(--space-40) var(--space-20) var(--space-96);
+  }
+
+  .intro {
+    min-width: 0;
+  }
+
+  .mask {
+    display: block;
+    overflow: clip;
+    padding-bottom: 0.14em;
+    margin-bottom: -0.08em;
+  }
+
+  .rise {
+    display: block;
+  }
+
+  @media (prefers-reduced-motion: no-preference) {
+    .status,
+    .arrive {
+      animation: chip-in var(--dur-page) var(--ease-out) both;
+    }
+
+    .arrive {
+      animation-delay: 160ms;
+    }
+
+    .mask .rise {
+      animation: line-rise var(--dur-page) var(--ease-out) both;
+    }
+
+    .mask + .mask .rise {
+      animation-delay: 80ms;
+    }
+  }
+
+  .status {
+    display: inline-flex;
+    align-items: center;
+    flex-wrap: wrap;
+    gap: var(--space-8);
+    max-width: 100%;
+    margin: 0;
+    padding: var(--space-8) var(--space-12) var(--space-8) var(--space-8);
+    border-radius: var(--radius-pill);
+    background: var(--color-navy-raised);
+    box-shadow: inset 0 0 0 1px var(--color-navy-line);
+    color: var(--color-on-navy);
+    font-size: var(--text-caption);
+    line-height: var(--text-caption--line-height);
+  }
+
+  .status strong {
+    font-weight: var(--font-weight-num);
+    font-variant-numeric: tabular-nums;
+  }
+
+  .dot {
+    flex: none;
+    width: var(--space-8);
+    height: var(--space-8);
+    border-radius: var(--radius-pill);
+    background: var(--color-signal);
+  }
+
+  .dot.today {
+    background: var(--color-ok);
+    box-shadow: 0 0 0 var(--space-2) color-mix(in oklch, var(--color-ok) 28%, transparent);
+  }
+
+  h1 {
+    margin: var(--space-20) 0 0;
+    color: var(--color-on-navy);
+    font-size: var(--text-display-xl);
+    font-weight: var(--text-display-xl--font-weight);
+    line-height: var(--text-display-xl--line-height);
+    letter-spacing: var(--text-display-xl--letter-spacing);
+    font-stretch: calc(var(--wdth-display-xl) * 1%);
+    font-variation-settings: "wdth" var(--wdth-display-xl);
+    text-wrap: balance;
+  }
+
+  h1 em {
+    font-style: normal;
+    color: var(--color-signal);
+  }
+
+  .lede {
+    max-width: 34rem;
+    margin: var(--space-20) 0 0;
+    color: var(--color-on-navy-muted);
+    font-size: var(--text-body-lg);
+    font-weight: var(--text-body-lg--font-weight);
+    line-height: var(--text-body-lg--line-height);
+    letter-spacing: var(--text-body-lg--letter-spacing);
+    text-wrap: pretty;
+  }
+
+  .facts {
+    display: grid;
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+    gap: var(--space-16) var(--space-24);
+    margin: var(--space-24) 0 0;
+  }
+
+  .facts div {
+    display: flex;
+    flex-direction: column;
+    gap: var(--space-2);
+    min-width: 0;
+  }
+
+  dt {
+    margin: 0;
+    color: var(--color-on-navy-muted);
+    font-family: var(--font-label);
+    font-size: var(--text-label);
+    font-weight: var(--text-label--font-weight);
+    font-variation-settings: normal;
+    line-height: var(--text-label--line-height);
+    letter-spacing: var(--text-label--letter-spacing);
+    text-transform: uppercase;
+  }
+
+  dd {
+    margin: 0;
+    color: var(--color-on-navy);
+    font-size: var(--text-small);
+    font-weight: var(--font-weight-strong);
+    line-height: var(--text-small--line-height);
+    text-wrap: pretty;
+  }
+
+  .deck {
+    position: relative;
+    z-index: 1;
+    width: 100%;
+    max-width: 30rem;
+    min-width: 0;
+    justify-self: end;
+    padding-top: var(--space-80);
+  }
+
+  .back,
+  .front {
+    width: 88%;
+    margin-inline: auto;
+  }
+
+  .back {
+    position: absolute;
+    right: 0;
+    bottom: 0;
+    left: 0;
+    pointer-events: none;
+  }
+
+  .back-2 {
+    z-index: 0;
+    transform: translate(-14%, calc(var(--space-80) * -1)) rotate(-6deg) scale(0.9);
+    opacity: 0.55;
+    filter: saturate(0.6);
+  }
+
+  .back-1 {
+    z-index: 1;
+    transform: translate(-6%, calc(var(--space-40) * -1)) rotate(-3deg) scale(0.95);
+    opacity: 0.8;
+  }
+
+  .front {
+    position: relative;
+    z-index: 2;
+  }
+
+  .deck-tilt {
+    position: relative;
+  }
+
+  .back-card {
+    padding: var(--space-16);
+    border-radius: var(--radius-card);
+    background: var(--color-surface);
+  }
+
+  .well {
+    position: relative;
+    aspect-ratio: 4 / 3;
+    overflow: hidden;
+    border-radius: var(--radius-control);
+    background: var(--color-sunken);
+  }
+
+  .well :global(picture),
+  .well :global(img) {
+    display: block;
+    width: 100%;
+    height: 100%;
+  }
+
+  .well :global(picture) {
+    position: absolute;
+    inset: 0;
+  }
+
+  .well :global(img) {
+    object-fit: cover;
+    mix-blend-mode: multiply;
+  }
+
+  .fallback {
+    display: grid;
+    place-items: center;
+    height: 100%;
+    padding: var(--space-8);
+    color: var(--color-ink);
+    font-family: var(--font-part);
+    font-size: var(--text-caption);
+    font-weight: var(--font-weight-part);
+    font-variation-settings: normal;
+    letter-spacing: var(--tracking-part);
+    text-align: center;
+  }
+
+  .dock {
+    position: absolute;
+    bottom: 0;
+    left: 0;
+    z-index: 2;
+    display: block;
+    width: min(100%, 40rem);
+    margin: 0;
+    padding: var(--space-12) var(--space-12) 0 0;
+    border: 0;
+    border-top-right-radius: var(--radius-frame);
+    background: var(--color-canvas);
+    color: var(--color-ink);
+    font: inherit;
+    text-align: left;
+    cursor: pointer;
+  }
+
+  .dock::before,
+  .dock::after {
+    content: "";
+    position: absolute;
+    width: var(--radius-frame);
+    height: var(--radius-frame);
+    background: radial-gradient(
+      circle at 100% 0,
+      transparent calc(var(--radius-frame) - 0.5px),
+      var(--color-canvas) var(--radius-frame)
+    );
+  }
+
+  .dock::before {
+    top: calc(var(--radius-frame) * -1);
+    left: 0;
+  }
+
+  .dock::after {
+    bottom: 0;
+    left: 100%;
+  }
+
+  .dock:focus-visible {
+    outline: none;
+  }
+
+  .dock-inner {
+    display: flex;
+    align-items: center;
+    gap: var(--space-8);
+    height: 72px;
+    padding: 0 var(--space-8) 0 var(--space-20);
+    border-radius: var(--radius-panel);
+    background: var(--color-surface);
+    box-shadow: var(--shadow-1), inset 0 0 0 1px var(--color-line);
+  }
+
+  .dock:focus-visible .dock-inner,
+  .dock:hover .dock-inner,
+  .dock:active .dock-inner {
+    box-shadow: var(--shadow-1), inset 0 0 0 2px var(--color-action);
+  }
+
+  .dock svg {
+    flex: none;
+    color: var(--color-ink-muted);
+  }
+
+  .query {
+    flex: 1;
+    min-width: 0;
+    overflow: hidden;
+    color: var(--color-ink-muted);
+    font-size: var(--text-body);
+    line-height: var(--text-body--line-height);
+    text-overflow: ellipsis;
+    white-space: nowrap;
+  }
+
+  .face {
+    display: inline-flex;
+    flex: none;
+    align-items: center;
+    justify-content: center;
+    height: 44px;
+    padding: 0 var(--space-20);
+    border-radius: var(--radius-pill);
+    background: var(--color-action);
+    color: var(--color-surface);
+    font-size: var(--text-small);
+    font-weight: var(--font-weight-strong);
+    line-height: 1;
+    transition:
+      background-color var(--dur-instant) var(--ease-out),
+      transform var(--dur-instant) var(--ease-out);
+  }
+
+  .dock:hover .face,
+  .dock:active .face {
+    background: var(--color-action-hover);
+  }
+
+  .dock:active .face {
+    transform: scale(0.97);
+  }
+
+  @keyframes chip-in {
+    from { opacity: 0; }
+    to { opacity: 1; }
+  }
+
+  @keyframes line-rise {
+    from { transform: translateY(110%); }
+    to { transform: none; }
+  }
+
+  @keyframes draw-grid {
+    to { stroke-dashoffset: 0; }
+  }
+
+  @keyframes fan-front {
+    from { opacity: 0; transform: translateY(var(--space-12)); }
+    to { opacity: 1; transform: none; }
+  }
+
+  @keyframes fan-1 {
+    from { opacity: 1; transform: none; }
+    to {
+      opacity: 0.8;
+      transform: translate(-6%, calc(var(--space-40) * -1)) rotate(-3deg) scale(0.95);
+    }
+  }
+
+  @keyframes fan-2 {
+    from { opacity: 1; transform: none; }
+    to {
+      opacity: 0.55;
+      transform: translate(-14%, calc(var(--space-80) * -1)) rotate(-6deg) scale(0.9);
+    }
+  }
+
+  @keyframes hero-fade {
+    from { opacity: 0; }
+    to { opacity: 1; }
+  }
+
+  @media (min-width: 900px) {
+    .hero-grid {
+      grid-template-columns: 1.05fr 0.95fr;
+      align-items: center;
+      padding: var(--space-80) var(--space-56) calc(var(--space-128) + var(--space-24));
+    }
+
+    .facts {
+      display: flex;
+      flex-wrap: wrap;
+      gap: var(--space-8) var(--space-24);
+    }
+
+    .query {
+      font-size: var(--text-body-lg);
+      line-height: var(--text-body-lg--line-height);
+    }
+  }
+
+  @media (max-width: 899px) {
+    .deck {
+      display: none;
+    }
+
+    .dock {
+      position: relative;
+      width: auto;
+      margin: calc(var(--space-80) * -1) var(--space-20) 0;
+      padding: 0 0 var(--space-16);
+      border-radius: 0;
+      background: transparent;
+    }
+
+    .dock::before,
+    .dock::after {
+      display: none;
+    }
+
+    .dock-inner {
+      height: var(--space-56);
+      padding-left: var(--space-16);
+      box-shadow: none;
+    }
+
+    .face {
+      display: none;
+    }
+  }
+
+  @media (min-width: 900px) and (prefers-reduced-motion: no-preference) {
+    .front {
+      animation: fan-front var(--spring-smooth-duration) var(--ease-out) backwards;
+      animation-delay: 160ms;
+    }
+
+    .back-1 {
+      animation: fan-1 var(--spring-smooth-duration) var(--ease-out) backwards;
+      animation-delay: 80ms;
+    }
+
+    .back-2 {
+      animation: fan-2 var(--spring-smooth-duration) var(--ease-out) backwards;
+    }
+  }
+
+  @media (hover: hover) and (pointer: fine) and (prefers-reduced-motion: no-preference) {
+    .deck {
+      perspective: 900px;
+    }
+
+    .deck-tilt {
+      transform: rotateX(var(--tilt-x, 0deg)) rotateY(var(--tilt-y, 0deg));
+      transform-style: preserve-3d;
+    }
+
+    .deck-tilt.is-hot {
+      will-change: transform;
+    }
+
+    .deck-tilt.is-leaving {
+      transition: transform var(--dur-2) var(--ease-out);
+    }
+
+    .back {
+      transition: transform var(--dur-2) var(--ease-out);
+    }
+
+    .deck:hover .back-2 {
+      transform: translate(-18%, calc(var(--space-96) * -1)) rotate(-8deg) scale(0.9);
+    }
+
+    .deck:hover .back-1 {
+      transform: translate(-9%, calc(var(--space-48) * -1)) rotate(-4deg) scale(0.95);
+    }
+
+    .spot {
+      display: block;
+      opacity: 0;
+      background: radial-gradient(
+        circle at var(--spot-x, 70%) var(--spot-y, 40%),
+        color-mix(in oklch, var(--color-signal) 8%, transparent),
+        transparent 240px
+      );
+      transition: opacity var(--dur-2) var(--ease-out);
+    }
+
+    .home-hero:hover .spot {
+      opacity: 1;
+    }
+  }
+
+  @media (prefers-reduced-motion: reduce) {
+    .intro,
+    .status,
+    .arrive,
+    .mask .rise,
+    .mask + .mask .rise,
+    .grid-lines path,
+    .front,
+    .back-1,
+    .back-2 {
+      animation: none;
+    }
+
+    .grid-lines path {
+      stroke-dashoffset: 0;
+    }
+
+    .home-hero {
+      animation: hero-fade var(--dur-2) var(--ease-out);
+    }
+
+    .face {
+      transition: none;
+    }
+
+    .dock:active .face {
+      transform: none;
+    }
+  }
+</style>
+
+<script>
+  import { prefersReducedMotion } from "../lib/motion";
+
+  const hero = document.querySelector(".home-hero");
+  const tilt = hero?.querySelector(".deck-tilt");
+  const fine = window.matchMedia("(hover: hover) and (pointer: fine)");
+  if (hero instanceof HTMLElement && tilt instanceof HTMLElement && fine.matches && !prefersReducedMotion() && !hero.hasAttribute("data-motion")) {
+    const frameEl: HTMLElement = hero;
+    const tiltEl: HTMLElement = tilt;
+    frameEl.setAttribute("data-motion", "ready");
+    let rect = { left: 0, top: 0, width: 1, height: 1 };
+    let frame = 0;
+    let x = 0;
+    let y = 0;
+    let hovering = false;
+    let measured = false;
+
+    function readBox() {
+      const box = frameEl.getBoundingClientRect();
+      rect = { left: box.left, top: box.top, width: box.width || 1, height: box.height || 1 };
+      measured = true;
+    }
+
+    function step(percent: number) {
+      return String(Math.max(0, Math.min(100, Math.round(percent / 5) * 5)));
+    }
+
+    function setData(el: HTMLElement, key: string, value: string) {
+      if (el.dataset[key] !== value) el.dataset[key] = value;
+    }
+
+    function write() {
+      const dx = (x - rect.left) / rect.width - 0.5;
+      const dy = (y - rect.top) / rect.height - 0.5;
+      setData(tiltEl, "ry", String(Math.max(-6, Math.min(6, Math.round(dx * 12)))));
+      setData(tiltEl, "rx", String(Math.max(-6, Math.min(6, Math.round(dy * -12)))));
+      setData(frameEl, "sx", step(((x - rect.left) / rect.width) * 100));
+      setData(frameEl, "sy", step(((y - rect.top) / rect.height) * 100));
+    }
+
+    frameEl.addEventListener("pointerenter", (event) => {
+      if (event.pointerType === "touch") return;
+      hovering = true;
+      measured = false;
+      tiltEl.classList.add("is-hot");
+      tiltEl.classList.remove("is-leaving");
+      x = event.clientX;
+      y = event.clientY;
+      if (frame) return;
+      frame = window.requestAnimationFrame(() => {
+        frame = 0;
+        readBox();
+      });
+    });
+
+    frameEl.addEventListener("pointermove", (event) => {
+      if (!hovering || event.pointerType === "touch") return;
+      x = event.clientX;
+      y = event.clientY;
+      if (frame || !measured) return;
+      frame = window.requestAnimationFrame(() => {
+        frame = 0;
+        write();
+      });
+    });
+
+    window.addEventListener("scroll", () => {
+      if (!hovering || frame) return;
+      frame = window.requestAnimationFrame(() => {
+        frame = 0;
+        readBox();
+      });
+    }, { passive: true });
+
+    frameEl.addEventListener("pointerleave", () => {
+      hovering = false;
+      if (frame) {
+        window.cancelAnimationFrame(frame);
+        frame = 0;
+      }
+      tiltEl.classList.remove("is-hot");
+      tiltEl.classList.add("is-leaving");
+      tiltEl.dataset.rx = "0";
+      tiltEl.dataset.ry = "0";
+    });
+  }
+</script>

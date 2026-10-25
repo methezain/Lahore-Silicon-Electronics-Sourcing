@@ -1,0 +1,58 @@
+{
+  "part_number": "LM7805",
+  "manufacturer": "Texas Instruments",
+  "mpn": "LM7805",
+  "name": "5 V, 1 A, TO-220 linear regulator",
+  "category": "Power",
+  "price": 45,
+  "currency": "PKR",
+  "stock_qty": 48,
+  "package_type": "TO-220",
+  "mounting_type": "Through-hole",
+  "voltage": "7–35 V in, 5 V out",
+  "summary": "Turns 7–35 V into a steady 5 V at up to 1 A.",
+  "key_specs": ["Output voltage", "Output current", "Input voltage"],
+  "specs": [
+    { "label": "Output voltage", "value": "5", "unit": "V" },
+    { "label": "Output current", "value": "1", "unit": "A" },
+    { "label": "Input voltage", "value": "7–35", "unit": "V" },
+    { "label": "Package", "value": "TO-220" },
+    { "label": "Mounting", "value": "Through-hole" }
+  ],
+  "pinout": [
+    { "pin": "1", "label": "Input" },
+    { "pin": "2", "label": "Ground" },
+    { "pin": "3", "label": "Output" }
+  ],
+  "not_included": "No heatsink.",
+  "faq": [
+    {
+      "q": "What does it do?",
+      "a": "Turns 7–35 V into a steady 5 V at up to 1 A."
+    },
+    {
+      "q": "What is in the bag?",
+      "a": "A loose TO-220 in an antistatic bag. No heatsink."
+    },
+    {
+      "q": "Which pin is the output?",
+      "a": "Pin 3. Pin 1 is the input. Pin 2 is ground."
+    },
+    {
+      "q": "Where is the datasheet?",
+      "a": "The Texas Instruments LM340 and LM7805 family datasheet is linked on this page."
+    }
+  ],
+  "datasheet": "https://www.ti.com/lit/ds/symlink/lm340.pdf",
+  "images": [
+    {
+      "src": "../../assets/parts/cutouts/lm7805.webp",
+      "alt": "LM7805 regulator in a TO-220 package, black body with three metal leads and a mounting hole.",
+      "note": "Representative studio photograph, not a photo of the lot in the drawer."
+    }
+  ],
+  "in_the_bag": "Loose TO-220 in an antistatic bag.",
+  "min_qty": 1,
+  "qty_multiple": 1,
+  "description": "LM7805 positive 5 V linear regulator. TO-220, 1 A continuous output, with thermal shutdown and short-circuit protection. Sourced from Hall Road, Lahore."
+}

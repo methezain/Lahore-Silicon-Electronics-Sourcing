@@ -1,0 +1,133 @@
+---
+/**
+ * Grouped spec list. docs/premium-roadmap.md R4.
+ * Labels use the small role. Units stay muted. Dots lead from the label to the value.
+ */
+import type { SpecGroup } from "../lib/product";
+
+interface Props {
+  groups: SpecGroup[];
+}
+
+const { groups } = Astro.props;
+---
+
+<div class="spec-panel">
+  {groups.map((group) => (
+    <div class="spec-group">
+      <h3>{group.title}</h3>
+      {group.rows.length > 0 && (
+        <dl>
+          {group.rows.map((spec) => (
+            <div class="spec-row">
+              <dt>{spec.label}</dt>
+              <dd>
+                {spec.value}
+                {spec.unit && <span class="unit">&nbsp;{spec.unit}</span>}
+              </dd>
+            </div>
+          ))}
+        </dl>
+      )}
+      {group.prose && <p class="bag">{group.prose}</p>}
+    </div>
+  ))}
+</div>
+
+<style>
+  .spec-panel {
+    overflow: hidden;
+    border-radius: var(--radius-panel);
+    background: var(--color-surface);
+    box-shadow: inset 0 0 0 1px var(--color-line);
+  }
+
+  h3 {
+    margin: 0;
+    padding: var(--space-12) var(--space-16);
+    background: var(--color-sunken);
+    color: var(--color-ink);
+    font-family: var(--font-sans);
+    font-size: var(--text-small);
+    font-weight: var(--font-weight-strong);
+    letter-spacing: var(--text-small--letter-spacing);
+    line-height: var(--text-small--line-height);
+    text-transform: none;
+    text-wrap: balance;
+  }
+
+  .spec-group + .spec-group h3 {
+    box-shadow: inset 0 1px 0 var(--color-line);
+  }
+
+  dl {
+    margin: 0;
+  }
+
+  .spec-row {
+    display: flex;
+    align-items: baseline;
+    justify-content: space-between;
+    gap: var(--space-12);
+    padding: var(--space-12) var(--space-16);
+    background-image: radial-gradient(circle, var(--color-control-line) 1px, transparent 1.4px);
+    background-position: left 0.85em;
+    background-clip: content-box;
+    background-origin: content-box;
+    background-repeat: repeat-x;
+    background-size: var(--space-8) var(--space-8);
+  }
+
+  .spec-row + .spec-row {
+    box-shadow: inset 0 1px 0 var(--color-line);
+  }
+
+  dt,
+  dd {
+    margin: 0;
+    background: var(--color-surface);
+  }
+
+  dt {
+    flex: 0 1 auto;
+    min-width: 0;
+    max-width: calc(50% - var(--space-8));
+    padding-right: var(--space-8);
+    color: var(--color-ink);
+    font-size: var(--text-small);
+    font-weight: var(--text-small--font-weight);
+    line-height: var(--text-small--line-height);
+    text-wrap: pretty;
+    overflow-wrap: anywhere;
+  }
+
+  dd {
+    flex: 0 1 auto;
+    min-width: 0;
+    max-width: calc(50% - var(--space-8));
+    margin-left: auto;
+    padding-left: var(--space-8);
+    color: var(--color-ink);
+    font-size: var(--text-small);
+    font-weight: var(--font-weight-strong);
+    font-variant-numeric: tabular-nums;
+    line-height: var(--text-small--line-height);
+    text-align: right;
+    text-wrap: pretty;
+    overflow-wrap: anywhere;
+  }
+
+  .unit {
+    color: var(--color-ink-muted);
+    font-weight: var(--text-small--font-weight);
+  }
+
+  .bag {
+    margin: 0;
+    padding: var(--space-16);
+    color: var(--color-ink);
+    font-size: var(--text-small);
+    line-height: var(--text-small--line-height);
+    text-wrap: pretty;
+  }
+</style>

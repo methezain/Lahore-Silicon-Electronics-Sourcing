@@ -1,0 +1,136 @@
+/* Order received. docs/motion.md (Signature moment: connect) and docs/pages.md (Order received). */
+
+.order-received .received {
+  display: flex;
+  flex-direction: column;
+  min-width: 0;
+}
+
+.order-received .connect-bay {
+  position: relative;
+  z-index: 1;
+  display: flex;
+  justify-content: center;
+  padding: var(--space-32) var(--space-24) var(--space-20);
+  overflow: hidden;
+  border-radius: var(--radius-frame) var(--radius-frame) 0 0;
+  background: var(--color-navy);
+}
+
+.order-received .connect-mark {
+  display: block;
+  width: var(--space-96);
+  height: var(--space-96);
+  overflow: visible;
+  color: var(--color-signal);
+}
+
+.order-received .connect-ring {
+  transform-box: fill-box;
+  transform-origin: center;
+  opacity: 0;
+  animation: connect-ring var(--dur-3) var(--ease-out) both;
+}
+
+.order-received .half {
+  transform-box: fill-box;
+  transform-origin: center;
+}
+
+.order-received .half-left {
+  animation: connect-left var(--dur-3) var(--ease-out) both;
+}
+
+.order-received .half-right {
+  animation: connect-right var(--dur-3) var(--ease-out) both;
+}
+
+.order-received .connect-check {
+  color: var(--color-on-navy);
+  animation: connect-check var(--dur-2) var(--ease-out) var(--dur-3) both;
+}
+
+.order-received .slot-lip {
+  position: absolute;
+  right: var(--space-24);
+  bottom: 0;
+  left: var(--space-24);
+  height: var(--space-8);
+  border-radius: var(--radius-pill);
+  background: var(--color-navy-raised);
+}
+
+.order-received .print-window {
+  overflow: hidden;
+}
+
+.order-received .receipt-sheet {
+  border-top-left-radius: 0;
+  border-top-right-radius: 0;
+  box-shadow: var(--shadow-2), inset 0 0 0 1px var(--color-line);
+  animation: receipt-print var(--dur-3) var(--ease-out) calc(var(--dur-3) + var(--dur-2)) both;
+}
+
+@keyframes connect-left {
+  from { transform: translateX(calc(var(--space-16) * -1)); }
+  to { transform: none; }
+}
+
+@keyframes connect-right {
+  from { transform: translateX(var(--space-16)); }
+  to { transform: none; }
+}
+
+@keyframes connect-ring {
+  from { opacity: 1; transform: scale(0.6); }
+  to { opacity: 0; transform: scale(1.5); }
+}
+
+@keyframes connect-check {
+  from { clip-path: inset(0 100% 0 0); }
+  to { clip-path: inset(0 0 0 0); }
+}
+
+@keyframes receipt-print {
+  from { transform: translateY(-100%); }
+  to { transform: none; }
+}
+
+.order-received .timeline li {
+  position: relative;
+}
+
+.order-received .timeline li:not(:last-child)::before {
+  content: "";
+  position: absolute;
+  top: var(--space-12);
+  bottom: 0;
+  left: var(--space-4);
+  width: 1px;
+  background: var(--color-line);
+}
+
+.order-received .mark {
+  position: relative;
+  z-index: 1;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .order-received .connect-ring,
+  .order-received .half-left,
+  .order-received .half-right,
+  .order-received .connect-check,
+  .order-received .receipt-sheet {
+    animation: none;
+  }
+
+  .order-received .connect-ring {
+    opacity: 0;
+  }
+
+  .order-received .half-left,
+  .order-received .half-right,
+  .order-received .receipt-sheet {
+    transform: none;
+  }
+}

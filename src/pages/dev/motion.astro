@@ -1,0 +1,369 @@
+---
+/**
+ * Dev-only gallery for the motion tokens.
+ * Production requests 404. Not linked from the storefront.
+ * docs/motion.md
+ */
+import Layout from "../../layouts/Layout.astro";
+import Button from "../../components/Button.astro";
+import { pageTitle } from "../../lib/shop";
+
+if (import.meta.env.PROD) {
+  return new Response(null, { status: 404, statusText: "Not Found" });
+}
+
+const durations = [
+  { id: "instant", label: "dur-instant" },
+  { id: "fast", label: "dur-fast" },
+  { id: "base", label: "dur-base" },
+  { id: "slow", label: "dur-slow" },
+  { id: "page", label: "dur-page" },
+] as const;
+
+const curves = [
+  { id: "out", label: "ease-out" },
+  { id: "in-out", label: "ease-in-out" },
+  { id: "exit", label: "ease-exit" },
+] as const;
+
+const springRows = [
+  { id: "snappy", label: "spring-snappy" },
+  { id: "smooth", label: "spring-smooth" },
+  { id: "flick", label: "spring-flick" },
+] as const;
+---
+
+<Layout
+  title={pageTitle("Motion")}
+  description="Development page for motion tokens, springs and press feedback."
+  robots="noindex, nofollow"
+>
+  <div class="lab">
+    <header class="lab-intro">
+      <h1 class="display">Motion</h1>
+      <p class="caption">
+        Development only. These samples show the motion tokens. They are not parts for sale.
+      </p>
+      <div class="cluster">
+        <button type="button" class="lab-btn lab-target" id="motion-reduce" aria-pressed="false" aria-describedby="motion-status">
+          Reduced motion
+        </button>
+      </div>
+      <p id="motion-status" class="caption" role="status">Motion is on. A press scales to 0.97 and releases on a spring.</p>
+    </header>
+
+    <section aria-labelledby="durations-heading">
+      <h2 id="durations-heading" class="heading">Durations</h2>
+      <p class="caption">Each bar uses the duration token named on the row, with ease-out.</p>
+      <div data-lab-play="durations"><Button type="button" variant="secondary">Play durations</Button></div>
+      <div class="lab-demo" data-lab="durations">
+        {durations.map((row) => (
+          <div class="lab-line">
+            <span class="lab-name">{row.label}</span>
+            <div class="lab-track" data-dur={row.id}>
+              <span class="lab-marker" aria-hidden="true"></span>
+            </div>
+          </div>
+        ))}
+      </div>
+    </section>
+
+    <section aria-labelledby="easing-heading">
+      <h2 id="easing-heading" class="heading">Easing</h2>
+      <p class="caption">Each bar lasts dur-base. The curve is the token named on the row.</p>
+      <div data-lab-play="easings"><Button type="button" variant="secondary">Play easing</Button></div>
+      <div class="lab-demo" data-lab="easings">
+        {curves.map((row) => (
+          <div class="lab-line">
+            <span class="lab-name">{row.label}</span>
+            <div class="lab-track" data-dur="base" data-ease={row.id}>
+              <span class="lab-marker" aria-hidden="true"></span>
+            </div>
+          </div>
+        ))}
+      </div>
+    </section>
+
+    <section aria-labelledby="springs-heading">
+      <h2 id="springs-heading" class="heading">Springs</h2>
+      <p class="caption">Snappy, smooth and flick. Play again to send them back.</p>
+      <div data-lab-play="springs"><Button type="button" variant="secondary">Play springs</Button></div>
+      <div class="lab-demo" data-lab="springs">
+        {springRows.map((row) => (
+          <div class="lab-line" data-spring={row.id}>
+            <span class="lab-name">{row.label}</span>
+            <div class="lab-track">
+              <span class="lab-marker is-spring" aria-hidden="true"></span>
+            </div>
+          </div>
+        ))}
+      </div>
+    </section>
+
+    <section aria-labelledby="entrance-heading">
+      <h2 id="entrance-heading" class="heading">Entrance</h2>
+      <p class="caption">Eight samples rise by the distance-rise token, staggered 30 ms. The eighth delay is the last one.</p>
+      <div data-lab-play="entrance"><Button type="button" variant="secondary">Play entrance</Button></div>
+      <div class="lab-chips" data-lab="entrance">
+        {Array.from({ length: 8 }, (_, index) => (
+          <span class="lab-chip">{index + 1}</span>
+        ))}
+      </div>
+    </section>
+
+    <section id="press" aria-labelledby="press-heading">
+      <h2 id="press-heading" class="heading">Press</h2>
+      <p class="caption">
+        Buttons, pills, cards and rows scale while pressed, then spring back.
+        Disabled controls stay still. Reduced motion keeps the color change.
+      </p>
+      <div class="cluster">
+        <Button id="lab-button" type="button">Press</Button>
+        <Button id="lab-disabled" type="button" disabled>Disabled</Button>
+        <button type="button" class="lab-pill lab-target" id="lab-pill" data-press>Pill</button>
+        <button type="button" class="lab-pill lab-target" id="lab-selected" data-press aria-pressed="true">Selected</button>
+      </div>
+      <button type="button" class="lab-card lab-target" id="lab-card" data-press>Card</button>
+      <button type="button" class="lab-row lab-target" id="lab-row" data-press>Row</button>
+    </section>
+  </div>
+</Layout>
+
+<script>
+  import { bindMotionLab } from "../../lib/motion-lab";
+  bindMotionLab();
+</script>
+
+<style>
+  .lab {
+    display: flex;
+    flex-direction: column;
+    gap: var(--space-56);
+    max-width: var(--page-max);
+    margin-inline: auto;
+    padding: var(--space-32) var(--gutter) var(--space-96);
+  }
+
+  .lab section,
+  .lab-intro {
+    display: flex;
+    flex-direction: column;
+    gap: var(--space-16);
+    min-width: 0;
+  }
+
+  .cluster,
+  .plays {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: center;
+    gap: var(--space-12);
+  }
+
+  .lab-demo {
+    display: flex;
+    flex-direction: column;
+    gap: var(--space-12);
+    max-width: var(--measure);
+    min-width: 0;
+  }
+
+  .lab-line {
+    display: grid;
+    gap: var(--space-8);
+    min-width: 0;
+  }
+
+  .lab-name {
+    margin: 0;
+    color: var(--color-ink);
+    font-family: var(--font-mono);
+    font-size: var(--text-caption);
+    line-height: var(--text-caption--line-height);
+    font-variation-settings: normal;
+  }
+
+  .lab-track {
+    container-type: inline-size;
+    position: relative;
+    height: var(--space-24);
+    min-width: 0;
+    border-radius: var(--radius-pill);
+    background: var(--color-sunken);
+  }
+
+  .lab-marker {
+    position: absolute;
+    top: var(--space-4);
+    left: var(--space-4);
+    width: var(--space-16);
+    height: var(--space-16);
+    border-radius: var(--radius-pill);
+    background: var(--color-action);
+    transition-property: transform;
+    transition-duration: var(--dur-base);
+    transition-timing-function: var(--ease-out);
+  }
+
+  .lab-track[data-dur="instant"] .lab-marker { transition-duration: var(--dur-instant); }
+  .lab-track[data-dur="fast"] .lab-marker { transition-duration: var(--dur-fast); }
+  .lab-track[data-dur="base"] .lab-marker { transition-duration: var(--dur-base); }
+  .lab-track[data-dur="slow"] .lab-marker { transition-duration: var(--dur-slow); }
+  .lab-track[data-dur="page"] .lab-marker { transition-duration: var(--dur-page); }
+  .lab-track[data-ease="out"] .lab-marker { transition-timing-function: var(--ease-out); }
+  .lab-track[data-ease="in-out"] .lab-marker { transition-timing-function: var(--ease-in-out); }
+  .lab-track[data-ease="exit"] .lab-marker { transition-timing-function: var(--ease-exit); }
+
+  .lab-track.is-run .lab-marker {
+    transform: translateX(calc(100cqi - var(--space-16) - var(--space-8)));
+  }
+
+  .lab-track.is-settled .lab-marker,
+  .lab-marker.is-spring {
+    transition: none;
+  }
+
+  .lab-chips {
+    display: flex;
+    flex-wrap: wrap;
+    gap: var(--space-8);
+  }
+
+  .lab-chip {
+    display: grid;
+    place-items: center;
+    width: var(--space-40);
+    height: var(--space-40);
+    border-radius: var(--radius-control);
+    background: var(--color-surface);
+    box-shadow: inset 0 0 0 1px var(--color-line);
+    color: var(--color-ink);
+    font-weight: var(--font-weight-num);
+    font-variant-numeric: tabular-nums;
+  }
+
+  .lab-btn,
+  .lab-pill,
+  .lab-card,
+  .lab-row {
+    margin: 0;
+    border: 0;
+    background: var(--color-surface);
+    color: var(--color-ink);
+    font: inherit;
+    font-weight: var(--font-weight-strong);
+    text-align: left;
+    cursor: pointer;
+    transition-property: background-color, box-shadow, color, transform;
+    transition-duration: var(--dur-instant);
+    transition-timing-function: var(--ease-out);
+  }
+
+  .lab-btn,
+  .lab-pill {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    border-radius: var(--radius-pill);
+    box-shadow: inset 0 0 0 1px var(--color-control-line);
+  }
+
+  .lab-btn {
+    height: 44px;
+    padding: 0 var(--space-20);
+    font-size: var(--text-small);
+  }
+
+  .lab-pill {
+    height: 36px;
+    padding: 0 var(--space-16);
+    font-size: var(--text-small);
+    box-shadow: inset 0 0 0 1px var(--color-line);
+  }
+
+  .lab-card,
+  .lab-row {
+    width: 100%;
+    padding: var(--space-16);
+    font-size: var(--text-body);
+  }
+
+  .lab-card {
+    min-height: calc(var(--space-64) + var(--space-16));
+    border-radius: var(--radius-card);
+    box-shadow: var(--shadow-1);
+  }
+
+  .lab-row {
+    min-height: 52px;
+    border-radius: var(--radius-control);
+    box-shadow: inset 0 0 0 1px var(--color-line);
+  }
+
+  .lab-target:hover,
+  .lab-target:active,
+  .lab-target[data-pressed] {
+    background: var(--color-sunken);
+  }
+
+  .lab-card:hover,
+  .lab-card:active,
+  .lab-card[data-pressed],
+  .lab-row:hover,
+  .lab-row:active,
+  .lab-row[data-pressed] {
+    background: var(--color-blue-50);
+  }
+
+  .lab-btn[aria-pressed="true"],
+  .lab-pill[aria-pressed="true"] {
+    background: var(--color-navy);
+    color: var(--color-on-navy);
+    box-shadow: none;
+  }
+
+  .lab-btn[aria-pressed="true"]:hover,
+  .lab-btn[aria-pressed="true"]:active,
+  .lab-btn[aria-pressed="true"][data-pressed],
+  .lab-pill[aria-pressed="true"]:hover,
+  .lab-pill[aria-pressed="true"]:active,
+  .lab-pill[aria-pressed="true"][data-pressed] {
+    background: var(--color-navy-raised);
+  }
+
+  @media (min-width: 900px) {
+    .lab {
+      gap: var(--space-80);
+    }
+
+    .lab-line {
+      grid-template-columns: calc(var(--space-96) + var(--space-80)) minmax(0, 1fr);
+      align-items: center;
+      gap: var(--space-16);
+    }
+  }
+
+  @media (prefers-reduced-motion: reduce) {
+    .lab-marker {
+      transition-duration: 0s;
+    }
+
+    .lab-btn,
+    .lab-pill,
+    .lab-card,
+    .lab-row {
+      transition-property: background-color, box-shadow, color;
+    }
+  }
+
+  :global(html[data-motion="reduce"]) .lab-marker {
+    transition-duration: 0s;
+  }
+
+  :global(html[data-motion="reduce"]) .lab-btn,
+  :global(html[data-motion="reduce"]) .lab-pill,
+  :global(html[data-motion="reduce"]) .lab-card,
+  :global(html[data-motion="reduce"]) .lab-row {
+    transition-property: background-color, box-shadow, color;
+  }
+</style>
