@@ -1,11 +1,10 @@
 ---
 /**
  * Product page. docs/pages.md#product-productpart_number.
- * Prerendered. The dispatch countdown is filled in the browser so it is not frozen at build time.
+ * Server-rendered from the catalog read model (D1, cached 30 s). The dispatch countdown is filled in the browser so it is not frozen at build time.
  * Pinout, companions, and questions render only when those fields exist.
  */
 import { getImage } from "astro:assets";
-import { getCollection } from "astro:content";
 import CompanionRail from "../../components/CompanionRail.astro";
 import FaqList from "../../components/FaqList.astro";
 import KeyFigures from "../../components/KeyFigures.astro";
@@ -16,7 +15,9 @@ import SectionNav from "../../components/SectionNav.astro";
 import SpecTable from "../../components/SpecTable.astro";
 import Layout from "../../layouts/Layout.astro";
 import { partThumbSrc } from "../../lib/catalog";
+import { getProduct, getProducts } from "../../lib/catalog-db";
 import { cspSha256 } from "../../lib/csp";
+import { isRemote, mediaUrl } from "../../lib/media";
 import { unitPrice } from "../../lib/money";
 import { partChipClass, productPhoto } from "../../lib/part-image";
 import { keyFigures, productMetaDescription, specGroups } from "../../lib/product";
@@ -24,19 +25,17 @@ import { pageTitle, shopName, whatsappHref } from "../../lib/shop";
 import { defectFact } from "../../lib/shipping";
 import { ogPath } from "../../lib/og";
 
-export const prerender = true;
+export const prerender = false;
 
-export async function getStaticPaths() {
-  const components = await getCollection("components");
-  return components.map((component) => ({
-    params: { part_number: component.data.part_number.toLowerCase() },
-    props: { component },
-  }));
+let requested = Astro.params.part_number ?? "";
+try {
+  requested = decodeURIComponent(requested);
+} catch {
+  requested = "";
 }
-
-const { component } = Astro.props;
-const { data } = component;
-const catalog = await getCollection("components");
+const data = await getProduct(requested);
+if (!data) return Astro.rewrite("/404");
+const catalog = await getProducts();
 const photo = data.images?.[0];
 const unit = unitPrice({ price: data.price, breaks: data.breaks }, 1);
 const thumb = photo ? await partThumbSrc(photo.src) : undefined;
@@ -51,21 +50,21 @@ const pins = data.pinout ?? [];
 const connector = data.specs.find((spec) => spec.label === "USB connector")?.value;
 const groups = specGroups(data.specs, data.in_the_bag);
 const companions = (data.companions ?? []).flatMap((partNumber) => {
-  const match = catalog.find((entry) => entry.data.part_number === partNumber);
+  const match = catalog.find((entry) => entry.part_number === partNumber);
   if (!match) return [];
-  const image = match.data.images?.[0]?.src;
+  const image = match.images?.[0]?.src;
   return [{
-    partNumber: match.data.part_number,
-    name: match.data.name,
-    price: match.data.price,
-    breaks: match.data.breaks,
-    stockQty: match.data.stock_qty,
-    lowStockAt: match.data.low_stock_at,
-    restockOn: match.data.restock_on,
-    packageType: match.data.package_type,
+    partNumber: match.part_number,
+    name: match.name,
+    price: match.price,
+    breaks: match.breaks,
+    stockQty: match.stock_qty,
+    lowStockAt: match.low_stock_at,
+    restockOn: match.restock_on,
+    packageType: match.package_type,
     ...(image ? { image } : {}),
-    minQty: match.data.min_qty,
-    qtyMultiple: match.data.qty_multiple,
+    minQty: match.min_qty,
+    qtyMultiple: match.qty_multiple,
   }];
 });
 const sectionNav = [
@@ -93,19 +92,16 @@ const schemaLD: Record<string, unknown> = {
   },
 };
 if (photo) {
-  const rendered = await getImage({
-    src: photo.src,
-    width: productPhoto.width,
-    height: productPhoto.height,
-    format: "webp",
-  });
+  const rendered = isRemote(photo.src)
+    ? { src: mediaUrl(photo.src.media, 1024) }
+    : await getImage({ src: photo.src, width: productPhoto.width, height: productPhoto.height, format: "webp" });
   schemaLD.image = [new URL(rendered.src, Astro.site ?? Astro.url).href];
 }
 const jsonLd = JSON.stringify(schemaLD);
 if (Astro.csp) Astro.csp.insertScriptHash(await cspSha256(jsonLd));
 ---
 
-<Layout title={pageTitle(`${data.part_number} ${data.name}`)} description={productMetaDescription(data.summary)} ogImage={ogPath(data.part_number)}>
+<Layout title={pageTitle(`${data.part_number} ${data.name}`)} description={productMetaDescription(data.summary)} ogImage={ogPath(data.hasOg ? data.part_number : undefined)}>
   <Fragment slot="head">
     <script type="application/ld+json" is:inline set:html={jsonLd} />
   </Fragment>

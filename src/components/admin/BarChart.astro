@@ -1,0 +1,133 @@
+---
+import { axisLabel, niceMax, type DayPoint } from "../../lib/admin/stats";
+import { formatPkr } from "../../lib/money";
+
+interface Props {
+  days: DayPoint[];
+  title: string;
+}
+
+interface Layout {
+  name: "wide" | "narrow";
+  width: number;
+  height: number;
+  left: number;
+  right: number;
+  base: number;
+  top: number;
+  gap: number;
+}
+
+const { days, title } = Astro.props;
+const layouts: Layout[] = [
+  { name: "wide", width: 720, height: 240, left: 44, right: 720, base: 200, top: 16, gap: 6 },
+  { name: "narrow", width: 330, height: 220, left: 36, right: 330, base: 190, top: 16, gap: 3 },
+];
+
+const MONTHS = ["Jan", "Feb", "Mar", "Apr", "May", "Jun", "Jul", "Aug", "Sep", "Oct", "Nov", "Dec"];
+function label(day: string): string {
+  const [, month = "1", date = "1"] = day.split("-");
+  return `${Number(date)} ${MONTHS[Number(month) - 1]}`;
+}
+
+const max = niceMax(Math.max(0, ...days.map((day) => day.sales)));
+const ticks = [0, max / 2, max];
+const topIndex = days.reduce((best, day, index) => (day.sales > (days[best]?.sales ?? 0) ? index : best), 0);
+const hasSales = days.some((day) => day.sales > 0);
+
+const drawn = layouts.map((layout) => {
+  const slot = (layout.right - layout.left) / days.length;
+  const barWidth = Math.max(2, slot - layout.gap);
+  const scale = (value: number) => ((value / max) * (layout.base - layout.top));
+  return {
+    layout,
+    grid: ticks.map((value) => ({ value, y: layout.base - scale(value), text: axisLabel(value) })),
+    bars: days.map((day, index) => {
+      const height = Math.max(day.sales > 0 ? 2 : 0, scale(day.sales));
+      const x = layout.left + index * slot + layout.gap / 2;
+      const centre = Math.min(layout.right - 40, Math.max(layout.left + 40, x + barWidth / 2));
+      return { day, index, x, y: layout.base - height, width: barWidth, height, centre, tipY: Math.max(12, layout.base - height - 8) };
+    }),
+    ends: [0, Math.floor((days.length - 1) / 2), days.length - 1].map((index, position) => ({
+      text: label(days[index]?.day ?? ""),
+      x: layout.left + index * slot + slot / 2,
+      anchor: position === 0 ? "start" : position === 2 ? "end" : "middle",
+    })),
+  };
+});
+---
+
+<figure class="chart-figure" data-chart>
+  {drawn.map(({ layout, grid, bars, ends }, drawing) => (
+    <svg
+      class={`chart chart-${layout.name}`}
+      viewBox={`0 0 ${layout.width} ${layout.height}`}
+      role={drawing === 0 ? "group" : undefined}
+      aria-label={drawing === 0 ? `${title}. Use the arrow keys to move between days.` : undefined}
+      aria-hidden={drawing === 0 ? undefined : "true"}
+    >
+      {grid.map((line) => (
+        <>
+          <line class="grid" x1={layout.left} x2={layout.right} y1={line.y} y2={line.y} />
+          <text x={layout.left - 8} y={line.y + 4} text-anchor="end">{line.text}</text>
+        </>
+      ))}
+      <g class="bars">
+        {bars.map((bar) => (
+          <>
+            <rect
+              class:list={["bar", bar.index === topIndex && hasSales && "is-top"]}
+              x={bar.x}
+              y={bar.y}
+              width={bar.width}
+              height={bar.height}
+              rx={Math.min(3, bar.width / 2)}
+              role={drawing === 0 ? "img" : undefined}
+              aria-label={drawing === 0 ? `${label(bar.day.day)}: ${formatPkr(bar.day.sales)}` : undefined}
+              tabindex={drawing === 1 ? undefined : bar.index === days.length - 1 ? 0 : -1}
+              data-bar={bar.index}
+            >
+              <title>{`${label(bar.day.day)}: ${formatPkr(bar.day.sales)}`}</title>
+            </rect>
+            <text class="tip" x={bar.centre} y={bar.tipY} text-anchor="middle">{formatPkr(bar.day.sales)}</text>
+          </>
+        ))}
+      </g>
+      {hasSales && (
+        <text class="top-label" x={bars[topIndex]?.centre} y={bars[topIndex]?.tipY} text-anchor="middle">
+          {formatPkr(days[topIndex]?.sales ?? 0)}
+        </text>
+      )}
+      {ends.map((end) => (
+        <text x={end.x} y={layout.base + 22} text-anchor={end.anchor}>{end.text}</text>
+      ))}
+    </svg>
+  ))}
+  <table class="sr-only">
+    <caption>{title}</caption>
+    <thead><tr><th>Day</th><th>Confirmed sales</th><th>Orders</th></tr></thead>
+    <tbody>
+      {days.map((day) => (
+        <tr><td>{label(day.day)}</td><td>{formatPkr(day.sales)}</td><td>{day.orders}</td></tr>
+      ))}
+    </tbody>
+  </table>
+</figure>
+
+<script>
+  for (const figure of document.querySelectorAll<HTMLElement>("[data-chart]")) {
+    const bars = [...figure.querySelectorAll<SVGElement>(".chart-wide [data-bar], .chart-narrow [data-bar]")];
+    figure.addEventListener("keydown", (event) => {
+      const target = event.target as SVGElement;
+      if (!target.matches("[data-bar]")) return;
+      const siblings = bars.filter((bar) => bar.closest("svg") === target.closest("svg"));
+      const at = siblings.indexOf(target);
+      const step = event.key === "ArrowRight" ? 1 : event.key === "ArrowLeft" ? -1 : event.key === "Home" ? -at : event.key === "End" ? siblings.length : 0;
+      if (!step) return;
+      event.preventDefault();
+      const next = siblings[Math.max(0, Math.min(siblings.length - 1, at + step))];
+      for (const bar of siblings) bar.setAttribute("tabindex", bar === next ? "0" : "-1");
+      next?.focus();
+    });
+  }
+</script>

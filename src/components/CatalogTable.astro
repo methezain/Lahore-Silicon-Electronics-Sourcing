@@ -5,7 +5,7 @@
  * Below 900px the same rows render as product cards. Sort links are optional.
  */
 import type { ImageMetadata } from "astro";
-import { getCollection } from "astro:content";
+import { getProducts } from "../lib/catalog-db";
 import AddPart from "./AddPart.tsx";
 import PackageFallback from "./illustrations/PackageFallback.astro";
 import PackageMark from "./illustrations/PackageMark.tsx";
@@ -68,11 +68,10 @@ function sortLabel(column: string, state: "ascending" | "descending" | "none") {
 
 const previewMeta = new Map<string, { figures: KeyFigure[]; alt: string }>();
 if (rows.some((row) => Boolean(row.href) && !row.sample)) {
-  const entries = await getCollection("components");
-  for (const entry of entries) {
-    previewMeta.set(entry.data.part_number, {
-      figures: keyFigures(entry.data.specs, entry.data.key_specs),
-      alt: entry.data.images?.[0]?.alt ?? "",
+  for (const product of await getProducts()) {
+    previewMeta.set(product.part_number, {
+      figures: keyFigures(product.specs, product.key_specs),
+      alt: product.images?.[0]?.alt ?? "",
     });
   }
 }

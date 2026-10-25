@@ -121,7 +121,7 @@ export default defineConfig({
     preact(),
     intent(),
     sitemap({
-      filter: (page) => !page.includes("/dev/") && !page.includes("/404") && !page.includes("/500") && !page.includes("/api/"),
+      filter: (page) => !page.includes("/dev/") && !page.includes("/404") && !page.includes("/500") && !page.includes("/api/") && !page.includes("/admin") && !page.includes("sitemap-products"),
     }),
   ],
   adapter: cloudflare({

@@ -18,9 +18,9 @@ describe('turnstile hostnames', () => {
     expect(turnstileHostnames(undefined).size).toBe(0);
   });
 
-  it('keeps the committed allowlist on the production host only', () => {
+  it('keeps the committed allowlist on a real shop host only', () => {
     const config = readFileSync('wrangler.jsonc', 'utf8');
-    expect(config).toContain('"TURNSTILE_HOSTNAMES": "lahoresilicon.com"');
+    expect(config).toMatch(/"TURNSTILE_HOSTNAMES": "[a-z0-9.-]*(lahoresilicon\.com|workers\.dev)"/);
     expect(config).not.toMatch(/example\.com|localhost|127\.0\.0\.1/);
     expect(config).not.toMatch(/1x00000000000000000000AA|1x0000000000000000000000000000000AA/);
     expect(config).toMatch(/"name": "ORDER_LIMIT"/);

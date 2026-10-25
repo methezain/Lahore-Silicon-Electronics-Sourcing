@@ -77,3 +77,8 @@
 .photo-stage.is-cutout img {
   filter: drop-shadow(0 var(--space-2) var(--space-2) color-mix(in oklch, var(--color-ink) 42%, transparent));
 }
+
+.photo-stage img.remote-photo {
+  filter: none;
+  border-radius: var(--radius-control);
+}

@@ -18,6 +18,7 @@ logs/
 # environment variables
 .env
 .env.production
+.dev.vars
 .vscode/
 # macOS-specific files
 .DS_Store

@@ -4,7 +4,7 @@
  * A product URL for a stocked part redirects to that part. Anything else says so.
  */
 import "./info.css";
-import { getCollection } from "astro:content";
+import { getProducts } from "../lib/catalog-db";
 import Layout from "../layouts/Layout.astro";
 import Button from "../components/Button.astro";
 import PackageMark from "../components/illustrations/PackageMark.tsx";
@@ -26,11 +26,11 @@ function requestedPart(pathname: string): string | undefined {
   }
 }
 
-const parts = await getCollection("components");
-const listed = parts.map((entry) => ({
-  part_number: entry.data.part_number,
-  mpn: entry.data.mpn,
-  category: entry.data.category,
+const parts = await getProducts();
+const listed = parts.map((product) => ({
+  part_number: product.part_number,
+  mpn: product.mpn,
+  category: product.category,
 }));
 const asked = requestedPart(Astro.url.pathname);
 const stocked = asked ? exactPart(listed, asked) : undefined;

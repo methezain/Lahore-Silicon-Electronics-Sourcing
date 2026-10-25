@@ -4,7 +4,7 @@
  * No counter photo and no street address until the owner supplies them.
  */
 import "./info.css";
-import { getCollection } from "astro:content";
+import { getProducts } from "../lib/catalog-db";
 import Layout from "../layouts/Layout.astro";
 import Button from "../components/Button.astro";
 import { counterPlace, deskHours, inspectedBeforeDispatch } from "../lib/desk";
@@ -12,7 +12,7 @@ import { pageTitle, shopName } from "../lib/shop";
 import { noCashOnDelivery, shippingWindows } from "../lib/shipping";
 
 const name = shopName();
-const count = (await getCollection("components")).length;
+const count = (await getProducts()).length;
 const noun = count === 1 ? "part" : "parts";
 ---
 

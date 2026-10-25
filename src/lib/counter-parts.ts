@@ -2,7 +2,7 @@
  * Parts for the catalog (`/`) and the brand page (`/home`).
  * Photos come from `images[0]`. Counts and prices stay on the part record.
  */
-import { getCollection } from "astro:content";
+import { getProducts } from "./catalog-db";
 import type { ImageMetadata } from "astro";
 import type { HomePart } from "./home";
 import type { PriceBreak } from "./money";
@@ -21,20 +21,20 @@ export type CounterPart = HomePart & {
 };
 
 export async function loadCounterParts(): Promise<CounterPart[]> {
-  const components = await getCollection("components");
-  return components.map((entry) => ({
-    part_number: entry.data.part_number,
-    category: entry.data.category,
-    featured: entry.data.featured,
-    name: entry.data.name,
-    price: entry.data.price,
-    breaks: entry.data.breaks,
-    stock_qty: entry.data.stock_qty,
-    restock_on: entry.data.restock_on,
-    package_type: entry.data.package_type,
-    voltage: entry.data.voltage,
-    image: entry.data.images?.[0]?.src,
-    min_qty: entry.data.min_qty,
-    qty_multiple: entry.data.qty_multiple,
+  const products = await getProducts();
+  return products.map((product) => ({
+    part_number: product.part_number,
+    category: product.category,
+    featured: product.featured,
+    name: product.name,
+    price: product.price,
+    breaks: product.breaks,
+    stock_qty: product.stock_qty,
+    restock_on: product.restock_on,
+    package_type: product.package_type,
+    voltage: product.voltage,
+    image: product.images?.[0]?.src,
+    min_qty: product.min_qty,
+    qty_multiple: product.qty_multiple,
   }));
 }

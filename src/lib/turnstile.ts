@@ -26,8 +26,8 @@ export function turnstileHostnames(value: string | undefined): Set<string> {
  * and no action. A real token must carry the checkout action. The hostname still
  * has to be on the allowlist, so the test hostname is not accepted in production.
  */
-function actionAccepted(result: Siteverify): boolean {
-  if (result.action === turnstileAction) return true;
+function actionAccepted(result: Siteverify, action: string): boolean {
+  if (result.action === action) return true;
   const testing = result.metadata?.result_with_testing_key === true;
   return testing && (result.action == null || result.action === "");
 }
@@ -37,6 +37,7 @@ export async function verifyTurnstile(input: {
   secret: string | undefined;
   remoteip: string | null;
   hostnames: ReadonlySet<string>;
+  action?: string;
   fetchImpl?: (url: string, init: RequestInit) => Promise<Response>;
 }): Promise<TurnstileVerdict> {
   if (!input.secret || input.hostnames.size === 0) return "misconfigured";
@@ -66,7 +67,7 @@ export async function verifyTurnstile(input: {
   }
 
   const hostname = typeof result.hostname === "string" ? result.hostname.trim().toLowerCase() : "";
-  if (result.success !== true || !actionAccepted(result) || !input.hostnames.has(hostname)) {
+  if (result.success !== true || !actionAccepted(result, input.action ?? turnstileAction) || !input.hostnames.has(hostname)) {
     console.error("Turnstile verification failed.");
     return "rejected";
   }

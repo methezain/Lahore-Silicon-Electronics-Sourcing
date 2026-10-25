@@ -5,12 +5,15 @@ import { orderNotSaved } from "../lib/order";
 import { orderFormSchema } from "../lib/order-form";
 import { placeOrder } from "../lib/place-order";
 import type { OrderDatabase } from "../lib/order-store";
+import { invalidateProducts } from "../lib/catalog-db";
+import { adminActions } from "./admin";
 
 /**
  * Guest checkout. `accept: 'form'` so the page can post without the island.
  * Origin checks stay on (`security.checkOrigin`, the Astro default).
  */
 export const server = {
+  admin: adminActions,
   placeOrder: defineAction({
     accept: "form",
     input: orderFormSchema,
@@ -45,6 +48,7 @@ export const server = {
             message: result.error,
           });
         }
+        invalidateProducts();
         return { id: result.id };
       } catch (error) {
         if (error instanceof ActionError) throw error;

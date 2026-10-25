@@ -6,6 +6,9 @@ interface __BaseEnv_Env {
 	ASSETS: Fetcher;
 	RESEND_API_KEY: string;
 	ORDER_LIMIT: RateLimit;
+	ADMIN_LOGIN_LIMIT: RateLimit;
+	ADMIN_KEY?: string;
+	SESSION_SECRET?: string;
 	TURNSTILE_SECRET?: string;
 	TURNSTILE_HOSTNAMES?: string;
 	PUBLIC_TURNSTILE_SITEKEY?: string;

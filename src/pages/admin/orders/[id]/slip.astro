@@ -1,0 +1,68 @@
+---
+/** Packing and dispatch slip. Print-only styling hides the admin chrome. */
+import "../../../../components/admin/admin-orders.css";
+import { env } from "cloudflare:workers";
+import AdminLayout from "../../../../layouts/AdminLayout.astro";
+import Button from "../../../../components/Button.astro";
+import StatusChip from "../../../../components/admin/StatusChip.astro";
+import type { AdminDatabase } from "../../../../lib/admin/db";
+import { getOrder } from "../../../../lib/admin/orders";
+import { formatFull } from "../../../../lib/admin/time";
+import { formatPkr } from "../../../../lib/money";
+import { linesUnreadable, receiptLines } from "../../../../lib/order";
+
+export const prerender = false;
+
+const db = env?.DB as unknown as AdminDatabase | undefined;
+const found = db ? await getOrder(db, Astro.params.id ?? "").catch(() => null) : null;
+if (!found) return new Response("Not found", { status: 404 });
+const { order } = found;
+const lines = receiptLines(order.items_json);
+---
+
+<AdminLayout title={`Slip ${order.id}`} current="orders">
+  <div class="slip">
+    <div class="slip-head">
+      <div>
+        <p class="label">Slip</p>
+        <h1 class="title">Order {order.id}</h1>
+      </div>
+      <div class="admin-tools">
+        <Button variant="secondary" href={`/admin/orders?order=${encodeURIComponent(order.id)}`}>Back to order</Button>
+        <Button variant="primary" id="print-slip">Print</Button>
+      </div>
+    </div>
+    <section class="slip-sheet">
+      <p><StatusChip status={order.status} /> <span class="caption">Placed {formatFull(order.created_at)}</span></p>
+      <dl class="sheet-kv">
+        <dt>Deliver to</dt><dd>{order.customer_name}</dd>
+        <dt>Phone</dt><dd class="part">{order.phone}</dd>
+        <dt>City</dt><dd>{order.destination ?? ""}</dd>
+        <dt>Address</dt><dd>{order.address}</dd>
+        <dt>Payment reference</dt><dd class="part">{order.payment_ref ?? "None"}</dd>
+      </dl>
+      {lines ? (
+        <table>
+          <thead><tr><th>Part</th><th class="num-col">Qty</th><th class="num-col">Each</th><th class="num-col">Total</th></tr></thead>
+          <tbody>
+            {lines.map((line) => (
+              <tr>
+                <td><span class="part">{line.part_number}</span><br /><span class="caption">{line.name}</span></td>
+                <td class="num-col num">{line.quantity}</td>
+                <td class="num-col num">{formatPkr(line.unit_price)}</td>
+                <td class="num-col num">{formatPkr(line.line_total)}</td>
+              </tr>
+            ))}
+          </tbody>
+        </table>
+      ) : (
+        <p class="caption">{linesUnreadable}</p>
+      )}
+      <p class="num slip-total-line">Total {formatPkr(order.total_price)}</p>
+    </section>
+  </div>
+</AdminLayout>
+
+<script>
+  document.getElementById("print-slip")?.addEventListener("click", () => window.print());
+</script>

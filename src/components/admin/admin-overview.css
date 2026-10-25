@@ -1,0 +1,317 @@
+/* Admin overview. Reference: docs/design/specimen.html #s-admin-overview. */
+
+.admin-tiles {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: var(--space-12);
+}
+
+@media (min-width: 900px) {
+  .admin-tiles {
+    grid-template-columns: repeat(4, minmax(0, 1fr));
+  }
+}
+
+.admin-tile {
+  display: grid;
+  align-content: space-between;
+  gap: var(--space-16);
+  min-width: 0;
+  padding: var(--space-20);
+  border-radius: var(--radius-panel);
+  background: var(--color-surface);
+  box-shadow: inset 0 0 0 1px var(--color-line);
+  color: var(--color-ink);
+  text-decoration: none;
+}
+
+.admin-tile.is-navy {
+  background: var(--color-navy);
+  box-shadow: none;
+  color: var(--color-on-navy);
+}
+
+.admin-tile .label {
+  margin: 0;
+}
+
+.admin-tile.is-navy .label,
+.admin-tile.is-navy .caption {
+  color: var(--color-on-navy-muted);
+}
+
+.admin-tile .figure {
+  margin: 0;
+  font-size: 2rem;
+  line-height: 1;
+}
+
+.admin-tile .figure small {
+  margin-right: var(--space-4);
+  color: var(--color-ink-muted);
+  font-size: 0.5em;
+  font-weight: 500;
+  letter-spacing: 0;
+}
+
+.admin-tile.is-navy .figure {
+  color: var(--color-signal);
+}
+
+.admin-tile .caption {
+  margin: 0;
+}
+
+@media (min-width: 900px) {
+  .admin-tile .figure {
+    font-size: 2.5rem;
+  }
+}
+
+.admin-definitions {
+  margin: var(--space-12) 0 0;
+  color: var(--color-ink-muted);
+  font-size: var(--text-caption);
+  line-height: var(--text-caption--line-height);
+  max-width: 80ch;
+}
+
+.admin-grid {
+  display: grid;
+  gap: var(--space-12);
+  margin-top: var(--space-12);
+}
+
+@media (min-width: 900px) {
+  .admin-grid {
+    grid-template-columns: 1.7fr 1fr;
+  }
+}
+
+.admin-panel-head {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: var(--space-12);
+  margin-bottom: var(--space-16);
+}
+
+.admin-panel-head h2,
+.admin-panel-head p {
+  margin: 0;
+}
+
+.admin-panel-head .total {
+  white-space: nowrap;
+  color: var(--color-ink-muted);
+  font-size: var(--text-small);
+}
+
+.admin-list {
+  margin: 0;
+  padding: 0;
+  list-style: none;
+}
+
+.admin-list > li {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: var(--space-12);
+  min-width: 0;
+  padding: var(--space-12) 0;
+  border-top: 1px solid var(--color-line);
+}
+
+.admin-list > li:first-child {
+  padding-top: 0;
+  border-top: 0;
+}
+
+.admin-list > li:last-child {
+  padding-bottom: 0;
+}
+
+.admin-list .grow {
+  display: grid;
+  gap: var(--space-2);
+  min-width: 0;
+}
+
+.admin-list .grow > * {
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.admin-list .pn {
+  font-family: var(--font-part);
+  font-size: var(--text-small);
+  font-weight: var(--font-weight-part);
+  letter-spacing: var(--tracking-part);
+}
+
+.admin-list .end {
+  display: grid;
+  flex: none;
+  justify-items: end;
+  gap: var(--space-4);
+}
+
+.admin-list a {
+  color: inherit;
+  text-decoration: none;
+}
+
+.admin-list a:hover .pn {
+  text-decoration: underline;
+  text-underline-offset: 3px;
+}
+
+.admin-panel-link {
+  color: var(--color-link);
+  font-size: var(--text-small);
+  text-underline-offset: 3px;
+}
+
+.chart-figure {
+  margin: 0;
+}
+
+.chart {
+  display: block;
+  width: 100%;
+  height: auto;
+  overflow: visible;
+}
+
+.chart-narrow {
+  display: block;
+}
+
+.chart-wide {
+  display: none;
+}
+
+@media (min-width: 640px) {
+  .chart-narrow {
+    display: none;
+  }
+
+  .chart-wide {
+    display: block;
+  }
+}
+
+.chart .grid {
+  stroke: var(--color-line);
+  stroke-width: 1;
+}
+
+.chart text {
+  fill: var(--color-ink-muted);
+  font-family: var(--font-label);
+  font-size: 11px;
+  letter-spacing: 0.04em;
+}
+
+.chart .bar {
+  fill: var(--color-action);
+  transform-box: fill-box;
+  transform-origin: 50% 100%;
+}
+
+.chart .bar.is-top {
+  fill: var(--color-navy);
+}
+
+.chart .bar:focus-visible {
+  outline: none;
+  stroke: var(--color-ink);
+  stroke-width: 2;
+}
+
+.chart .tip {
+  fill: var(--color-ink);
+  font-weight: 500;
+  opacity: 0;
+  pointer-events: none;
+}
+
+.chart .bar:hover + .tip,
+.chart .bar:focus-visible + .tip {
+  opacity: 1;
+}
+
+.chart .top-label {
+  fill: var(--color-ink);
+  font-weight: 500;
+}
+
+/* Motion 29: bars grow from the baseline, tiles rise, once per visit. */
+@keyframes admin-grow {
+  from { transform: scaleY(0); }
+  to { transform: scaleY(1); }
+}
+
+@keyframes admin-tile-rise {
+  from {
+    opacity: 0;
+    transform: translateY(var(--space-12));
+  }
+  to {
+    opacity: 1;
+    transform: none;
+  }
+}
+
+html.admin-play .chart .bar {
+  animation: admin-grow var(--dur-slow) var(--ease-out) both;
+}
+
+html.admin-play .admin-tile {
+  animation: admin-tile-rise var(--dur-page) var(--ease-out) both;
+}
+
+html.admin-play .admin-tile:nth-child(2) { animation-delay: 30ms; }
+html.admin-play .admin-tile:nth-child(3) { animation-delay: 60ms; }
+html.admin-play .admin-tile:nth-child(4) { animation-delay: 90ms; }
+
+@media (prefers-reduced-motion: reduce) {
+  html.admin-play .chart .bar,
+  html.admin-play .admin-tile {
+    animation: none;
+  }
+}
+
+html.admin-play .chart .bars .bar { animation-delay: 0ms; }
+html.admin-play .chart .bars .bar:nth-of-type(1) { animation-delay: 0ms; }
+html.admin-play .chart .bars .bar:nth-of-type(2) { animation-delay: 20ms; }
+html.admin-play .chart .bars .bar:nth-of-type(3) { animation-delay: 40ms; }
+html.admin-play .chart .bars .bar:nth-of-type(4) { animation-delay: 60ms; }
+html.admin-play .chart .bars .bar:nth-of-type(5) { animation-delay: 80ms; }
+html.admin-play .chart .bars .bar:nth-of-type(6) { animation-delay: 100ms; }
+html.admin-play .chart .bars .bar:nth-of-type(7) { animation-delay: 120ms; }
+html.admin-play .chart .bars .bar:nth-of-type(8) { animation-delay: 140ms; }
+html.admin-play .chart .bars .bar:nth-of-type(9) { animation-delay: 160ms; }
+html.admin-play .chart .bars .bar:nth-of-type(10) { animation-delay: 180ms; }
+html.admin-play .chart .bars .bar:nth-of-type(11) { animation-delay: 200ms; }
+html.admin-play .chart .bars .bar:nth-of-type(12) { animation-delay: 220ms; }
+html.admin-play .chart .bars .bar:nth-of-type(13) { animation-delay: 240ms; }
+html.admin-play .chart .bars .bar:nth-of-type(14) { animation-delay: 260ms; }
+html.admin-play .chart .bars .bar:nth-of-type(15) { animation-delay: 280ms; }
+html.admin-play .chart .bars .bar:nth-of-type(16) { animation-delay: 300ms; }
+html.admin-play .chart .bars .bar:nth-of-type(17) { animation-delay: 320ms; }
+html.admin-play .chart .bars .bar:nth-of-type(18) { animation-delay: 340ms; }
+html.admin-play .chart .bars .bar:nth-of-type(19) { animation-delay: 360ms; }
+html.admin-play .chart .bars .bar:nth-of-type(20) { animation-delay: 380ms; }
+html.admin-play .chart .bars .bar:nth-of-type(21) { animation-delay: 400ms; }
+html.admin-play .chart .bars .bar:nth-of-type(22) { animation-delay: 420ms; }
+html.admin-play .chart .bars .bar:nth-of-type(23) { animation-delay: 440ms; }
+html.admin-play .chart .bars .bar:nth-of-type(24) { animation-delay: 460ms; }
+html.admin-play .chart .bars .bar:nth-of-type(25) { animation-delay: 480ms; }
+html.admin-play .chart .bars .bar:nth-of-type(26) { animation-delay: 500ms; }
+html.admin-play .chart .bars .bar:nth-of-type(27) { animation-delay: 520ms; }
+html.admin-play .chart .bars .bar:nth-of-type(28) { animation-delay: 540ms; }
+html.admin-play .chart .bars .bar:nth-of-type(29) { animation-delay: 560ms; }
+html.admin-play .chart .bars .bar:nth-of-type(30) { animation-delay: 580ms; }

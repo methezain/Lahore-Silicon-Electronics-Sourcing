@@ -1,0 +1,207 @@
+.admin-mark {
+  flex: none;
+  padding: var(--space-4) var(--space-8);
+  border-radius: var(--radius-chip);
+  background: var(--color-sunken);
+  color: var(--color-ink-muted);
+  font-family: var(--font-label);
+  font-size: var(--text-label);
+  line-height: var(--text-label--line-height);
+  letter-spacing: var(--text-label--letter-spacing);
+  font-weight: var(--text-label--font-weight);
+  text-transform: uppercase;
+}
+
+.admin-header .site-bar form {
+  margin: 0;
+}
+
+.admin-bar-end {
+  display: flex;
+  align-items: center;
+  gap: var(--space-4);
+  margin-left: auto;
+}
+
+.site-seg .is-unbuilt,
+.admin-tabs .is-unbuilt {
+  display: inline-flex;
+  align-items: center;
+  padding: var(--space-8) var(--space-12);
+  color: var(--color-ink-muted);
+  font-size: var(--text-small);
+  line-height: var(--text-small--line-height);
+  font-weight: var(--font-weight-strong);
+  opacity: 0.55;
+  cursor: not-allowed;
+}
+
+.admin-tabs {
+  display: flex;
+  gap: var(--space-2);
+  margin: var(--space-8) var(--inset) 0;
+  padding: var(--space-4);
+  border-radius: var(--radius-pill);
+  background: var(--color-sunken);
+}
+
+.admin-tabs a,
+.admin-tabs .is-unbuilt {
+  flex: 1;
+  justify-content: center;
+  padding: var(--space-8) var(--space-4);
+  border-radius: var(--radius-pill);
+  color: var(--color-ink-muted);
+  font-size: var(--text-small);
+  line-height: var(--text-small--line-height);
+  font-weight: var(--font-weight-strong);
+  text-align: center;
+  text-decoration: none;
+}
+
+.admin-tabs a[aria-current="page"] {
+  background: var(--color-surface);
+  color: var(--color-ink);
+  box-shadow: var(--shadow-1);
+}
+
+@media (max-width: 899px) {
+  .admin-header .admin-bar-end > a.btn {
+    display: none;
+  }
+}
+
+@media (min-width: 900px) {
+  .admin-tabs {
+    display: none;
+  }
+}
+
+.admin-page {
+  width: 100%;
+  max-width: var(--page-max);
+  margin: 0 auto;
+  padding: var(--space-24) var(--gutter) var(--space-56);
+}
+
+@media (min-width: 900px) {
+  .admin-page {
+    padding: var(--space-40) var(--gutter-lg) var(--space-96);
+  }
+}
+
+.admin-head {
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: space-between;
+  align-items: flex-end;
+  gap: var(--space-12) var(--space-24);
+  margin-bottom: var(--space-24);
+}
+
+.admin-head > div {
+  display: grid;
+  gap: var(--space-8);
+}
+
+.admin-head .label,
+.admin-head .title,
+.admin-head .count {
+  margin: 0;
+}
+
+.admin-head .count {
+  color: var(--color-ink-muted);
+  font-size: var(--text-small);
+  line-height: var(--text-small--line-height);
+}
+
+.admin-panel {
+  min-width: 0;
+  padding: var(--space-20);
+  border-radius: var(--radius-panel);
+  background: var(--color-surface);
+  box-shadow: inset 0 0 0 1px var(--color-line);
+}
+
+@media (min-width: 900px) {
+  .admin-panel {
+    padding: var(--space-24);
+  }
+}
+
+.admin-empty {
+  display: grid;
+  justify-items: center;
+  gap: var(--space-4);
+  padding: var(--space-56) var(--space-20);
+  text-align: center;
+}
+
+.admin-empty h2,
+.admin-empty p {
+  margin: 0;
+}
+
+.admin-empty p {
+  max-width: 40ch;
+  color: var(--color-ink-muted);
+  font-size: var(--text-small);
+  line-height: var(--text-small--line-height);
+}
+
+.admin-login {
+  width: 100%;
+  max-width: calc(var(--space-128) * 3.5);
+  margin: var(--space-32) auto var(--space-56);
+  padding: 0 var(--gutter);
+}
+
+@media (min-width: 900px) {
+  .admin-login {
+    margin-top: var(--space-80);
+  }
+}
+
+.admin-login .admin-panel {
+  display: grid;
+  gap: var(--space-16);
+}
+
+.admin-login-head {
+  display: grid;
+  gap: var(--space-8);
+}
+
+.admin-login-head .label,
+.admin-login-head .title,
+.admin-login-head .lede {
+  margin: 0;
+}
+
+.admin-login .lede {
+  color: var(--color-ink-muted);
+  font-size: var(--text-small);
+  line-height: var(--text-small--line-height);
+}
+
+.admin-login form {
+  display: grid;
+  gap: var(--space-16);
+  margin: 0;
+}
+
+.admin-login .turnstile {
+  min-height: 65px;
+}
+
+.admin-login .turnstile[hidden] {
+  display: none;
+}
+
+.admin-problem {
+  margin: 0;
+  color: var(--color-out);
+  font-size: var(--text-caption);
+  line-height: var(--text-caption--line-height);
+}

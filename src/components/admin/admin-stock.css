@@ -1,0 +1,226 @@
+/* Admin stock editor. Reference: docs/design/specimen.html #s-admin-stock. */
+
+.stock-panel {
+  display: grid;
+}
+
+.stock-head {
+  display: none;
+}
+
+.stock-row {
+  display: grid;
+  grid-template-columns: 52px minmax(0, 1fr);
+  align-items: center;
+  gap: var(--space-12) var(--space-16);
+  margin: 0;
+  padding: var(--space-16);
+  border-top: 1px solid var(--color-line);
+}
+
+.stock-row:first-of-type {
+  border-top: 0;
+}
+
+.stock-row .thumb {
+  display: grid;
+  place-items: center;
+  width: 52px;
+  height: 52px;
+  overflow: hidden;
+  border-radius: 10px;
+  background: var(--color-sunken);
+}
+
+.stock-row .thumb img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  mix-blend-mode: multiply;
+}
+
+.stock-row .who {
+  display: grid;
+  gap: var(--space-2);
+  min-width: 0;
+}
+
+.stock-row .pn {
+  font-family: var(--font-part);
+  font-size: var(--text-small);
+  font-weight: var(--font-weight-part);
+  letter-spacing: var(--tracking-part);
+}
+
+.stock-row .name {
+  overflow: hidden;
+  color: var(--color-ink-muted);
+  font-size: var(--text-caption);
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.stock-row .edit {
+  grid-column: 1 / -1;
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: var(--space-12);
+}
+
+.counter {
+  display: inline-flex;
+  flex: none;
+  align-items: center;
+  justify-content: space-between;
+  width: 156px;
+  height: 44px;
+  border-radius: var(--radius-pill);
+  background: var(--color-surface);
+  box-shadow: inset 0 0 0 1px var(--color-control-line);
+}
+
+.counter:focus-within {
+  box-shadow: inset 0 0 0 2px var(--color-action);
+}
+
+.counter button {
+  width: 36px;
+  height: 36px;
+  margin: 0 var(--space-4);
+  border: 0;
+  border-radius: 50%;
+  background: transparent;
+  color: var(--color-ink);
+  font: inherit;
+  font-size: 1.125rem;
+  cursor: pointer;
+  transition: background-color var(--dur-1) var(--ease-out);
+}
+
+.counter button:hover {
+  background: var(--color-sunken);
+}
+
+.counter input {
+  width: 52px;
+  min-width: 0;
+  border: 0;
+  outline: 0;
+  background: transparent;
+  color: var(--color-ink);
+  font: inherit;
+  font-weight: var(--font-weight-num);
+  font-variant-numeric: tabular-nums;
+  text-align: center;
+}
+
+.stock-row .date {
+  flex: 1 1 140px;
+  min-width: 140px;
+}
+
+.stock-row .date input {
+  width: 100%;
+  height: 44px;
+  padding: 0 var(--space-12);
+  border: 0;
+  border-radius: var(--radius-control);
+  background: var(--color-surface);
+  color: var(--color-ink);
+  font: inherit;
+  font-size: var(--text-small);
+  box-shadow: inset 0 0 0 1px var(--color-control-line);
+}
+
+.stock-row .date input:focus-visible {
+  outline: none;
+  box-shadow: inset 0 0 0 2px var(--color-action);
+}
+
+.stock-row .slot {
+  display: flex;
+  flex: none;
+  justify-content: flex-end;
+  width: 96px;
+  min-height: 44px;
+  margin-left: auto;
+}
+
+.stock-row .slot:empty {
+  display: none;
+}
+
+.stock-row .saved {
+  display: inline-flex;
+  align-items: center;
+  gap: var(--space-4);
+  height: 44px;
+  color: var(--color-ok);
+  font-size: var(--text-small);
+  font-weight: var(--font-weight-strong);
+  animation: stock-saved 2.2s var(--ease-out) both;
+}
+
+/* Motion 30: the label stays for 1.6s, then fades. */
+@keyframes stock-saved {
+  0% { opacity: 0; transform: translateY(var(--space-4)); }
+  10% { opacity: 1; transform: none; }
+  73% { opacity: 1; }
+  100% { opacity: 0; }
+}
+
+.stock-row:has(.saved) .counter {
+  box-shadow: inset 0 0 0 2px var(--color-ok);
+  transition: box-shadow var(--dur-slow) var(--ease-out);
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .stock-row .saved {
+    animation: none;
+  }
+}
+
+.stock-empty {
+  margin: 0;
+  padding: var(--space-24);
+}
+
+@media (min-width: 900px) {
+  .stock-head,
+  .stock-row {
+    grid-template-columns: 52px minmax(0, 1fr) 450px;
+  }
+
+  .stock-head {
+    display: grid;
+    gap: var(--space-16);
+    padding: var(--space-12) var(--space-16);
+    background: var(--color-sunken);
+    color: var(--color-ink-muted);
+  }
+
+  .stock-head .hd {
+    display: grid;
+    grid-template-columns: 156px 168px;
+    gap: var(--space-12);
+  }
+
+  .stock-row .edit {
+    grid-column: auto;
+    flex-wrap: nowrap;
+  }
+
+  .stock-row .date {
+    flex: none;
+    width: 168px;
+  }
+
+  .stock-row .slot {
+    margin-left: 0;
+  }
+
+  .stock-row .slot:empty {
+    display: flex;
+  }
+}

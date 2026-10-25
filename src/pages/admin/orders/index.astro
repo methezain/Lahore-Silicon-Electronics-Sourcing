@@ -1,0 +1,179 @@
+---
+/** Admin orders. docs/admin-plan.md section 6 and design-system.md (Admin). */
+import "../../../components/admin/admin-orders.css";
+import "../../../components/illustrations/package-mark.css";
+import { actions } from "astro:actions";
+import { env } from "cloudflare:workers";
+import AdminLayout from "../../../layouts/AdminLayout.astro";
+import AdminPager from "../../../components/admin/AdminPager.astro";
+import Button from "../../../components/Button.astro";
+import FilterPills from "../../../components/FilterPills.astro";
+import OrderSheet from "../../../components/admin/OrderSheet.astro";
+import StatusChip from "../../../components/admin/StatusChip.astro";
+import PackageMark from "../../../components/illustrations/PackageMark.tsx";
+import type { AdminDatabase } from "../../../lib/admin/db";
+import { ORDER_STATUSES, statusLabel } from "../../../lib/admin/order-status";
+import { getOrder, listOrders, ordersHref, parseOrdersQuery, statusCounts } from "../../../lib/admin/orders";
+import { noticeKeyForMove } from "../../../lib/admin/notices";
+import { formatPlaced } from "../../../lib/admin/time";
+import { loadCatalog } from "../../../lib/catalog";
+import { formatPkr } from "../../../lib/money";
+
+export const prerender = false;
+
+const db = env?.DB as unknown as AdminDatabase | undefined;
+const query = parseOrdersQuery(Astro.url.searchParams);
+
+const statusRun = Astro.getActionResult(actions.admin.setOrderStatus);
+const noteRun = Astro.getActionResult(actions.admin.saveOrderNote);
+const run = statusRun ?? noteRun;
+if (run) {
+  const data = run.data;
+  if (!data) return Astro.redirect(ordersHref(query, { notice: "failed" }), 303);
+  const back = parseOrdersQuery(new URLSearchParams(data.back));
+  const result = data.result;
+  const notice = result.ok
+    ? ("to" in result ? noticeKeyForMove(result.to, result.restocked) : "note-saved")
+    : result.reason === "too-long" ? "note-long" : result.reason;
+  return Astro.redirect(ordersHref(back, { order: data.id, notice }), 303);
+}
+
+let failed = !db;
+let counts = { all: 0, Pending: 0, Paid: 0, Dispatched: 0, Delivered: 0, Cancelled: 0 };
+let list: Awaited<ReturnType<typeof listOrders>> = { rows: [], total: 0, page: 1, pages: 1 };
+let open: Awaited<ReturnType<typeof getOrder>> = null;
+const openId = Astro.url.searchParams.get("order") ?? "";
+if (db) {
+  try {
+    [counts, list, open] = await Promise.all([statusCounts(db), listOrders(db, query), openId ? getOrder(db, openId) : Promise.resolve(null)]);
+  } catch (error) {
+    failed = true;
+    console.error("Admin orders failed:", error instanceof Error ? error.name : "unknown");
+  }
+}
+if (failed) Astro.response.status = 500;
+
+const catalog = open ? await loadCatalog() : [];
+const thumbs = Object.fromEntries(catalog.map((part) => [part.part_number, part.image]));
+
+const pageQuery = { ...query, page: list.page };
+const closeHref = ordersHref(pageQuery);
+const backParams = new URLSearchParams(closeHref.split("?")[1] ?? "").toString();
+const notice = Astro.url.searchParams.get("notice");
+const hrefFor = (page: number) => ordersHref({ ...query, page });
+const rowHref = (id: string) => ordersHref(pageQuery, { order: id });
+
+const pills = [
+  { label: "All", href: ordersHref({ ...query, status: null, page: 1 }), count: counts.all, current: query.status === null },
+  ...ORDER_STATUSES.map((status) => ({
+    label: statusLabel(status),
+    href: ordersHref({ ...query, status, page: 1 }),
+    count: counts[status],
+    current: query.status === status,
+  })),
+];
+
+const countLine = failed
+  ? "Orders could not be read."
+  : `${counts.all} ${counts.all === 1 ? "order" : "orders"} · ${counts.Pending} awaiting payment`;
+const exportParams = new URLSearchParams(closeHref.split("?")[1] ?? "");
+exportParams.delete("page");
+const exportHref = `/admin/orders/export.csv${exportParams.size ? `?${exportParams}` : ""}`;
+const filtered = query.status !== null || query.q !== "";
+---
+
+<AdminLayout title="Orders" current="orders">
+  <div class="admin-page">
+    <div class="admin-head">
+      <div>
+        <p class="label">Orders</p>
+        <h1 class="title">Every order</h1>
+        <p class="count">{countLine}</p>
+      </div>
+      <div class="admin-tools">
+        <Button variant="secondary" href={exportHref}>Export CSV</Button>
+      </div>
+    </div>
+
+    {openId && !open && !failed && (
+      <p class="admin-notice is-out" role="alert">
+        <svg width="18" height="18" aria-hidden="true" focusable="false"><use href="#alert" /></svg>
+        No order with this id.
+      </p>
+    )}
+
+    <div class="admin-toolbar">
+      <FilterPills label="Order status" items={pills} />
+    </div>
+
+    <div class="admin-toolbar">
+      <form class="admin-search" method="GET" action="/admin/orders" role="search">
+        {query.status && <input type="hidden" name="status" value={query.status} />}
+        <label>
+          <svg width="18" height="18" aria-hidden="true" focusable="false"><use href="#search" /></svg>
+          <span class="sr-only">Search orders</span>
+          <input type="search" name="q" value={query.q} placeholder="Order, name or phone" autocomplete="off" />
+        </label>
+        <Button variant="secondary" type="submit">Search</Button>
+      </form>
+    </div>
+
+    {list.rows.length === 0 ? (
+      <section class="admin-panel admin-empty" aria-labelledby="orders-empty">
+        <PackageMark kind="module" empty />
+        {failed ? (
+          <>
+            <h2 class="heading" id="orders-empty">Orders could not be read</h2>
+            <p>The database did not answer. Reload the page.</p>
+          </>
+        ) : filtered ? (
+          <>
+            <h2 class="heading" id="orders-empty">{query.q ? `No orders match "${query.q}"` : `No ${statusLabel(query.status ?? "").toLowerCase()} orders`}</h2>
+            <p>Try an order id, a name or a phone number.</p>
+            <Button variant="secondary" href="/admin/orders">Clear filters</Button>
+          </>
+        ) : (
+          <>
+            <h2 class="heading" id="orders-empty">No orders yet</h2>
+            <p>Orders appear here the moment a buyer checks out.</p>
+            <Button variant="secondary" href="/">View shop</Button>
+          </>
+        )}
+      </section>
+    ) : (
+      <div class="admin-table-panel">
+        <table class="admin-table">
+          <thead>
+            <tr><th>Order</th><th>Placed</th><th>Buyer</th><th>City</th><th>Parts</th><th>Total</th><th>Status</th></tr>
+          </thead>
+          <tbody>
+            {list.rows.map((row) => (
+              <tr aria-current={row.id === openId ? "true" : undefined}>
+                <td><a class="order-link" href={rowHref(row.id)}>{row.id}</a></td>
+                <td class="muted">{formatPlaced(row.created_at)}</td>
+                <td>{row.customer_name}</td>
+                <td class="muted">{row.destination ?? ""}</td>
+                <td class="num">{row.lines}</td>
+                <td class="num">{formatPkr(row.total_price)}</td>
+                <td><StatusChip status={row.status} /></td>
+              </tr>
+            ))}
+          </tbody>
+        </table>
+        <div class="admin-cards">
+          {list.rows.map((row) => (
+            <a class="order-card" href={rowHref(row.id)} aria-current={row.id === openId ? "true" : undefined}>
+              <span class="order-card-row"><span class="order-link">{row.id}</span><StatusChip status={row.status} /></span>
+              <span class="order-card-row"><span class="buyer">{row.customer_name}</span><span class="num">{formatPkr(row.total_price)}</span></span>
+              <span class="meta">{formatPlaced(row.created_at)} · {row.destination ?? ""} · {row.lines} {row.lines === 1 ? "part" : "parts"}</span>
+            </a>
+          ))}
+        </div>
+      </div>
+    )}
+
+    <AdminPager page={list.page} pages={list.pages} href={hrefFor} label="Order pages" />
+  </div>
+
+  {open && <OrderSheet order={open.order} events={open.events} thumbs={thumbs} closeHref={closeHref} back={backParams} notice={notice} />}
+</AdminLayout>

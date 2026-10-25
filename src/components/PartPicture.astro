@@ -1,6 +1,7 @@
 ---
 import { Picture } from "astro:assets";
 import type { ImageMetadata } from "astro";
+import { isRemote, mediaUrl } from "../lib/media";
 import { partTransitionClass } from "../lib/part-image";
 
 interface Props {
@@ -36,11 +37,29 @@ const {
   fit = "cover",
 } = Astro.props;
 
+const remote = isRemote(src) ? src : null;
+const classes = ["remote-photo", className, transition && partTransitionClass(partNumber)].filter(Boolean).join(" ");
 const loading = priority
   ? { priority: true as const }
   : { loading: "lazy" as const, decoding: "async" as const };
 ---
 
+{remote ? (
+  <picture class={frameClass}>
+    <img
+      src={mediaUrl(remote.media, 640)}
+      srcset={`${mediaUrl(remote.media, 640)} 640w, ${mediaUrl(remote.media, 1024)} 1024w`}
+      sizes={sizes}
+      alt={alt}
+      width={width}
+      height={height}
+      class={classes}
+      loading={priority ? undefined : "lazy"}
+      decoding={priority ? undefined : "async"}
+      fetchpriority={priority ? "high" : undefined}
+    />
+  </picture>
+) : (
 <Picture
   src={src}
   alt={alt}
@@ -55,3 +74,4 @@ const loading = priority
   pictureAttributes={frameClass ? { class: frameClass } : undefined}
   {...loading}
 />
+)}

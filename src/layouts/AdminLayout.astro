@@ -1,0 +1,48 @@
+---
+import { Font } from "astro:assets";
+import "../styles/global.css";
+import "../components/admin/admin.css";
+import AdminHeader from "../components/admin/AdminHeader.astro";
+import IconSprite from "../components/IconSprite.astro";
+import { themeColor } from "../lib/brand";
+import { shopName } from "../lib/shop";
+import type { AdminSection } from "../lib/admin/nav";
+
+interface Props {
+  title: string;
+  current?: AdminSection;
+  signedIn?: boolean;
+  htmlClass?: string;
+}
+
+const { title, current, signedIn = true, htmlClass } = Astro.props;
+const name = shopName();
+---
+
+<!doctype html>
+<html lang="en" class:list={["scroll-smooth", htmlClass]}>
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>{title} · {name} Admin</title>
+    <meta name="robots" content="noindex, nofollow" />
+    <meta name="theme-color" content={themeColor} />
+    <meta name="color-scheme" content="light" />
+    <link rel="icon" href="/favicon.ico" sizes="32x32" />
+    <link rel="icon" type="image/svg+xml" href="/favicon.svg" />
+    <Font cssVariable="--font-mona" preload />
+    <Font cssVariable="--font-geist-mono" />
+    <slot name="head" />
+  </head>
+  <body class="admin min-h-screen flex flex-col antialiased">
+    <IconSprite />
+    <AdminHeader current={current} signedIn={signedIn} />
+    <main id="main" class="flex-grow w-full">
+      <slot />
+    </main>
+    <script>
+      import { bindPress } from "../lib/press";
+      bindPress();
+    </script>
+  </body>
+</html>

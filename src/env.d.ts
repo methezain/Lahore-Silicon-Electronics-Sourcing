@@ -15,6 +15,12 @@ interface ImportMetaEnv {
   readonly PUBLIC_TURNSTILE_SITEKEY?: string;
 }
 
+declare namespace App {
+  interface Locals {
+    admin?: { signedIn: true };
+  }
+}
+
 interface TurnstileRenderOptions {
   sitekey: string;
   action: string;

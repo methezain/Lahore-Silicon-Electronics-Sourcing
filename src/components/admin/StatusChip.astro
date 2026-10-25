@@ -1,0 +1,11 @@
+---
+import { statusChip, statusLabel } from "../../lib/admin/order-status";
+
+interface Props {
+  status: string;
+}
+
+const { status } = Astro.props;
+---
+
+<span class:list={["chip", statusChip(status)]}>{statusLabel(status)}</span>

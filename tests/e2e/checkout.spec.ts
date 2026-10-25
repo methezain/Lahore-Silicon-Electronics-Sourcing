@@ -46,7 +46,9 @@ const addressRule = 'Enter the full address, with house and street.';
 const paymentRule = 'Paste the transaction ID from your payment (at least 5 characters).';
 
 test('add to cart, clear field errors, and save the order', async ({ page }, testInfo) => {
-  test.setTimeout(180_000);
+  test.setTimeout(240_000);
+  await withOrderLock(async () => {
+  await resetEsp32Stock();
   await page.context().grantPermissions(['clipboard-read', 'clipboard-write']);
   await page.goto('/product/esp32-wroom-32d');
   const qty = page.locator('.qty-row').getByRole('textbox', { name: 'Quantity for ESP32-WROOM-32D' });
@@ -123,11 +125,8 @@ test('add to cart, clear field errors, and save the order', async ({ page }, tes
     await expect(copy.first()).toHaveText('Copied');
   }
 
-  await withOrderLock(async () => {
-    await resetEsp32Stock();
-    await place.click();
-    await expect(page).toHaveURL(/\/order-success\/LHR-[0-9a-f]{16}$/, { timeout: 20_000 });
-  });
+  await place.click();
+  await expect(page).toHaveURL(/\/order-success\/LHR-[0-9a-f]{16}$/, { timeout: 20_000 });
   const id = new URL(page.url()).pathname.split('/').pop() ?? '';
   await expect(page.getByRole('heading', { name: 'Order received' })).toBeVisible();
   await expect(page.getByText("We'll confirm your payment and dispatch.")).toBeVisible();
@@ -161,6 +160,8 @@ test('add to cart, clear field errors, and save the order', async ({ page }, tes
   await page.screenshot({
     path: `test-results/order-review/${testInfo.project.name}-success.png`,
     fullPage: true,
+  });
+  await resetEsp32Stock();
   });
 });
 

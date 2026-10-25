@@ -1,6 +1,8 @@
 import { getImage } from "astro:assets";
 import type { ImageMetadata } from "astro";
-import { getCollection } from "astro:content";
+import { getProducts } from "./catalog-db";
+import type { Product } from "./catalog-map";
+import { isRemote, mediaUrl } from "./media";
 import { thumb56Source } from "./part-image";
 import type { CatalogPrice } from "./money";
 
@@ -27,6 +29,7 @@ export type CatalogPart = CatalogPrice & {
 
 /** WebP thumb for the cart island. Catalog and product pages render `<Picture>` themselves. */
 export async function partThumbSrc(image: ImageMetadata): Promise<string> {
+  if (isRemote(image)) return mediaUrl(image.media, 112);
   const result = await getImage({
     src: image,
     width: thumb56Source,
@@ -36,28 +39,39 @@ export async function partThumbSrc(image: ImageMetadata): Promise<string> {
   return result.src;
 }
 
+const catalogMemo = new WeakMap<object, Promise<CatalogPart[]>>();
+
 /** Published parts, priced by `price` until a record carries quantity breaks. */
 export async function loadCatalog(): Promise<CatalogPart[]> {
-  const components = await getCollection("components");
-  return Promise.all(components.map(async (entry) => ({
-    part_number: entry.data.part_number,
-    mpn: entry.data.mpn,
-    name: entry.data.name,
-    category: entry.data.category,
-    voltage: entry.data.voltage,
-    summary: entry.data.summary,
-    package_type: entry.data.package_type,
-    specs: entry.data.specs.map((spec) => ({
+  const products = await getProducts();
+  const memo = catalogMemo.get(products);
+  if (memo) return memo;
+  const built = buildCatalog(products);
+  catalogMemo.set(products, built);
+  return built;
+}
+
+function buildCatalog(products: Product[]): Promise<CatalogPart[]> {
+  return Promise.all(products.map(async (product) => ({
+    part_number: product.part_number,
+    mpn: product.mpn,
+    name: product.name,
+    category: product.category,
+    voltage: product.voltage,
+    summary: product.summary,
+    package_type: product.package_type,
+    specs: product.specs.map((spec) => ({
       value: spec.value,
       ...(spec.unit ? { unit: spec.unit } : {}),
     })),
-    price: entry.data.price,
-    stock_qty: entry.data.stock_qty,
-    ...(entry.data.restock_on ? { restock_on: entry.data.restock_on } : {}),
-    min_qty: entry.data.min_qty,
-    qty_multiple: entry.data.qty_multiple,
-    image: entry.data.images?.[0] ? await partThumbSrc(entry.data.images[0].src) : undefined,
-    ...(entry.data.companions ? { companions: [...entry.data.companions] } : {}),
+    price: product.price,
+    stock_qty: product.stock_qty,
+    ...(product.restock_on ? { restock_on: product.restock_on } : {}),
+    min_qty: product.min_qty,
+    qty_multiple: product.qty_multiple,
+    image: product.images?.[0] ? await partThumbSrc(product.images[0].src) : undefined,
+    ...(product.breaks ? { breaks: product.breaks } : {}),
+    ...(product.companions ? { companions: [...product.companions] } : {}),
   })));
 }
 

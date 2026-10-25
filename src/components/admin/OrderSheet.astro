@@ -1,0 +1,171 @@
+---
+import { actions } from "astro:actions";
+import Button from "../Button.astro";
+import StatusChip from "./StatusChip.astro";
+import type { OrderEvent, OrderRow } from "../../lib/admin/orders";
+import { moveLabels, nextStatuses, restockByDefault, timelineSteps } from "../../lib/admin/order-status";
+import { formatFull, formatPlaced } from "../../lib/admin/time";
+import { noticeFor } from "../../lib/admin/notices";
+import { NOTE_MAX } from "../../lib/admin/orders";
+import { buyerWhatsAppHref } from "../../lib/admin/whatsapp";
+import { formatPkr } from "../../lib/money";
+import { linesUnreadable, receiptLines } from "../../lib/order";
+
+interface Props {
+  order: OrderRow;
+  events: OrderEvent[];
+  thumbs: Record<string, string | undefined>;
+  closeHref: string;
+  back: string;
+  notice?: string | null;
+}
+
+const { order, events, thumbs, closeHref, back, notice } = Astro.props;
+const lines = receiptLines(order.items_json);
+const message = noticeFor(notice);
+const steps = timelineSteps(order.status);
+const moves = nextStatuses(order.status);
+const primary = moves.find((status) => status !== "Cancelled");
+const canCancel = moves.includes("Cancelled");
+const whatsapp = buyerWhatsAppHref(order);
+const stamps: Record<string, string> = { "Order placed": formatFull(order.created_at) };
+for (const event of events) stamps[event.to_status === "Pending" ? "Awaiting payment" : event.to_status] = formatFull(event.at);
+const slipHref = `/admin/orders/${encodeURIComponent(order.id)}/slip`;
+---
+
+<div class="order-sheet" role="dialog" aria-modal="true" aria-labelledby="sheet-title" data-order-sheet>
+  <a class="order-sheet-scrim" href={closeHref} data-sheet-close tabindex="-1" aria-label="Close order"></a>
+  <div class="order-sheet-panel">
+    <div class="sheet-head">
+      <div>
+        <h2 class="heading" id="sheet-title">Order</h2>
+        <p class="order-id">{order.id}</p>
+      </div>
+      <a class="sheet-close" href={closeHref} data-sheet-close aria-label="Close order">
+        <svg width="20" height="20" aria-hidden="true" focusable="false"><use href="#close" /></svg>
+      </a>
+    </div>
+
+    <div class="sheet-body">
+      {message && (
+        <p class:list={["admin-notice", message.tone === "low" && "is-low", message.tone === "out" && "is-out"]} role={message.tone === "ok" ? "status" : "alert"}>
+          <svg width="18" height="18" aria-hidden="true" focusable="false"><use href={message.tone === "ok" ? "#check" : "#alert"} /></svg>
+          {message.text}
+        </p>
+      )}
+
+      <p class="sheet-status">
+        <StatusChip status={order.status} />
+        <span class="caption">Placed {formatPlaced(order.created_at)}</span>
+      </p>
+
+      <section class="sheet-section" aria-labelledby="sheet-buyer">
+        <h3 class="label" id="sheet-buyer">Buyer</h3>
+        <dl class="sheet-kv">
+          <dt>Name</dt><dd>{order.customer_name}</dd>
+          <dt>Phone</dt><dd class="part">{order.phone}</dd>
+          <dt>City</dt><dd>{order.destination ?? ""}</dd>
+          <dt>Address</dt><dd>{order.address}</dd>
+        </dl>
+      </section>
+
+      <section class="sheet-section" aria-labelledby="sheet-parts">
+        <h3 class="label" id="sheet-parts">Parts</h3>
+        {lines ? (
+          <div class="sheet-items">
+            {lines.map((line) => (
+              <div class="sheet-item">
+                <span class="thumb">{thumbs[line.part_number] && <img src={thumbs[line.part_number]} alt="" width="52" height="52" loading="lazy" />}</span>
+                <div>
+                  <p class="pn">{line.part_number}</p>
+                  <p class="each">{line.quantity} × {formatPkr(line.unit_price)}</p>
+                </div>
+                <span class="num">{formatPkr(line.line_total)}</span>
+              </div>
+            ))}
+          </div>
+        ) : (
+          <p class="caption">{linesUnreadable}</p>
+        )}
+        <div class="sheet-total">
+          <span class="caption">Total charged</span>
+          <span class="num figure">{formatPkr(order.total_price)}</span>
+        </div>
+      </section>
+
+      <section class="sheet-section" aria-labelledby="sheet-pay">
+        <h3 class="label" id="sheet-pay">Payment</h3>
+        <dl class="sheet-kv">
+          <dt>Reference</dt><dd class="part">{order.payment_ref ?? "None"}</dd>
+        </dl>
+      </section>
+
+      <section class="sheet-section" aria-labelledby="sheet-time">
+        <h3 class="label" id="sheet-time">Timeline</h3>
+        <ol class="sheet-steps">
+          {steps.map((step) => (
+            <li class={step.state}>
+              <span class="node">{step.state === "done" && <svg width="12" height="12" aria-hidden="true" focusable="false"><use href="#check" /></svg>}</span>
+              <span>{step.state === "now" ? <strong>{step.label}</strong> : step.label}</span>
+              <span class="at">{stamps[step.label] ?? ""}</span>
+            </li>
+          ))}
+        </ol>
+      </section>
+
+      <form class="sheet-note" method="POST" action={actions.admin.saveOrderNote}>
+        <input type="hidden" name="id" value={order.id} />
+        <input type="hidden" name="back" value={back} />
+        <div class="field-area">
+          <label for="order-note">Private note</label>
+          <textarea id="order-note" name="note" rows="2" maxlength={NOTE_MAX} placeholder="Only you see this">{order.admin_note ?? ""}</textarea>
+        </div>
+        <Button variant="secondary" type="submit">Save note</Button>
+      </form>
+    </div>
+
+    <div class="sheet-foot">
+      {primary && (
+        <form method="POST" action={actions.admin.setOrderStatus}>
+          <input type="hidden" name="id" value={order.id} />
+          <input type="hidden" name="expected" value={order.status} />
+          <input type="hidden" name="to" value={primary} />
+          <input type="hidden" name="back" value={back} />
+          <Button variant="primary" size="large" block type="submit">{moveLabels[primary]}</Button>
+        </form>
+      )}
+      {!primary && !canCancel && <p class="done-note">No further steps for this order.</p>}
+      <div class="two">
+        {whatsapp ? (
+          <Button variant="secondary" href={whatsapp} target="_blank">Message on WhatsApp</Button>
+        ) : (
+          <Button variant="secondary" disabled>No valid phone</Button>
+        )}
+        <Button variant="secondary" href={slipHref} target="_blank">Print slip</Button>
+      </div>
+      {canCancel && (
+        <details class="cancel-box">
+          <summary>Cancel order…</summary>
+          <form method="POST" action={actions.admin.setOrderStatus}>
+            <input type="hidden" name="id" value={order.id} />
+            <input type="hidden" name="expected" value={order.status} />
+            <input type="hidden" name="to" value="Cancelled" />
+            <input type="hidden" name="back" value={back} />
+            <label class="check">
+              <input type="checkbox" name="restock" checked={restockByDefault(order.status)} />
+              <span>Put the items back on the shelf</span>
+            </label>
+            <button class="btn-cancel" type="submit">Cancel this order</button>
+          </form>
+        </details>
+      )}
+    </div>
+  </div>
+</div>
+
+<script>
+  import { mountOrderSheet } from "../../lib/admin/sheet";
+
+  const root = document.querySelector<HTMLElement>("[data-order-sheet]");
+  if (root) mountOrderSheet(root);
+</script>
