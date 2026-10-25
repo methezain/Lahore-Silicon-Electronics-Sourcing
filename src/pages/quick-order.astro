@@ -1,0 +1,41 @@
+---
+/**
+ * Paste a parts list. Preview uses the catalog; the cart link rebuilds quantities only.
+ * WhatsApp send stays out until PUBLIC_SHOP_PHONE is set (docs/decisions.md).
+ */
+import "./info.css";
+import Layout from "../layouts/Layout.astro";
+import QuickOrder from "../components/QuickOrder.tsx";
+import { loadCatalog } from "../lib/catalog";
+import { pageTitle } from "../lib/shop";
+
+const catalog = await loadCatalog();
+const list = Astro.url.searchParams.get("list") ?? "";
+const cart = Astro.url.searchParams.get("cart") ?? "";
+const parts = catalog.map((part) => ({
+  part_number: part.part_number,
+  mpn: part.mpn,
+  name: part.name,
+  price: part.price,
+  stock_qty: part.stock_qty,
+  min_qty: part.min_qty,
+  qty_multiple: part.qty_multiple,
+  package_type: part.package_type,
+  ...(part.image ? { image: part.image } : {}),
+}));
+const description = "Paste a parts list. Preview matches, misses, and stock limits, then add them to the cart.";
+---
+
+<Layout title={pageTitle("Quick order")} description={description}>
+  <article class="info-page">
+    <p class="eyebrow">Catalog</p>
+    <h1 class="title">Quick order</h1>
+    <p class="lede">
+      Paste one part per line. The preview shows what matches, what this shop does not stock, and any quantity set to the stock count.
+    </p>
+    <QuickOrder client:load parts={parts} initialList={list} initialCart={cart} />
+    <noscript>
+      <p class="lede">Review list works without JavaScript. Adding to the cart needs JavaScript.</p>
+    </noscript>
+  </article>
+</Layout>

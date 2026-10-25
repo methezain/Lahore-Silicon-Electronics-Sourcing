@@ -1,0 +1,46 @@
+---
+import Logo from "../Logo.astro";
+import Button from "../Button.astro";
+import { adminNav, type AdminSection } from "../../lib/admin/nav";
+
+interface Props {
+  current?: AdminSection;
+  signedIn?: boolean;
+}
+
+const { current, signedIn = true } = Astro.props;
+---
+
+<a class="skip-link" href="#main">Skip to content</a>
+<header class="site-header admin-header">
+  <div class="site-bar">
+    <Logo href={signedIn ? "/admin" : "/admin/login"} />
+    <span class="admin-mark">Admin</span>
+    {signedIn && (
+      <nav class="site-seg" aria-label="Admin">
+        {adminNav.map((item) => item.built ? (
+          <a href={item.href} aria-current={item.key === current ? "page" : undefined}>{item.label}</a>
+        ) : (
+          <span class="is-unbuilt" aria-disabled="true">{item.label}<span class="sr-only"> (not built yet)</span></span>
+        ))}
+      </nav>
+    )}
+    {signedIn && (
+      <div class="admin-bar-end">
+        <Button variant="ghost" href="/" id="admin-view-shop">View shop</Button>
+        <form method="post" action="/admin/logout">
+          <Button variant="ghost" type="submit">Sign out</Button>
+        </form>
+      </div>
+    )}
+  </div>
+</header>
+{signedIn && (
+  <nav class="admin-tabs" aria-label="Admin sections">
+    {adminNav.map((item) => item.built ? (
+      <a href={item.href} aria-current={item.key === current ? "page" : undefined}>{item.label}</a>
+    ) : (
+      <span class="is-unbuilt" aria-disabled="true">{item.label}<span class="sr-only"> (not built yet)</span></span>
+    ))}
+  </nav>
+)}

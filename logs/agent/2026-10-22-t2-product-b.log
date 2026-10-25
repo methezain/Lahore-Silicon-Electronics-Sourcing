@@ -1,0 +1,20 @@
+P4   390      PASS  
+P4   1440     PASS  
+P4   390-rm   PASS  
+P4   1440-rm  PASS  
+P5   390      FAIL  no dotted leader found: none|solid|solid|none ; none|solid|solid|none ; none|solid|solid|none ; none|solid|solid|none ; none|solid|solid|none ; none|solid|solid|none
+P5   1440     FAIL  no dotted leader found: none|solid|solid|none ; none|solid|solid|none ; none|solid|solid|none ; none|solid|solid|none ; none|solid|solid|none ; none|solid|solid|none
+P6   390      FAIL  cart count did not change after companion add
+P6   1440     FAIL  cart count did not change after companion add
+P6   390-rm   FAIL  cart count did not change after companion add
+P6   1440-rm  FAIL  cart count did not change after companion add
+P7   390      FAIL  tracking: overview→Specs specs→Specs pinout→Specs questions→Pinout
+P7   1440     FAIL  tracking: overview→Overview specs→Overview pinout→Overview questions→Pinout
+P7   390-rm   FAIL  tracking: overview→Specs specs→Specs pinout→Specs questions→Pinout
+P7   1440-rm  FAIL  tracking: overview→Overview specs→Overview pinout→Overview questions→Pinout
+P8   390      PASS  
+P8   1440     PASS  
+P8   390-rm   PASS  
+P8   1440-rm  PASS  
+P9   390      PASS  
+P9   1440     PASS  

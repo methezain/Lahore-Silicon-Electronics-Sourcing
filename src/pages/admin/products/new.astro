@@ -1,0 +1,46 @@
+---
+import "../../../components/admin/admin-orders.css";
+import "../../../components/admin/admin-product.css";
+import { env } from "cloudflare:workers";
+import AdminLayout from "../../../layouts/AdminLayout.astro";
+import ProductForm from "../../../components/admin/ProductForm.astro";
+import type { AdminDatabase } from "../../../lib/admin/db";
+import { emptyValues, type FieldErrors } from "../../../lib/admin/product-form";
+import { submitProduct } from "../../../lib/admin/product-save";
+import { listProducts } from "../../../lib/admin/products";
+import { invalidateProducts } from "../../../lib/catalog-db";
+
+export const prerender = false;
+
+const db = env?.DB as unknown as AdminDatabase | undefined;
+if (!db) return new Response("Database unavailable", { status: 500 });
+
+let values = emptyValues();
+let errors: FieldErrors = {};
+let error: string | undefined;
+if (Astro.request.method === "POST") {
+  const outcome = await submitProduct(db, await Astro.request.formData(), "create");
+  if (outcome.saved) {
+    invalidateProducts();
+    return Astro.redirect(`/admin/products/${encodeURIComponent(outcome.partNumber)}?notice=created`, 303);
+  }
+  values = outcome.values;
+  errors = outcome.errors;
+  error = outcome.error;
+  Astro.response.status = 400;
+}
+const others = (await listProducts(db)).map((row) => ({ part_number: row.part_number, name: row.name ?? "" }));
+---
+
+<AdminLayout title="New product" current="products">
+  <div class="admin-page">
+    <div class="admin-head">
+      <div>
+        <p class="label">Products</p>
+        <h1 class="title">New product</h1>
+        <p class="count">It is created with its shelf count, so it can be bought straight away.</p>
+      </div>
+    </div>
+    <ProductForm values={values} errors={errors} mode="create" otherParts={others} error={error} />
+  </div>
+</AdminLayout>

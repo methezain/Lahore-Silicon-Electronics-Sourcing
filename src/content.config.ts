@@ -1,22 +1,24 @@
-import { defineCollection, z } from 'astro:content';
+import { defineCollection } from 'astro:content';
 import { glob } from 'astro/loaders';
+import { makeProductSchema } from './lib/admin/product-schema';
 
 const componentsCollection = defineCollection({
   loader: glob({ pattern: "*.json", base: "./src/content/components" }),
-  schema: z.object({
-    part_number: z.string(),
-    name: z.string(),
-    category: z.string(),
-    voltage: z.string(),
-    package_type: z.string(),
-    price: z.number(),
-    mounting_type: z.string(),
-    in_stock: z.boolean(),
-    image: z.string().optional(),
-    description: z.string().optional()
-  })
+  schema: ({ image }) =>
+    makeProductSchema(
+      image().check((ctx) => {
+        const value: unknown = ctx.value;
+        if (typeof value === "string" && value.includes("placehold.co")) {
+          ctx.issues.push({
+            code: "custom",
+            input: value,
+            message: "Omit image until there is a photograph of the stocked part.",
+          });
+        }
+      }),
+    ),
 });
 
 export const collections = {
-  'components': componentsCollection,
+  components: componentsCollection,
 };

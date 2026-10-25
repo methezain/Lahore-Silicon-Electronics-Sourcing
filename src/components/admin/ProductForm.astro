@@ -1,0 +1,280 @@
+---
+import Button from "../Button.astro";
+import type { FieldErrors, ProductValues } from "../../lib/admin/product-form";
+import { CATEGORIES } from "../../lib/categories";
+import { LOGIC_LEVELS } from "../../lib/admin/product-schema";
+import { parseMediaRef, mediaUrl } from "../../lib/media";
+
+interface Props {
+  values: ProductValues;
+  errors: FieldErrors;
+  mode: "create" | "update";
+  updatedAt?: string;
+  otherParts: { part_number: string; name: string }[];
+  error?: string;
+}
+
+const { values, errors, mode, updatedAt, otherParts, error } = Astro.props;
+const count = Object.keys(errors).length;
+const blank = (rows: unknown[], extra: number) => Math.max(0, extra - rows.length);
+const specRows = [...values.specs, ...Array.from({ length: blank(values.specs, 4) }, () => ({ label: "", value: "", unit: "" }))];
+const pinRows = [...values.pinout, ...Array.from({ length: blank(values.pinout, 2) }, () => ({ pin: "", label: "", note: "" }))];
+const faqRows = [...values.faq, ...Array.from({ length: blank(values.faq, 3) }, () => ({ q: "", a: "" }))];
+const labels = values.specs.map((row) => row.label).filter(Boolean);
+const textField = (name: keyof ProductValues) => String(values[name] ?? "");
+---
+
+<form class="product-form" method="POST" action="" id="product-form" novalidate data-product-form>
+  {updatedAt && <input type="hidden" name="updated_at" value={updatedAt} />}
+  {error && <p class="admin-notice is-out" role="alert"><svg width="18" height="18" aria-hidden="true" focusable="false"><use href="#alert" /></svg>{error}</p>}
+  {count > 0 && <p class="admin-notice is-out" role="alert"><svg width="18" height="18" aria-hidden="true" focusable="false"><use href="#alert" /></svg>{count === 1 ? "Fix 1 field below." : `Fix ${count} fields below.`}</p>}
+
+  <section class="admin-panel form-panel" aria-labelledby="f-basics">
+    <h2 class="heading" id="f-basics">Basics</h2>
+    <div class="form-cols">
+      <div class="form-field">
+        <label for="f-part_number">Part number</label>
+        <input class="in part" id="f-part_number" name="part_number" value={values.part_number} readonly={mode === "update"} aria-invalid={errors.part_number ? "true" : undefined} aria-describedby="f-part_number-note" />
+        <p class="hint" id="f-part_number-note">{mode === "update" ? "Cannot change after creation. Orders and stock use it." : "Cannot be changed later."}</p>
+        {errors.part_number && <p class="field-error" role="alert">{errors.part_number}</p>}
+      </div>
+      <div class="form-field">
+        <label for="f-manufacturer">Manufacturer</label>
+        <input class="in" id="f-manufacturer" name="manufacturer" value={values.manufacturer} aria-invalid={errors.manufacturer ? "true" : undefined} />
+        {errors.manufacturer && <p class="field-error" role="alert">{errors.manufacturer}</p>}
+      </div>
+      <div class="form-field">
+        <label for="f-mpn">Manufacturer part number</label>
+        <input class="in part" id="f-mpn" name="mpn" value={values.mpn} aria-invalid={errors.mpn ? "true" : undefined} />
+        {errors.mpn && <p class="field-error" role="alert">{errors.mpn}</p>}
+      </div>
+      <div class="form-field">
+        <label for="f-category">Category</label>
+        <select class="in" id="f-category" name="category" aria-invalid={errors.category ? "true" : undefined}>
+          <option value="">Choose…</option>
+          {CATEGORIES.map((category) => <option value={category} selected={values.category === category}>{category}</option>)}
+        </select>
+        {errors.category && <p class="field-error" role="alert">{errors.category}</p>}
+      </div>
+    </div>
+    <div class="form-field">
+      <label for="f-name">Name</label>
+      <input class="in" id="f-name" name="name" value={values.name} aria-invalid={errors.name ? "true" : undefined} data-preview="name" />
+      {errors.name && <p class="field-error" role="alert">{errors.name}</p>}
+    </div>
+    <div class="form-field">
+      <label for="f-summary">What it does, in one sentence</label>
+      <input class="in" id="f-summary" name="summary" maxlength="160" value={values.summary} aria-invalid={errors.summary ? "true" : undefined} data-preview="summary" />
+      {errors.summary && <p class="field-error" role="alert">{errors.summary}</p>}
+    </div>
+    <div class="form-field">
+      <label for="f-description">Description</label>
+      <textarea class="in" id="f-description" name="description" rows="4" aria-invalid={errors.description ? "true" : undefined}>{values.description}</textarea>
+      {errors.description && <p class="field-error" role="alert">{errors.description}</p>}
+    </div>
+    <div class="form-cols">
+      <div class="form-field">
+        <label for="f-package_type">Package</label>
+        <input class="in" id="f-package_type" name="package_type" value={values.package_type} aria-invalid={errors.package_type ? "true" : undefined} />
+        {errors.package_type && <p class="field-error" role="alert">{errors.package_type}</p>}
+      </div>
+      <div class="form-field">
+        <label for="f-mounting_type">Mounting</label>
+        <input class="in" id="f-mounting_type" name="mounting_type" value={values.mounting_type} aria-invalid={errors.mounting_type ? "true" : undefined} />
+        {errors.mounting_type && <p class="field-error" role="alert">{errors.mounting_type}</p>}
+      </div>
+      <div class="form-field">
+        <label for="f-voltage">Supply voltage (optional)</label>
+        <input class="in" id="f-voltage" name="voltage" value={values.voltage} />
+      </div>
+      <div class="form-field">
+        <label for="f-logic_level">Logic level (optional)</label>
+        <select class="in" id="f-logic_level" name="logic_level">
+          <option value="">Not stated</option>
+          {LOGIC_LEVELS.map((level) => <option value={level} selected={values.logic_level === level}>{level}</option>)}
+        </select>
+      </div>
+    </div>
+  </section>
+
+  <section class="admin-panel form-panel" aria-labelledby="f-price">
+    <h2 class="heading" id="f-price">Price and stock</h2>
+    <div class="form-cols">
+      <div class="form-field">
+        <label for="f-price-in">Price</label>
+        <div class="affix" data-invalid={errors.price ? "" : undefined}>
+          <span class="pre">Rs</span>
+          <input id="f-price-in" class="num" name="price" inputmode="numeric" value={values.price} aria-invalid={errors.price ? "true" : undefined} aria-describedby={errors.price ? "f-price-error" : undefined} data-preview="price" />
+        </div>
+        {errors.price && <p class="field-error" id="f-price-error" role="alert">{errors.price}</p>}
+      </div>
+      {mode === "create" ? (
+        <div class="form-field">
+          <label for="f-initial_qty">Count on the shelf</label>
+          <input class="in" id="f-initial_qty" name="initial_qty" inputmode="numeric" value={values.initial_qty} aria-invalid={errors.initial_qty ? "true" : undefined} />
+          {errors.initial_qty && <p class="field-error" role="alert">{errors.initial_qty}</p>}
+        </div>
+      ) : (
+        <div class="form-field">
+          <span class="lab">Count on the shelf</span>
+          <p class="hint">Change it on the <a href="/admin/stock">Stock</a> page.</p>
+        </div>
+      )}
+      <div class="form-field">
+        <label for="f-min_qty">Smallest order</label>
+        <input class="in" id="f-min_qty" name="min_qty" inputmode="numeric" value={values.min_qty} aria-invalid={errors.min_qty ? "true" : undefined} />
+        {errors.min_qty && <p class="field-error" role="alert">{errors.min_qty}</p>}
+      </div>
+      <div class="form-field">
+        <label for="f-qty_multiple">Sold in multiples of</label>
+        <input class="in" id="f-qty_multiple" name="qty_multiple" inputmode="numeric" value={values.qty_multiple} aria-invalid={errors.qty_multiple ? "true" : undefined} />
+        {errors.qty_multiple && <p class="field-error" role="alert">{errors.qty_multiple}</p>}
+      </div>
+      <div class="form-field">
+        <label for="f-low_stock_at">Low-stock warning at</label>
+        <input class="in" id="f-low_stock_at" name="low_stock_at" inputmode="numeric" value={values.low_stock_at} aria-invalid={errors.low_stock_at ? "true" : undefined} />
+        {errors.low_stock_at && <p class="field-error" role="alert">{errors.low_stock_at}</p>}
+      </div>
+    </div>
+  </section>
+
+  <section class="admin-panel form-panel" aria-labelledby="f-specs">
+    <h2 class="heading" id="f-specs">Specs</h2>
+    {errors.specs && <p class="field-error" role="alert">{errors.specs}</p>}
+    <div class="rows" data-rows="spec">
+      {specRows.map((row, index) => (
+        <div class="row3" data-row>
+          <input class="in" name="spec_label" aria-label={`Spec ${index + 1} label`} placeholder="Label" value={row.label} aria-invalid={errors[`specs.${index}.label`] || errors[`specs.${index}.value`] ? "true" : undefined} />
+          <input class="in" name="spec_value" aria-label={`Spec ${index + 1} value`} placeholder="Value" value={row.value} />
+          <input class="in" name="spec_unit" aria-label={`Spec ${index + 1} unit`} placeholder="Unit" value={row.unit} />
+          <button class="row-remove" type="button" data-remove aria-label={`Remove spec ${index + 1}`}>×</button>
+          {(errors[`specs.${index}.label`] || errors[`specs.${index}.value`]) && <p class="field-error" role="alert">{errors[`specs.${index}.label`] ?? errors[`specs.${index}.value`]}</p>}
+        </div>
+      ))}
+    </div>
+    <Button variant="secondary" type="button" id="add-spec">Add a spec</Button>
+    <fieldset class="form-field">
+      <legend class="lab">Key specs on the product page (pick 2 to 4)</legend>
+      <div class="checks" data-key-specs>
+        {labels.length === 0 && <p class="hint">Add specs first, then pick which ones lead.</p>}
+        {labels.map((label) => (
+          <label class="check"><input type="checkbox" name="key_spec" value={label} checked={values.key_specs.includes(label)} /><span>{label}</span></label>
+        ))}
+      </div>
+      {errors.key_specs && <p class="field-error" role="alert">{errors.key_specs}</p>}
+    </fieldset>
+  </section>
+
+  <section class="admin-panel form-panel" aria-labelledby="f-details">
+    <h2 class="heading" id="f-details">More detail</h2>
+    <div class="form-field">
+      <label for="f-in_the_bag">What is in the bag</label>
+      <input class="in" id="f-in_the_bag" name="in_the_bag" value={values.in_the_bag} aria-invalid={errors.in_the_bag ? "true" : undefined} />
+      {errors.in_the_bag && <p class="field-error" role="alert">{errors.in_the_bag}</p>}
+    </div>
+    <div class="form-field">
+      <label for="f-not_included">Not included (optional)</label>
+      <input class="in" id="f-not_included" name="not_included" value={values.not_included} />
+    </div>
+    <div class="form-field">
+      <label for="f-limits">Limits to know about (optional)</label>
+      <input class="in" id="f-limits" name="limits" value={values.limits} />
+    </div>
+    <div class="form-field">
+      <label for="f-datasheet">Datasheet link (optional, https)</label>
+      <input class="in" id="f-datasheet" name="datasheet" inputmode="url" value={values.datasheet} aria-invalid={errors.datasheet ? "true" : undefined} />
+      {errors.datasheet && <p class="field-error" role="alert">{errors.datasheet}</p>}
+    </div>
+    <fieldset class="form-field">
+      <legend class="lab">Pinout (optional)</legend>
+      <div class="rows" data-rows="pin">
+        {pinRows.map((row, index) => (
+          <div class="row3" data-row>
+            <input class="in" name="pin_pin" aria-label={`Pin ${index + 1}`} placeholder="Pin" value={row.pin} />
+            <input class="in" name="pin_label" aria-label={`Pin ${index + 1} label`} placeholder="Label" value={row.label} />
+            <input class="in" name="pin_note" aria-label={`Pin ${index + 1} note`} placeholder="Note" value={row.note} />
+            <button class="row-remove" type="button" data-remove aria-label={`Remove pin ${index + 1}`}>×</button>
+          </div>
+        ))}
+      </div>
+      <Button variant="secondary" type="button" id="add-pin">Add a pin</Button>
+    </fieldset>
+    <fieldset class="form-field">
+      <legend class="lab">Questions and answers (3 to 6, or none)</legend>
+      {errors.faq && <p class="field-error" role="alert">{errors.faq}</p>}
+      <div class="rows" data-rows="faq">
+        {faqRows.map((row, index) => (
+          <div class="row2" data-row>
+            <input class="in" name="faq_q" aria-label={`Question ${index + 1}`} placeholder="Question" value={row.q} />
+            <input class="in" name="faq_a" aria-label={`Answer ${index + 1}`} placeholder="Answer" value={row.a} />
+            <button class="row-remove" type="button" data-remove aria-label={`Remove question ${index + 1}`}>×</button>
+          </div>
+        ))}
+      </div>
+      <Button variant="secondary" type="button" id="add-faq">Add a question</Button>
+    </fieldset>
+    {otherParts.length > 0 && (
+      <fieldset class="form-field">
+        <legend class="lab">Goes well with (optional)</legend>
+        <div class="checks">
+          {otherParts.map((part) => (
+            <label class="check"><input type="checkbox" name="companion" value={part.part_number} checked={values.companions.includes(part.part_number)} /><span>{part.part_number}</span></label>
+          ))}
+        </div>
+      </fieldset>
+    )}
+  </section>
+
+  <section class="admin-panel form-panel" aria-labelledby="f-photos">
+    <h2 class="heading" id="f-photos">Photos</h2>
+    <p class="hint">JPEG, PNG or WebP on a plain light background. The first photo is the main one. Each photo needs a description.</p>
+    <ul class="photos" data-photos>
+      {values.images.map((image, index) => {
+        const key = parseMediaRef(image.src);
+        return (
+          <li class="photo" data-photo>
+            <input type="hidden" name="image_src" value={image.src} />
+            <input type="hidden" name="image_w" value={image.width} />
+            <input type="hidden" name="image_h" value={image.height} />
+            <span class="frame">{key ? <img src={mediaUrl(key, 112)} alt="" width="104" height="104" /> : <span class="caption">Built-in photo</span>}</span>
+            <span class="chip hero-chip" data-hero hidden={index !== 0}>Main</span>
+            <input class="in" name="image_alt" aria-label={`Photo ${index + 1} description`} placeholder="Describe the photo" value={image.alt} aria-invalid={errors[`images.${index}.alt`] ? "true" : undefined} />
+            <input class="in" name="image_note" aria-label={`Photo ${index + 1} note`} placeholder="Note (optional)" value={image.note} />
+            {(errors[`images.${index}.alt`] || errors[`images.${index}.src`]) && <p class="field-error" role="alert">{errors[`images.${index}.alt`] ?? errors[`images.${index}.src`]}</p>}
+            <span class="photo-tools">
+              <button type="button" data-move="-1" aria-label={`Move photo ${index + 1} earlier`}>←</button>
+              <button type="button" data-move="1" aria-label={`Move photo ${index + 1} later`}>→</button>
+              <button type="button" data-remove-photo aria-label={`Remove photo ${index + 1}`}>Remove</button>
+            </span>
+          </li>
+        );
+      })}
+    </ul>
+    <p class="hint" id="upload-status" role="status"></p>
+    <label class="btn-like">
+      <input class="sr-only" type="file" id="photo-input" accept="image/jpeg,image/png,image/webp" multiple />
+      <span>Add photos</span>
+    </label>
+  </section>
+
+  <section class="admin-panel form-panel">
+    <label class="check"><input type="checkbox" name="published" checked={values.published} /><span>Show this product on the shop</span></label>
+  </section>
+
+  <div class="savebar" data-savebar role="region" aria-label="Save changes">
+    <p data-save-text>{mode === "create" ? "New product" : "No changes yet"}</p>
+    <a class="btn-ghost-link" href="/admin/products">Discard</a>
+    <Button variant="primary" type="submit">{mode === "create" ? "Create product" : "Save changes"}</Button>
+  </div>
+</form>
+
+<template id="row-spec"><div class="row3" data-row><input class="in" name="spec_label" aria-label="Spec label" placeholder="Label" /><input class="in" name="spec_value" aria-label="Spec value" placeholder="Value" /><input class="in" name="spec_unit" aria-label="Spec unit" placeholder="Unit" /><button class="row-remove" type="button" data-remove aria-label="Remove spec">×</button></div></template>
+<template id="row-pin"><div class="row3" data-row><input class="in" name="pin_pin" aria-label="Pin" placeholder="Pin" /><input class="in" name="pin_label" aria-label="Pin label" placeholder="Label" /><input class="in" name="pin_note" aria-label="Pin note" placeholder="Note" /><button class="row-remove" type="button" data-remove aria-label="Remove pin">×</button></div></template>
+<template id="row-faq"><div class="row2" data-row><input class="in" name="faq_q" aria-label="Question" placeholder="Question" /><input class="in" name="faq_a" aria-label="Answer" placeholder="Answer" /><button class="row-remove" type="button" data-remove aria-label="Remove question">×</button></div></template>
+
+<script>
+  import { mountProductEditor } from "../../lib/admin/product-editor";
+
+  const form = document.querySelector<HTMLFormElement>("[data-product-form]");
+  if (form) mountProductEditor(form);
+</script>

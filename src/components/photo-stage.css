@@ -1,0 +1,84 @@
+/* Shared stage for every part photograph.
+   Top-lit surface → sunken, even inset, contact shadow.
+   docs/design-system.md section 7 and docs/premium-roadmap.md R2.
+   The inset is a fraction of the box so a 56px line and the product well match. */
+
+.photo-stage {
+  position: relative;
+  display: block;
+  width: 100%;
+  height: 100%;
+  overflow: hidden;
+  border-radius: inherit;
+  background: linear-gradient(to bottom, var(--color-surface), var(--color-sunken));
+  mix-blend-mode: normal;
+  isolation: isolate;
+  container-type: size;
+}
+
+.photo-stage.is-cutout::before {
+  content: "";
+  position: absolute;
+  z-index: 0;
+  left: 18%;
+  right: 18%;
+  bottom: 13%;
+  height: 8%;
+  border-radius: var(--radius-pill);
+  background: color-mix(in oklch, var(--color-ink) 24%, transparent);
+  filter: blur(var(--space-2));
+  pointer-events: none;
+}
+
+@container (min-width: 140px) {
+  .photo-stage.is-cutout::before {
+    filter: blur(var(--space-8));
+  }
+}
+
+@container (min-width: 400px) {
+  .photo-stage.is-cutout::before {
+    filter: blur(var(--space-16));
+    height: 10%;
+  }
+}
+
+.photo-stage-fit {
+  position: relative;
+  z-index: 1;
+  display: grid;
+  width: 100%;
+  height: 100%;
+  min-width: 0;
+  min-height: 0;
+}
+
+.photo-stage.is-cutout .photo-stage-fit {
+  padding: 12%;
+}
+
+.photo-stage picture,
+.photo-stage img {
+  display: block;
+  width: 100%;
+  height: 100%;
+  min-width: 0;
+  min-height: 0;
+  max-width: none;
+  object-fit: contain !important;
+  mix-blend-mode: normal !important;
+}
+
+.photo-stage picture {
+  position: relative !important;
+  inset: auto !important;
+}
+
+.photo-stage.is-cutout img {
+  filter: drop-shadow(0 var(--space-2) var(--space-2) color-mix(in oklch, var(--color-ink) 42%, transparent));
+}
+
+.photo-stage img.remote-photo {
+  filter: none;
+  border-radius: var(--radius-control);
+}

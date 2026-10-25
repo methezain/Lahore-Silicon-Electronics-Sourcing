@@ -1,0 +1,119 @@
+---
+/**
+ * Dot plus words. docs/design-system.md section 9 (Stock indicator).
+ * Color never appears without the count. The meter needs a real shelf_qty.
+ */
+import { METER_SEGMENTS, meterOnCount, stockLabel, stockLevel } from "../lib/stock";
+
+interface Props {
+  stockQty: number;
+  lowStockAt?: number;
+  restockOn?: string;
+  /** Normal full quantity for this part. Omit to hide the meter. */
+  shelfQty?: number;
+  meter?: boolean;
+  /** Key spec beside the count. The hero card uses the voltage line. */
+  aside?: string;
+}
+
+const { stockQty, lowStockAt, restockOn, shelfQty, meter = false, aside } = Astro.props;
+const level = stockLevel(stockQty, lowStockAt);
+const label = stockLabel(stockQty, restockOn);
+const shelf = typeof shelfQty === "number" && shelfQty > 0 ? shelfQty : undefined;
+const showMeter = meter === true && shelf !== undefined;
+const filled = shelf !== undefined ? meterOnCount(stockQty, shelf) : 0;
+const segments = Array.from({ length: METER_SEGMENTS }, (_, index) => index < filled);
+---
+
+<span class:list={["stock", level, showMeter && "has-meter"]}>
+  {showMeter && (
+    <span class="meter" aria-hidden="true">
+      {segments.map((on) => <span class:list={["seg", on && "on"]} />)}
+    </span>
+  )}
+  <span class="line">
+    <span class="words">{label}</span>
+    {aside && <span class="aside">{aside}</span>}
+  </span>
+</span>
+
+<style>
+  .stock {
+    display: inline-flex;
+    align-items: center;
+    gap: var(--space-8);
+    color: var(--color-ok);
+    font-size: var(--text-caption);
+    font-weight: var(--font-weight-strong);
+    line-height: var(--text-caption--line-height);
+  }
+
+  .stock.low { color: var(--color-low); }
+  .stock.out { color: var(--color-out); }
+
+  .stock.has-meter {
+    display: flex;
+    flex-direction: column;
+    align-items: stretch;
+    gap: var(--space-8);
+    width: 100%;
+  }
+
+  .line {
+    display: flex;
+    align-items: baseline;
+    justify-content: space-between;
+    gap: var(--space-12);
+    min-width: 0;
+  }
+
+  .has-meter .line {
+    width: 100%;
+  }
+
+  .aside {
+    max-width: 60%;
+    color: var(--color-ink-muted);
+    font-size: var(--text-caption);
+    font-weight: var(--text-caption--font-weight);
+    line-height: var(--text-caption--line-height);
+    text-align: right;
+    text-wrap: pretty;
+  }
+
+  .words {
+    display: inline-flex;
+    align-items: center;
+    gap: var(--space-8);
+    text-wrap: pretty;
+  }
+
+  .words::before {
+    content: "";
+    flex: none;
+    width: 6px;
+    height: 6px;
+    border-radius: var(--radius-pill);
+    background: var(--color-ok);
+  }
+
+  .low .words::before { background: var(--color-low); }
+  .out .words::before { background: var(--color-out); }
+
+  .meter {
+    display: grid;
+    grid-template-columns: repeat(10, minmax(0, 1fr));
+    gap: var(--space-2);
+  }
+
+  .seg {
+    display: block;
+    height: 6px;
+    border-radius: 2px;
+    background: var(--color-line);
+  }
+
+  .ok .seg.on { background: var(--color-ok); }
+  .low .seg.on { background: var(--color-low); }
+  .out .seg.on { background: var(--color-out); }
+</style>

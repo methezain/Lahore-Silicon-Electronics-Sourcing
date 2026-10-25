@@ -1,0 +1,22 @@
+
+Running 16 tests using 2 workers
+
+  ok  2 [390] › tests\e2e\product-image.spec.ts:3:1 › product photo is sized, eager, and does not shift (2.6s)
+  ok  1 [390] › tests\e2e\product-image.spec.ts:48:1 › catalog thumbnail and product photo share a view-transition name (3.1s)
+  ok  3 [390] › tests\e2e\product-image.spec.ts:74:1 › cart line uses the optimized thumb (1.9s)
+  ok  4 [390] › tests\e2e\product-image.spec.ts:90:1 › product photo stays visible with reduced motion (2.2s)
+  ok  6 [390] › tests\e2e\search-dialog.spec.ts:99:1 › slash does not open search from a field or while the cart is open (3.2s)
+  ok  7 [390] › tests\e2e\search-dialog.spec.ts:116:1 › a dock control opens search and returns focus (1.7s)
+  ok  5 [390] › tests\e2e\search-dialog.spec.ts:3:1 › search dialog finds a part, misses cleanly, and traps focus (6.0s)
+  ok  8 [390] › tests\e2e\search-dialog.spec.ts:139:1 › search dialog stays put with reduced motion (3.7s)
+  ok  9 [1440] › tests\e2e\product-image.spec.ts:3:1 › product photo is sized, eager, and does not shift (3.5s)
+  ok 11 [1440] › tests\e2e\product-image.spec.ts:74:1 › cart line uses the optimized thumb (2.8s)
+  ok 10 [1440] › tests\e2e\product-image.spec.ts:48:1 › catalog thumbnail and product photo share a view-transition name (6.0s)
+  ok 12 [1440] › tests\e2e\product-image.spec.ts:90:1 › product photo stays visible with reduced motion (3.1s)
+  ok 14 [1440] › tests\e2e\search-dialog.spec.ts:99:1 › slash does not open search from a field or while the cart is open (4.4s)
+  ok 15 [1440] › tests\e2e\search-dialog.spec.ts:116:1 › a dock control opens search and returns focus (4.0s)
+  ok 13 [1440] › tests\e2e\search-dialog.spec.ts:3:1 › search dialog finds a part, misses cleanly, and traps focus (10.3s)
+  ok 16 [1440] › tests\e2e\search-dialog.spec.ts:139:1 › search dialog stays put with reduced motion (3.1s)
+
+  16 passed (36.1s)
+exit 0

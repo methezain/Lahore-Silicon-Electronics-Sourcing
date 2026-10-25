@@ -1,0 +1,18 @@
+theme-color #F3F6FA
+og:image https://lahoresilicon.com/og/lm7805.png
+apple-touch-icon /apple-touch-icon.png
+/og/lm7805.png 200 image/png
+/og/default.png 200 image/png
+/favicon.ico 200 image/x-icon
+/favicon.svg 200 image/svg+xml
+/apple-touch-icon.png 200 image/png
+/site.webmanifest 200 application/manifest+json
+root {
+  accent: 'oklch(0.549 0.118 236.5)',
+  scrollbar: 'oklch(0.62 0.02 250) rgba(0, 0, 0, 0)'
+}
+offline banner visible true
+offline banner hidden after online true
+toast text Back online.
+copy state copied Copied
+print display { header: 'none', footer: 'none', bay: 'none', receipt: 'flex' }

@@ -1,0 +1,150 @@
+---
+/** Admin stock. Live counts from the `stock` table, edited with a guard against a concurrent order. */
+import "../../components/admin/admin-orders.css";
+import "../../components/admin/admin-stock.css";
+import { actions } from "astro:actions";
+import { env } from "cloudflare:workers";
+import AdminLayout from "../../layouts/AdminLayout.astro";
+import Button from "../../components/Button.astro";
+import StockIndicator from "../../components/StockIndicator.astro";
+import type { AdminDatabase } from "../../lib/admin/db";
+import { readStock, stockEntries, type StockEntry } from "../../lib/admin/stock";
+import { partThumbSrc } from "../../lib/catalog";
+import { getProducts } from "../../lib/catalog-db";
+
+export const prerender = false;
+
+const run = Astro.getActionResult(actions.admin.setStock);
+if (run) {
+  const result = run.data?.result;
+  if (!result) return Astro.redirect("/admin/stock?notice=failed", 303);
+  const key = result.ok ? "saved" : result.reason;
+  return Astro.redirect(`/admin/stock?notice=${key}&part=${encodeURIComponent(result.part_number)}`, 303);
+}
+
+const db = env?.DB as unknown as AdminDatabase | undefined;
+let entries: StockEntry[] = [];
+let failed = !db;
+if (db) {
+  try {
+    const [records, products] = await Promise.all([readStock(db), getProducts({ all: true })]);
+    entries = stockEntries(
+      records,
+      await Promise.all(
+        products.map(async (product) => ({
+          part_number: product.part_number,
+          name: product.name,
+          low_stock_at: product.low_stock_at,
+          published: product.published,
+          image: product.images?.[0] ? await partThumbSrc(product.images[0].src) : undefined,
+        })),
+      ),
+    );
+  } catch (error) {
+    failed = true;
+    console.error("Admin stock failed:", error instanceof Error ? error.name : "unknown");
+  }
+}
+if (failed) Astro.response.status = 500;
+
+const notice = Astro.url.searchParams.get("notice");
+const part = Astro.url.searchParams.get("part") ?? "";
+const NOTICES: Record<string, { text: string; tone: "ok" | "low" | "out" }> = {
+  saved: { text: `Saved ${part}.`, tone: "ok" },
+  stale: { text: `${part} changed while you were editing (an order may have come in). Showing the current count.`, tone: "low" },
+  "invalid-qty": { text: `${part}: enter a whole number of 0 or more.`, tone: "out" },
+  "invalid-date": { text: `${part}: enter the restock date as a real date.`, tone: "out" },
+  missing: { text: `${part} has no stock row.`, tone: "out" },
+  failed: { text: "Nothing was changed. Try again.", tone: "out" },
+};
+const message = notice ? NOTICES[notice] : undefined;
+
+const out = entries.filter((entry) => entry.level === "out").length;
+const low = entries.filter((entry) => entry.level === "low").length;
+const countLine = failed ? "Stock could not be read." : `${entries.length} parts · ${out} out of stock · ${low} low`;
+---
+
+<AdminLayout title="Stock" current="stock">
+  <div class="admin-page">
+    <div class="admin-head">
+      <div>
+        <p class="label">Stock</p>
+        <h1 class="title">What is on the shelf</h1>
+        <p class="count">{countLine}</p>
+      </div>
+    </div>
+
+    {message && (
+      <p class:list={["admin-notice", message.tone === "low" && "is-low", message.tone === "out" && "is-out"]} role={message.tone === "ok" ? "status" : "alert"}>
+        <svg width="18" height="18" aria-hidden="true" focusable="false"><use href={message.tone === "ok" ? "#check" : "#alert"} /></svg>
+        {message.text}
+      </p>
+    )}
+
+    <div class="admin-table-panel stock-panel">
+      <div class="stock-head label" aria-hidden="true"><span></span><span>Part</span><span class="hd"><span>Shelf count</span><span>Restock date</span></span></div>
+      {entries.map((entry) => (
+        <form class="stock-row" method="POST" action={actions.admin.setStock} data-stock-row>
+          <input type="hidden" name="part_number" value={entry.part_number} />
+          <input type="hidden" name="expected" value={entry.qty} />
+          <span class="thumb">{entry.image && <img src={entry.image} alt="" width="52" height="52" loading="lazy" />}</span>
+          <div class="who">
+            <span class="pn">{entry.part_number}</span>
+            <span class="name">{entry.name}{entry.published ? "" : " · hidden"}</span>
+            <StockIndicator stockQty={entry.qty} lowStockAt={entry.low_stock_at} restockOn={entry.restock_on ?? undefined} />
+          </div>
+          <div class="edit">
+            <div class="counter">
+              <button type="button" data-step="-1" aria-label={`Decrease ${entry.part_number}`}>−</button>
+              <input type="text" inputmode="numeric" name="qty" value={entry.qty} data-initial={entry.qty} aria-label={`Shelf count, ${entry.part_number}`} autocomplete="off" />
+              <button type="button" data-step="1" aria-label={`Increase ${entry.part_number}`}>+</button>
+            </div>
+            <label class="date">
+              <span class="sr-only">Restock date, {entry.part_number}</span>
+              <input type="date" name="restock_on" value={entry.restock_on ?? ""} data-initial={entry.restock_on ?? ""} />
+            </label>
+            <span class="slot">
+              {notice === "saved" && part === entry.part_number ? (
+                <span class="saved" role="status"><svg width="16" height="16" aria-hidden="true" focusable="false"><use href="#check" /></svg>Saved</span>
+              ) : (
+                <Button variant="primary" type="submit">Save</Button>
+              )}
+            </span>
+          </div>
+        </form>
+      ))}
+      {entries.length === 0 && <p class="caption stock-empty">{failed ? "The database did not answer. Reload the page." : "No parts have a stock row yet."}</p>}
+    </div>
+    <p class="admin-definitions">
+      The restock date shows on the shop only while the count is 0. If an order arrives while you edit a row, the save is refused and the current count is shown.
+    </p>
+  </div>
+</AdminLayout>
+
+<script>
+  for (const row of document.querySelectorAll<HTMLFormElement>("[data-stock-row]")) {
+    const qty = row.querySelector<HTMLInputElement>('input[name="qty"]');
+    const date = row.querySelector<HTMLInputElement>('input[name="restock_on"]');
+    const slot = row.querySelector<HTMLElement>(".slot");
+    const save = slot?.querySelector<HTMLElement>("button[type=submit]");
+    if (!qty || !date || !slot) continue;
+
+    const sync = () => {
+      const dirty = qty.value.trim() !== qty.dataset.initial || date.value !== date.dataset.initial;
+      row.toggleAttribute("data-dirty", dirty);
+      if (save) save.style.visibility = dirty ? "visible" : "hidden";
+    };
+    sync();
+
+    row.addEventListener("click", (event) => {
+      const button = (event.target as HTMLElement).closest<HTMLButtonElement>("button[data-step]");
+      if (!button) return;
+      const current = Number.parseInt(qty.value, 10);
+      const base = Number.isFinite(current) ? current : 0;
+      qty.value = String(Math.max(0, base + Number(button.dataset.step)));
+      sync();
+    });
+    qty.addEventListener("input", sync);
+    date.addEventListener("input", sync);
+  }
+</script>

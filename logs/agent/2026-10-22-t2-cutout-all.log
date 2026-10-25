@@ -1,0 +1,10 @@
+ams1117 meanL 0.454 gain 1.000
+arduino-nano meanL 0.445 gain 1.019
+ds18b20 meanL 0.414 gain 1.060
+esp32 meanL 0.573 gain 0.940
+hc-sr04 meanL 0.457 gain 0.993
+lm2596 meanL 0.441 gain 1.030
+lm7805 meanL 0.427 gain 1.060
+ne555 meanL 0.460 gain 0.988
+srd-05vdc meanL 0.468 gain 0.970
+tcrt5000 meanL 0.444 gain 1.022

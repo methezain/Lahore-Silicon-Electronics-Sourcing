@@ -7,10 +7,19 @@
   },
   "scripts": {
     "dev": "astro dev",
+    "og": "node scripts/og-images.mjs --force",
+    "prebuild": "node scripts/og-images.mjs",
     "build": "astro build && pagefind --site dist",
     "preview": "astro preview",
     "astro": "astro",
-    "generate-types": "wrangler types"
+    "generate-types": "wrangler types",
+    "check": "astro check",
+    "lint:css": "stylelint \"src/**/*.css\"",
+    "lint:src": "node scripts/check-src.mjs",
+    "test": "vitest run",
+    "test:e2e": "playwright test --grep-invert @visual",
+    "test:visual": "playwright test --grep @visual",
+    "lhci": "node scripts/lhci.mjs"
   },
   "dependencies": {
     "@astrojs/cloudflare": "^14.3.1",
@@ -21,14 +30,25 @@
     "@pagefind/default-ui": "^1.5.2",
     "@tailwindcss/vite": "^4.3.3",
     "astro": "^7.3.2",
+    "motion": "^14.5.0",
     "nanostores": "^1.5.3",
     "pagefind": "^1.5.2",
     "preact": "^10.29.8",
     "tailwindcss": "^4.3.3",
+    "web-vitals": "^6.2.3",
     "wrangler": "^4.130.0",
     "zod": "^4.5.4"
   },
   "allowScripts": {
     "esbuild": true
+  },
+  "devDependencies": {
+    "@astrojs/check": "^0.9.10",
+    "@axe-core/playwright": "^4.14.0",
+    "@lhci/cli": "^0.15.1",
+    "@playwright/test": "^1.64.1",
+    "stylelint": "^17.16.0",
+    "typescript": "^6.0.3",
+    "vitest": "^5.0.5"
   }
 }

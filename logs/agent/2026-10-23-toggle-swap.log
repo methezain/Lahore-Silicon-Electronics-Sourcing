@@ -1,0 +1,5 @@
+idle: n=54 median=17 max=17 longtasks=[]
+->grid: n=53 median=17 max=50 longtasks=[]
+->list: n=48 median=17 max=67 longtasks=[60]
+->grid: n=55 median=17 max=17 longtasks=[]
+->list: n=52 median=17 max=33 longtasks=[]

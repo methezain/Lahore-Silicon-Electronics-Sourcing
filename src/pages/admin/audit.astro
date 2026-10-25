@@ -1,0 +1,80 @@
+---
+/** Who changed what and when. Rows hold ids and actions only, never buyer details. */
+import "../../components/admin/admin-orders.css";
+import { env } from "cloudflare:workers";
+import AdminLayout from "../../layouts/AdminLayout.astro";
+import AdminPager from "../../components/admin/AdminPager.astro";
+import type { AdminDatabase } from "../../lib/admin/db";
+import { formatFull } from "../../lib/admin/time";
+
+export const prerender = false;
+
+const SIZE = 25;
+type Row = { at: string; actor: string; action: string; target: string | null; detail_json: string | null };
+
+const db = env?.DB as unknown as AdminDatabase | undefined;
+const wanted = Number.parseInt(Astro.url.searchParams.get("page") ?? "1", 10);
+const action = (Astro.url.searchParams.get("action") ?? "").trim().slice(0, 40);
+let rows: Row[] = [];
+let total = 0;
+let failed = !db;
+let page = 1;
+let pages = 1;
+if (db) {
+  try {
+    const where = action ? "WHERE action LIKE ? ESCAPE '\\'" : "";
+    const values = action ? [`${action.replace(/[\\%_]/g, (c) => `\\${c}`)}%`] : [];
+    total = (await db.prepare(`SELECT COUNT(*) AS n FROM audit_log ${where}`).bind(...values).first<{ n: number }>())?.n ?? 0;
+    pages = Math.max(1, Math.ceil(total / SIZE));
+    page = Math.min(Math.max(1, Number.isFinite(wanted) ? wanted : 1), pages);
+    rows = (await db.prepare(`SELECT at, actor, action, target, detail_json FROM audit_log ${where} ORDER BY id DESC LIMIT ? OFFSET ?`).bind(...values, SIZE, (page - 1) * SIZE).all<Row>()).results;
+  } catch (error) {
+    failed = true;
+    console.error("Admin audit failed:", error instanceof Error ? error.name : "unknown");
+  }
+}
+if (failed) Astro.response.status = 500;
+const href = (next: number) => `/admin/audit?${new URLSearchParams({ ...(action ? { action } : {}), ...(next > 1 ? { page: String(next) } : {}) })}`.replace(/\?$/, "");
+---
+
+<AdminLayout title="Audit" current="overview">
+  <div class="admin-page">
+    <div class="admin-head">
+      <div>
+        <p class="label">Audit</p>
+        <h1 class="title">What changed</h1>
+        <p class="count">{failed ? "The log could not be read." : `${total} entries`}</p>
+      </div>
+    </div>
+    <form class="admin-search" method="GET" action="/admin/audit" role="search">
+      <label>
+        <span class="sr-only">Action starts with</span>
+        <input type="search" name="action" value={action} placeholder="order, stock, product…" autocomplete="off" />
+      </label>
+    </form>
+    <div class="admin-table-panel audit-panel">
+      <table class="admin-table">
+        <thead><tr><th>When</th><th>Action</th><th>Target</th><th>Detail</th></tr></thead>
+        <tbody>
+          {rows.map((row) => (
+            <tr>
+              <td class="muted">{formatFull(row.at)}</td>
+              <td><span class="part">{row.action}</span></td>
+              <td><span class="part">{row.target ?? ""}</span></td>
+              <td class="muted">{row.detail_json ?? ""}</td>
+            </tr>
+          ))}
+        </tbody>
+      </table>
+      <div class="admin-cards">
+        {rows.map((row) => (
+          <div class="order-card">
+            <span class="order-card-row"><span class="part">{row.action}</span><span class="meta">{formatFull(row.at)}</span></span>
+            <span class="meta">{row.target ?? ""} {row.detail_json ?? ""}</span>
+          </div>
+        ))}
+      </div>
+    </div>
+    <AdminPager page={page} pages={pages} href={href} label="Audit pages" />
+  </div>
+</AdminLayout>

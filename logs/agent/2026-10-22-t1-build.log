@@ -1,0 +1,73 @@
+
+> lahore-silicon@0.0.1 build
+> astro build && pagefind --site dist
+
+[33m[1m19:53:49[22m [WARN] [config][39m Shiki syntax highlighting uses inline styles that are not compatible with Content Security Policy (CSP). Consider using Prism syntax highlighting instead, or disable CSP if Shiki is required.
+[2m19:53:49[22m [34m[@astrojs/cloudflare][39m Enabling image processing with Cloudflare Images for production with the "IMAGES" Images binding.
+[2m19:53:49[22m [34m[@astrojs/cloudflare][39m Enabling sessions with Cloudflare KV with the "SESSION" KV binding.
+[2m19:53:50[22m [34m[content][39m Syncing content
+[2m19:53:50[22m [34m[content][39m Synced content
+[2m19:53:50[22m [34m[types][39m Generated [2m1.48s[22m
+[2m19:53:50[22m [34m[build][39m output: [34m"server"[39m
+[2m19:53:50[22m [34m[build][39m mode: [34m"server"[39m
+[2m19:53:50[22m [34m[build][39m directory: [34mD:\My Coding Projects\Electronics Selling\dist\[39m
+[2m19:53:50[22m [34m[build][39m adapter: [32m@astrojs/cloudflare[39m
+[2m19:53:50[22m [34m[build][39m Collecting build info...
+[2m19:53:50[22m [34m[build][39m [32m✓ Completed in 1.69s.[39m
+[2m19:53:50[22m [34m[build][39m Building server entrypoints...
+[2m19:53:54[22m [34m[assets][39m Copying fonts (2 files)...
+Using secrets defined in .env
+[2m19:53:54[22m [34m[vite][39m [32m✓ built in 3.53s[39m
+Using secrets defined in .env
+[2m19:53:57[22m [34m[vite][39m [32m✓ built in 2.63s[39m
+[2m19:53:58[22m [34m[vite][39m [32m✓ built in 1.73s[39m
+[2mDefault inspector port 9229 not available, using 9230 instead
+[22m
+Using secrets defined in dist\server\.prerender\.dev.vars
+
+[42m[30m prerendering static routes [39m[49m
+✨ Parsed 1 valid header rule.
+[2m19:54:01[22m   [34m├─[39m [2m/product/ams1117-3.3/index.html[22m [2m(+102ms)[22m 
+[2m19:54:01[22m   [34m├─[39m [2m/product/arduino-nano/index.html[22m [2m(+50ms)[22m 
+[2m19:54:01[22m   [34m├─[39m [2m/product/ds18b20/index.html[22m [2m(+45ms)[22m 
+[2m19:54:01[22m   [34m├─[39m [2m/product/esp32-wroom-32d/index.html[22m [2m(+40ms)[22m 
+[2m19:54:01[22m   [34m├─[39m [2m/product/hc-sr04/index.html[22m [2m(+37ms)[22m 
+[2m19:54:01[22m   [34m├─[39m [2m/product/lm2596s/index.html[22m [2m(+31ms)[22m 
+[2m19:54:01[22m   [34m├─[39m [2m/product/lm7805/index.html[22m [2m(+28ms)[22m 
+[2m19:54:01[22m   [34m├─[39m [2m/product/ne555/index.html[22m [2m(+30ms)[22m 
+[2m19:54:01[22m   [34m├─[39m [2m/product/srd-05vdc-sl-c/index.html[22m [2m(+31ms)[22m 
+[2m19:54:01[22m   [34m├─[39m [2m/product/tcrt5000/index.html[22m [2m(+33ms)[22m 
+[2m19:54:01[22m [32m✓ Completed in 2.90s.
+[39m
+[2m19:54:01[22m [34m[build][39m Rearranging server assets...
+[2m19:54:02[22m [34m[build][39m [32m✓ Completed in 11.21s.[39m
+[2m19:54:02[22m [34m[@astrojs/cloudflare][39m Injected immutable Cache-Control for /_astro/* into _headers.
+[2m19:54:02[22m [34m[@astrojs/sitemap][39m `sitemap-index.xml` created at `dist\client`
+[2m19:54:02[22m [34m[build][39m Server built in [1m12.97s[22m
+[2m19:54:02[22m [34m[build][39m [1mComplete![22m
+
+Running Pagefind v1.5.2 (Extended)
+Running from: "D:\\My Coding Projects\\Electronics Selling"
+Source:       "dist"
+Output:       "dist\\pagefind"
+
+[Walking source directory]
+Found 10 files matching **/*.{html}
+
+[Parsing files]
+Found a data-pagefind-body element on the site.
+↳ Ignoring pages without this tag.
+
+[Reading languages]
+Discovered 1 language: en
+
+[Building search indexes]
+Total: 
+  Indexed 1 language
+  Indexed 10 pages
+  Indexed 668 words
+  Indexed 0 filters
+  Indexed 0 sorts
+
+Finished in 0.529 seconds
+exit 0

@@ -1,0 +1,8 @@
+{"scenario":"catalog-filter","viewport":390,"frames":47,"avgFps":13.8,"p95Ms":350,"maxMs":633.3,"over20ms":18,"pctOver20":38.3,"slowestInteractionMs":304,"interactions":22}
+{"scenario":"cart-sheet","viewport":390,"frames":2001,"avgFps":56.9,"p95Ms":16.8,"maxMs":416.6,"over20ms":39,"pctOver20":1.9,"slowestInteractionMs":152,"interactions":8}
+{"scenario":"product-arrival","viewport":390,"frames":49,"avgFps":21.9,"p95Ms":183.4,"maxMs":383.4,"over20ms":11,"pctOver20":22.4,"slowestInteractionMs":0,"interactions":0}
+{"scenario":"home-hero","viewport":390,"frames":227,"avgFps":48,"p95Ms":33.2,"maxMs":316.7,"over20ms":12,"pctOver20":5.3,"slowestInteractionMs":0,"interactions":0}
+{"scenario":"catalog-filter","viewport":1440,"frames":62,"avgFps":21.1,"p95Ms":150,"maxMs":666.7,"over20ms":23,"pctOver20":37.1,"slowestInteractionMs":368,"interactions":23}
+{"scenario":"cart-sheet","viewport":1440,"frames":1958,"avgFps":56.3,"p95Ms":16.8,"maxMs":400,"over20ms":59,"pctOver20":3,"slowestInteractionMs":144,"interactions":8}
+{"scenario":"product-arrival","viewport":1440,"frames":59,"avgFps":28.8,"p95Ms":183.3,"maxMs":266.7,"over20ms":10,"pctOver20":16.9,"slowestInteractionMs":0,"interactions":0}
+{"scenario":"home-hero","viewport":1440,"frames":238,"avgFps":31,"p95Ms":100,"maxMs":366.7,"over20ms":60,"pctOver20":25.2,"slowestInteractionMs":0,"interactions":0}

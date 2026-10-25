@@ -1,0 +1,362 @@
+---
+/**
+ * Product card with the socket tab.
+ * docs/design-system.md section 4 (signature) and section 9 (Product card).
+ * The card is one link. An add control, when passed, sits outside that link.
+ */
+import type { ImageMetadata } from "astro";
+import { formatPkr, unitPrice, type PriceBreak } from "../lib/money";
+import PackageFallback from "./illustrations/PackageFallback.astro";
+import PartPicture from "./PartPicture.astro";
+import PhotoStage from "./PhotoStage.tsx";
+import { partChipClass } from "../lib/part-image";
+import StockIndicator from "./StockIndicator.astro";
+
+interface Props {
+  href: string;
+  partNumber: string;
+  name: string;
+  price: number;
+  breaks?: readonly PriceBreak[];
+  stockQty: number;
+  lowStockAt?: number;
+  restockOn?: string;
+  shelfQty?: number;
+  showMeter?: boolean;
+  packageType: string;
+  image?: ImageMetadata;
+  layout?: "row" | "stack";
+  /** Front hero card: job and price, then stock and the key spec. Shadow, no hover fill. */
+  variant?: "catalog" | "hero";
+  /** Key spec beside the stock count. Hero only. */
+  detail?: string;
+  priority?: boolean;
+  /** Catalog thumbnail shares a view-transition name with the product photo. */
+  transition?: boolean;
+}
+
+const {
+  href,
+  partNumber,
+  name,
+  price,
+  breaks,
+  stockQty,
+  lowStockAt,
+  restockOn,
+  shelfQty,
+  showMeter = false,
+  packageType,
+  image,
+  layout = "row",
+  variant = "catalog",
+  detail,
+  priority = false,
+  transition = true,
+} = Astro.props;
+
+const figure = formatPkr(unitPrice({ price, breaks }, 1)).slice("Rs ".length);
+const hero = variant === "hero";
+const stacked = hero || layout === "stack";
+const photo = stacked
+  ? { width: 640, height: 480, sizes: "(min-width: 900px) 380px, calc(100vw - 64px)", widths: [480, 768] }
+  : { width: 160, height: 160, sizes: "80px", widths: [80, 160] };
+---
+
+<article class:list={["card", stacked ? "is-stack" : "is-row", hero && "is-hero"]}>
+  <a class="card-link" href={href} data-astro-prefetch="hover">
+    <span class="tab">
+      <span class="pin" aria-hidden="true"></span>
+      <span class:list={["part", transition && partChipClass(partNumber)]}>{partNumber}</span>
+    </span>
+    <div class="body">
+      <div class="well">
+        {image ? (
+          <PhotoStage cutout>
+            <PartPicture
+              src={image}
+              partNumber={partNumber}
+              alt=""
+              width={photo.width}
+              height={photo.height}
+              sizes={photo.sizes}
+              widths={photo.widths}
+              priority={priority}
+              transition={transition}
+              fit="contain"
+              class="photo"
+              frameClass="frame"
+            />
+          </PhotoStage>
+        ) : (
+          <PackageFallback packageType={packageType} partNumber={partNumber}>
+            <span class="fallback">{packageType}</span>
+          </PackageFallback>
+        )}
+      </div>
+      <div class="copy">
+        {hero ? (
+          <div class="hero-top">
+            <p class="job">{name}</p>
+            <span class="price"><span class="rs">Rs</span>{" "}{figure}</span>
+          </div>
+        ) : (
+          <p class="job">{name}</p>
+        )}
+        {hero ? (
+          <StockIndicator
+            stockQty={stockQty}
+            lowStockAt={lowStockAt}
+            restockOn={restockOn}
+            shelfQty={shelfQty}
+            meter={showMeter}
+            aside={detail}
+          />
+        ) : (
+          <div class="meta">
+            <StockIndicator
+              stockQty={stockQty}
+              lowStockAt={lowStockAt}
+              restockOn={restockOn}
+              shelfQty={shelfQty}
+              meter={showMeter}
+            />
+            <span class="price"><span class="rs">Rs</span>{" "}{figure}</span>
+          </div>
+        )}
+      </div>
+    </div>
+  </a>
+  {Astro.slots.has("add") && (
+    <div class="add">
+      <slot name="add" />
+    </div>
+  )}
+</article>
+
+<style>
+  /* Signature geometry from design-system.md section 4: 30px tab, 10px corners, 6px pin. */
+  .card {
+    --product-card: var(--color-surface);
+    position: relative;
+    margin-top: 30px;
+    padding: var(--space-16);
+    border-radius: var(--radius-card);
+    background: var(--product-card);
+    color: var(--color-ink);
+    transition: background-color var(--dur-1) var(--ease-out);
+  }
+
+  .card:hover,
+  .card:focus-within,
+  .card:active {
+    --product-card: var(--color-blue-50);
+  }
+
+  .is-hero,
+  .is-hero:hover,
+  .is-hero:focus-within,
+  .is-hero:active {
+    --product-card: var(--color-surface);
+    box-shadow: var(--shadow-3);
+  }
+
+  .card:focus-within {
+    outline: 2px solid var(--color-action);
+    outline-offset: 2px;
+  }
+
+  .card-link {
+    display: block;
+    color: inherit;
+    text-decoration: none;
+  }
+
+  .card-link:focus-visible {
+    outline: none;
+  }
+
+  .tab {
+    position: absolute;
+    left: var(--space-24);
+    bottom: 100%;
+    display: inline-flex;
+    align-items: center;
+    gap: var(--space-8);
+    height: 30px;
+    padding: 0 var(--space-12);
+    border-radius: 10px 10px 0 0;
+    background: var(--product-card);
+    color: var(--color-ink);
+    white-space: nowrap;
+    transition: background-color var(--dur-1) var(--ease-out);
+  }
+
+  .tab::before,
+  .tab::after {
+    content: "";
+    position: absolute;
+    bottom: 0;
+    width: 10px;
+    height: 10px;
+  }
+
+  .tab::before {
+    right: 100%;
+    background: radial-gradient(circle at 0 0, transparent 9.5px, var(--product-card) 10px);
+  }
+
+  .tab::after {
+    left: 100%;
+    background: radial-gradient(circle at 100% 0, transparent 9.5px, var(--product-card) 10px);
+  }
+
+  .pin {
+    flex: none;
+    width: 6px;
+    height: 6px;
+    border-radius: 2px;
+    background: var(--color-action);
+  }
+
+  .part {
+    font-family: var(--font-part);
+    font-size: var(--text-caption);
+    font-weight: var(--font-weight-part);
+    font-variation-settings: normal;
+    font-variant-numeric: slashed-zero;
+    letter-spacing: var(--tracking-part);
+    line-height: 1.2;
+  }
+
+  .body {
+    display: grid;
+    grid-template-columns: var(--space-80) minmax(0, 1fr);
+    gap: var(--space-12);
+    align-items: center;
+  }
+
+  .is-stack .body {
+    grid-template-columns: minmax(0, 1fr);
+  }
+
+  .well {
+    position: relative;
+    aspect-ratio: 1;
+    overflow: hidden;
+    border-radius: var(--radius-control);
+    background: var(--color-sunken);
+  }
+
+  .is-stack .well {
+    aspect-ratio: 4 / 3;
+  }
+
+  .well :global(picture),
+  .well :global(img) {
+    display: block;
+    width: 100%;
+    height: 100%;
+  }
+
+  .well :global(picture) {
+    position: absolute;
+    inset: 0;
+  }
+
+  .well :global(img) {
+    max-width: none;
+    object-fit: cover;
+    mix-blend-mode: multiply;
+  }
+
+  .fallback {
+    display: grid;
+    place-items: center;
+    height: 100%;
+    padding: var(--space-8);
+    font-family: var(--font-part);
+    font-size: var(--text-caption);
+    font-weight: var(--font-weight-part);
+    font-variation-settings: normal;
+    font-variant-numeric: slashed-zero;
+    letter-spacing: var(--tracking-part);
+    line-height: var(--text-caption--line-height);
+    text-align: center;
+    text-wrap: pretty;
+  }
+
+  .copy {
+    display: flex;
+    flex-direction: column;
+    gap: var(--space-8);
+    min-width: 0;
+  }
+
+  .hero-top {
+    display: flex;
+    align-items: flex-start;
+    justify-content: space-between;
+    gap: var(--space-12);
+  }
+
+  .hero-top .job {
+    min-width: 0;
+  }
+
+  .is-hero :global(.stock),
+  .is-hero :global(.line) {
+    width: 100%;
+  }
+
+  .job {
+    margin: 0;
+    font-size: var(--text-small);
+    font-weight: var(--font-weight-strong);
+    line-height: var(--text-small--line-height);
+    text-wrap: balance;
+  }
+
+  .meta {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: var(--space-12);
+  }
+
+  .meta :global(.stock) {
+    min-width: 0;
+  }
+
+  .price {
+    flex: none;
+    font-family: var(--font-num);
+    font-size: var(--text-heading);
+    font-weight: var(--font-weight-num);
+    font-variant-numeric: tabular-nums;
+    font-variation-settings: "wdth" var(--wdth-num);
+    letter-spacing: var(--tracking-num);
+    line-height: 1;
+    white-space: nowrap;
+  }
+
+  .rs {
+    margin-right: var(--space-2);
+    color: var(--color-ink-muted);
+    font-size: var(--text-caption);
+    font-weight: var(--text-label--font-weight);
+    font-variation-settings: "wdth" var(--wdth-body);
+    letter-spacing: 0;
+  }
+
+  .add {
+    margin-top: var(--space-12);
+  }
+
+  @media (prefers-reduced-motion: reduce) {
+    .card,
+    .tab {
+      transition: none;
+    }
+  }
+</style>

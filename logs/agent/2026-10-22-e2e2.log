@@ -1,0 +1,28 @@
+
+Running 22 tests using 4 workers
+
+  ok  1 [390] › tests\e2e\checkout.spec.ts:205:3 › reduced motion › the place order button does not animate a transform (5.8s)
+  ok  3 [390] › tests\e2e\checkout.spec.ts:167:1 › an empty cart shows an empty state instead of the form (8.2s)
+  ok  5 [390] › tests\e2e\home.spec.ts:3:1 › catalog is the front door (2.7s)
+  ok  4 [390] › tests\e2e\checkout.spec.ts:186:1 › axe finds no WCAG A/AA violations on checkout (8.9s)
+  ok  6 [390] › tests\e2e\home.spec.ts:25:1 › header and footer shell (4.1s)
+  ok  7 [390] › tests\e2e\home.spec.ts:52:1 › header search and cart keyboard path (5.2s)
+  -  10 [390] › tests\e2e\home.spec.ts:165:1 › a catalog row opens the product and Add stays on the catalog
+  ok  8 [390] › tests\e2e\home.spec.ts:75:1 › category and sort queries still filter the catalog (8.8s)
+  ok 11 [390] › tests\e2e\home.spec.ts:230:1 › hero copy stays put when motion is reduced (4.2s)
+  ok  9 [390] › tests\e2e\home.spec.ts:103:1 › home page is the brand landing (6.2s)
+  ok 13 [1440] › tests\e2e\checkout.spec.ts:167:1 › an empty cart shows an empty state instead of the form (6.2s)
+  ok 14 [1440] › tests\e2e\checkout.spec.ts:186:1 › axe finds no WCAG A/AA violations on checkout (7.0s)
+  ok 15 [1440] › tests\e2e\checkout.spec.ts:205:3 › reduced motion › the place order button does not animate a transform (4.1s)
+  ok 16 [1440] › tests\e2e\home.spec.ts:3:1 › catalog is the front door (2.4s)
+  ok  2 [390] › tests\e2e\checkout.spec.ts:48:1 › add to cart, clear field errors, and save the order (32.8s)
+  ok 17 [1440] › tests\e2e\home.spec.ts:25:1 › header and footer shell (3.8s)
+  ok 18 [1440] › tests\e2e\home.spec.ts:52:1 › header search and cart keyboard path (3.9s)
+  ok 19 [1440] › tests\e2e\home.spec.ts:103:1 › home page is the brand landing (6.2s)
+  ok 21 [1440] › tests\e2e\home.spec.ts:165:1 › a catalog row opens the product and Add stays on the catalog (9.1s)
+  ok 12 [1440] › tests\e2e\checkout.spec.ts:48:1 › add to cart, clear field errors, and save the order (25.2s)
+  ok 22 [1440] › tests\e2e\home.spec.ts:230:1 › hero copy stays put when motion is reduced (4.9s)
+  ok 20 [1440] › tests\e2e\home.spec.ts:75:1 › category and sort queries still filter the catalog (10.7s)
+
+  1 skipped
+  21 passed (49.8s)

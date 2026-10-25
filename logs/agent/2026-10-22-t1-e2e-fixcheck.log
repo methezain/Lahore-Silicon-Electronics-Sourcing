@@ -1,0 +1,169 @@
+
+Running 54 tests using 2 workers
+
+  ok  1 [390] › tests\e2e\a11y.spec.ts:10:1 › axe finds no WCAG A/AA violations on the home page (5.8s)
+  ok  2 [390] › tests\e2e\a11y.spec.ts:4:1 › axe finds no WCAG A/AA violations on the catalog (6.7s)
+  ok  4 [390] › tests\e2e\a11y.spec.ts:23:1 › axe finds no WCAG A/AA violations on an unknown order (2.5s)
+  ok  3 [390] › tests\e2e\a11y.spec.ts:17:1 › axe finds no WCAG A/AA violations on the longest part page (4.5s)
+  ok  5 [390] › tests\e2e\a11y.spec.ts:29:1 › axe finds no WCAG A/AA violations on the component gallery (5.3s)
+  ok  6 [390] › tests\e2e\a11y.spec.ts:35:1 › axe finds no WCAG A/AA violations in the search dialog (5.7s)
+  ok  8 [390] › tests\e2e\product-image.spec.ts:3:1 › product photo is sized, eager, and does not shift (1.2s)
+  ok  7 [390] › tests\e2e\a11y.spec.ts:43:1 › axe finds no WCAG A/AA violations in the cart sheet (4.2s)
+  ok  9 [390] › tests\e2e\product-image.spec.ts:48:1 › catalog thumbnail and product photo share a view-transition name (2.1s)
+  x  10 [390] › tests\e2e\product-image.spec.ts:74:1 › cart line uses the optimized thumb (2.2s)
+  ok 11 [390] › tests\e2e\product-image.spec.ts:90:1 › product photo stays visible with reduced motion (2.5s)
+  ok 12 [390] › tests\e2e\product.spec.ts:61:1 › longest part numbers stay inside the viewport (3.1s)
+  ok 13 [390] › tests\e2e\product.spec.ts:4:1 › product page buy panel, specs, and no horizontal overflow (2.9s)
+  ok 14 [390] › tests\e2e\product.spec.ts:81:1 › search lm 7805, add, correct quantity, and match the cart price (4.6s)
+  ok 15 [390] › tests\e2e\product.spec.ts:114:1 › mobile sticky add bar and desktop keyboard focus (4.2s)
+  ok 16 [390] › tests\e2e\product.spec.ts:184:1 › reduced motion keeps the add control still (928ms)
+  -  18 [390] › tests\e2e\product.spec.ts:208:1 › layout at the 900px switch
+  ok 19 [390] › tests\e2e\quick-order.spec.ts:5:1 › quick order previews matches, misses, stock limits, and adds them (2.0s)
+  ok 20 [390] › tests\e2e\quick-order.spec.ts:35:1 › a cart link rebuilds the cart (1.1s)
+  ok 17 [390] › tests\e2e\product.spec.ts:202:1 › axe finds no WCAG A/AA violations on the product page (4.3s)
+  ok 21 [390] › tests\e2e\quick-order.spec.ts:47:1 › command palette opens with ctrl+k and highlights a match (1.5s)
+  ok 22 [390] › tests\e2e\quick-order.spec.ts:64:1 › selection highlight slides, and jumps when reduced motion is on (4.5s)
+  ok 23 [390] › tests\e2e\quick-order.spec.ts:101:1 › palette and quick order screenshots (5.2s)
+  ok 25 [390] › tests\e2e\search-dialog.spec.ts:99:1 › slash does not open search from a field or while the cart is open (2.3s)
+  ok 26 [390] › tests\e2e\search-dialog.spec.ts:116:1 › a dock control opens search and returns focus (887ms)
+  ok 27 [390] › tests\e2e\search-dialog.spec.ts:139:1 › search dialog stays put with reduced motion (967ms)
+  x  24 [390] › tests\e2e\search-dialog.spec.ts:3:1 › search dialog finds a part, misses cleanly, and traps focus (8.3s)
+  ok 28 [1440] › tests\e2e\a11y.spec.ts:4:1 › axe finds no WCAG A/AA violations on the catalog (3.9s)
+  ok 29 [1440] › tests\e2e\a11y.spec.ts:10:1 › axe finds no WCAG A/AA violations on the home page (3.4s)
+  ok 30 [1440] › tests\e2e\a11y.spec.ts:17:1 › axe finds no WCAG A/AA violations on the longest part page (4.0s)
+  ok 31 [1440] › tests\e2e\a11y.spec.ts:23:1 › axe finds no WCAG A/AA violations on an unknown order (2.0s)
+  ok 32 [1440] › tests\e2e\a11y.spec.ts:29:1 › axe finds no WCAG A/AA violations on the component gallery (4.4s)
+  ok 33 [1440] › tests\e2e\a11y.spec.ts:35:1 › axe finds no WCAG A/AA violations in the search dialog (5.2s)
+  ok 35 [1440] › tests\e2e\product-image.spec.ts:3:1 › product photo is sized, eager, and does not shift (1.3s)
+  ok 34 [1440] › tests\e2e\a11y.spec.ts:43:1 › axe finds no WCAG A/AA violations in the cart sheet (4.6s)
+  ok 36 [1440] › tests\e2e\product-image.spec.ts:48:1 › catalog thumbnail and product photo share a view-transition name (2.3s)
+  x  37 [1440] › tests\e2e\product-image.spec.ts:74:1 › cart line uses the optimized thumb (1.5s)
+  ok 38 [1440] › tests\e2e\product-image.spec.ts:90:1 › product photo stays visible with reduced motion (2.6s)
+  ok 39 [1440] › tests\e2e\product.spec.ts:4:1 › product page buy panel, specs, and no horizontal overflow (2.2s)
+  ok 40 [1440] › tests\e2e\product.spec.ts:61:1 › longest part numbers stay inside the viewport (3.1s)
+  ok 42 [1440] › tests\e2e\product.spec.ts:114:1 › mobile sticky add bar and desktop keyboard focus (1.8s)
+  ok 43 [1440] › tests\e2e\product.spec.ts:184:1 › reduced motion keeps the add control still (2.5s)
+  ok 41 [1440] › tests\e2e\product.spec.ts:81:1 › search lm 7805, add, correct quantity, and match the cart price (5.9s)
+  ok 45 [1440] › tests\e2e\product.spec.ts:208:1 › layout at the 900px switch (1.7s)
+  ok 44 [1440] › tests\e2e\product.spec.ts:202:1 › axe finds no WCAG A/AA violations on the product page (3.7s)
+  ok 46 [1440] › tests\e2e\quick-order.spec.ts:5:1 › quick order previews matches, misses, stock limits, and adds them (1.4s)
+  ok 47 [1440] › tests\e2e\quick-order.spec.ts:35:1 › a cart link rebuilds the cart (886ms)
+  ok 48 [1440] › tests\e2e\quick-order.spec.ts:47:1 › command palette opens with ctrl+k and highlights a match (2.7s)
+  ok 49 [1440] › tests\e2e\quick-order.spec.ts:64:1 › selection highlight slides, and jumps when reduced motion is on (5.4s)
+  ok 50 [1440] › tests\e2e\quick-order.spec.ts:101:1 › palette and quick order screenshots (5.7s)
+  ok 52 [1440] › tests\e2e\search-dialog.spec.ts:99:1 › slash does not open search from a field or while the cart is open (2.0s)
+  ok 53 [1440] › tests\e2e\search-dialog.spec.ts:116:1 › a dock control opens search and returns focus (1.9s)
+  ok 54 [1440] › tests\e2e\search-dialog.spec.ts:139:1 › search dialog stays put with reduced motion (1.4s)
+  x  51 [1440] › tests\e2e\search-dialog.spec.ts:3:1 › search dialog finds a part, misses cleanly, and traps focus (8.3s)
+
+
+  1) [390] › tests\e2e\product-image.spec.ts:74:1 › cart line uses the optimized thumb ─────────────
+
+    Error: expect(locator).toBeVisible() failed
+
+    Locator: locator('.cart-lines .cart-photo img')
+    Expected: visible
+    Error: strict mode violation: locator('.cart-lines .cart-photo img') resolved to 2 elements:
+        1) <img alt="" width="64" height="64" loading="lazy" decoding="async" src="/_image?href=%2F%40fs%2FD%3A%2FMy+Coding+Projects%2FElectronics+Selling%2Fsrc%2Fassets%2Fparts%2Fcutouts%2Fesp32.webp%3ForigWidth%3D1024%26origHeight%3D1024%26origFormat%3Dwebp&w=112&h=112&f=webp"/> aka getByRole('article').filter({ hasText: 'ESP32-WROOM-32DWi-Fi and' }).locator('img')
+        2) <img alt="" width="64" height="64" loading="lazy" decoding="async" src="/_image?href=%2F%40fs%2FD%3A%2FMy+Coding+Projects%2FElectronics+Selling%2Fsrc%2Fassets%2Fparts%2Fcutouts%2Fams1117.webp%3ForigWidth%3D1024%26origHeight%3D1024%26origFormat%3Dwebp&w=112&h=112&f=webp"/> aka getByRole('link', { name: 'AMS1117-3.3 3.3 V LDO regulator, SOT-223 80 in stock', exact: true })
+
+    Call log:
+      - Expect "toBeVisible" locator('.cart-lines .cart-photo img') with timeout 5000ms
+      - waiting for locator('.cart-lines .cart-photo img')
+
+
+      76 |   await page.locator('.qty-row .buy-add').click();
+      77 |   const cartImg = page.locator('.cart-lines .cart-photo img');
+    > 78 |   await expect(cartImg).toBeVisible();
+         |                         ^
+      79 |   await expect(cartImg).toHaveAttribute('width', '64');
+      80 |   await expect(cartImg).toHaveAttribute('height', '64');
+      81 |   await expect(cartImg).toHaveAttribute('loading', 'lazy');
+        at D:\My Coding Projects\Electronics Selling\tests\e2e\product-image.spec.ts:78:25
+
+    Error Context: .pw-out\fix\product-image-cart-line-uses-the-optimized-thumb-390\error-context.md
+
+  2) [390] › tests\e2e\search-dialog.spec.ts:3:1 › search dialog finds a part, misses cleanly, and traps focus 
+
+    Error: expect(locator).toHaveAttribute(expected) failed
+
+    Locator: getByRole('dialog', { name: 'Search parts' }).getByRole('link', { name: 'Power 3' })
+    Expected: "/?category=Power#catalog"
+    Timeout: 5000ms
+    Error: element(s) not found
+
+    Call log:
+      - Expect "toHaveAttribute" getByRole('dialog', { name: 'Search parts' }).getByRole('link', { name: 'Power 3' }) with timeout 5000ms
+      - waiting for getByRole('dialog', { name: 'Search parts' }).getByRole('link', { name: 'Power 3' })
+
+
+      63 |     await expect(dialog.getByRole('link', { name: /WhatsApp/ })).toHaveCount(0);
+      64 |   }
+    > 65 |   await expect(dialog.getByRole('link', { name: 'Power 3' })).toHaveAttribute('href', '/?category=Power#catalog');
+         |                                                               ^
+      66 |   await expect(dialog.getByRole('link', { name: 'Boards 2' })).toBeVisible();
+      67 |   await expect(dialog.getByRole('link', { name: 'ICs 1' })).toBeVisible();
+      68 |   await expect(dialog.getByRole('link', { name: 'Sensors 3' })).toBeVisible();
+        at D:\My Coding Projects\Electronics Selling\tests\e2e\search-dialog.spec.ts:65:63
+
+    Error Context: .pw-out\fix\search-dialog-search-dialo-70a86-ses-cleanly-and-traps-focus-390\error-context.md
+
+  3) [1440] › tests\e2e\product-image.spec.ts:74:1 › cart line uses the optimized thumb ────────────
+
+    Error: expect(locator).toBeVisible() failed
+
+    Locator: locator('.cart-lines .cart-photo img')
+    Expected: visible
+    Error: strict mode violation: locator('.cart-lines .cart-photo img') resolved to 2 elements:
+        1) <img alt="" width="64" height="64" loading="lazy" decoding="async" src="/_image?href=%2F%40fs%2FD%3A%2FMy+Coding+Projects%2FElectronics+Selling%2Fsrc%2Fassets%2Fparts%2Fcutouts%2Fesp32.webp%3ForigWidth%3D1024%26origHeight%3D1024%26origFormat%3Dwebp&w=112&h=112&f=webp"/> aka getByRole('article').filter({ hasText: 'ESP32-WROOM-32DWi-Fi and' }).locator('img')
+        2) <img alt="" width="64" height="64" loading="lazy" decoding="async" src="/_image?href=%2F%40fs%2FD%3A%2FMy+Coding+Projects%2FElectronics+Selling%2Fsrc%2Fassets%2Fparts%2Fcutouts%2Fams1117.webp%3ForigWidth%3D1024%26origHeight%3D1024%26origFormat%3Dwebp&w=112&h=112&f=webp"/> aka getByRole('link', { name: 'AMS1117-3.3 3.3 V LDO regulator, SOT-223 80 in stock', exact: true })
+
+    Call log:
+      - Expect "toBeVisible" locator('.cart-lines .cart-photo img') with timeout 5000ms
+      - waiting for locator('.cart-lines .cart-photo img')
+
+
+      76 |   await page.locator('.qty-row .buy-add').click();
+      77 |   const cartImg = page.locator('.cart-lines .cart-photo img');
+    > 78 |   await expect(cartImg).toBeVisible();
+         |                         ^
+      79 |   await expect(cartImg).toHaveAttribute('width', '64');
+      80 |   await expect(cartImg).toHaveAttribute('height', '64');
+      81 |   await expect(cartImg).toHaveAttribute('loading', 'lazy');
+        at D:\My Coding Projects\Electronics Selling\tests\e2e\product-image.spec.ts:78:25
+
+    Error Context: .pw-out\fix\product-image-cart-line-uses-the-optimized-thumb-1440\error-context.md
+
+  4) [1440] › tests\e2e\search-dialog.spec.ts:3:1 › search dialog finds a part, misses cleanly, and traps focus 
+
+    Error: expect(locator).toHaveAttribute(expected) failed
+
+    Locator: getByRole('dialog', { name: 'Search parts' }).getByRole('link', { name: 'Power 3' })
+    Expected: "/?category=Power#catalog"
+    Timeout: 5000ms
+    Error: element(s) not found
+
+    Call log:
+      - Expect "toHaveAttribute" getByRole('dialog', { name: 'Search parts' }).getByRole('link', { name: 'Power 3' }) with timeout 5000ms
+      - waiting for getByRole('dialog', { name: 'Search parts' }).getByRole('link', { name: 'Power 3' })
+
+
+      63 |     await expect(dialog.getByRole('link', { name: /WhatsApp/ })).toHaveCount(0);
+      64 |   }
+    > 65 |   await expect(dialog.getByRole('link', { name: 'Power 3' })).toHaveAttribute('href', '/?category=Power#catalog');
+         |                                                               ^
+      66 |   await expect(dialog.getByRole('link', { name: 'Boards 2' })).toBeVisible();
+      67 |   await expect(dialog.getByRole('link', { name: 'ICs 1' })).toBeVisible();
+      68 |   await expect(dialog.getByRole('link', { name: 'Sensors 3' })).toBeVisible();
+        at D:\My Coding Projects\Electronics Selling\tests\e2e\search-dialog.spec.ts:65:63
+
+    Error Context: .pw-out\fix\search-dialog-search-dialo-70a86-ses-cleanly-and-traps-focus-1440\error-context.md
+
+  4 failed
+    [390] › tests\e2e\product-image.spec.ts:74:1 › cart line uses the optimized thumb ──────────────
+    [390] › tests\e2e\search-dialog.spec.ts:3:1 › search dialog finds a part, misses cleanly, and traps focus 
+    [1440] › tests\e2e\product-image.spec.ts:74:1 › cart line uses the optimized thumb ─────────────
+    [1440] › tests\e2e\search-dialog.spec.ts:3:1 › search dialog finds a part, misses cleanly, and traps focus 
+  1 skipped
+  49 passed (1.6m)
+exit 1

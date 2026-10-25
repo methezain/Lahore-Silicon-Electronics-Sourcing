@@ -1,0 +1,115 @@
+
+Running 110 tests using 3 workers
+
+[1/110] [390] › tests\e2e\a11y.spec.ts:4:1 › axe finds no WCAG A/AA violations on the catalog
+[2/110] [390] › tests\e2e\a11y.spec.ts:17:1 › axe finds no WCAG A/AA violations on the longest part page
+[3/110] [390] › tests\e2e\a11y.spec.ts:10:1 › axe finds no WCAG A/AA violations on the home page
+[4/110] [390] › tests\e2e\a11y.spec.ts:23:1 › axe finds no WCAG A/AA violations on an unknown order
+[5/110] [390] › tests\e2e\a11y.spec.ts:29:1 › axe finds no WCAG A/AA violations on the component gallery
+[6/110] [390] › tests\e2e\a11y.spec.ts:35:1 › axe finds no WCAG A/AA violations in the search dialog
+[7/110] [390] › tests\e2e\a11y.spec.ts:44:1 › axe finds no WCAG A/AA violations in the cart sheet
+[8/110] [390] › tests\e2e\cart-sheet.spec.ts:3:1 › cart sheet traps tab, closes on escape, and returns focus
+[9/110] [390] › tests\e2e\cart-sheet.spec.ts:57:1 › cart sheet flags a part the shop no longer sells
+[10/110] [390] › tests\e2e\cart-sheet.spec.ts:73:1 › dev gallery renders the new components
+[11/110] [390] › tests\e2e\checkout.spec.ts:48:1 › add to cart, clear field errors, and save the order
+[12/110] [390] › tests\e2e\checkout.spec.ts:167:1 › an empty cart shows an empty state instead of the form
+[13/110] [390] › tests\e2e\checkout.spec.ts:186:1 › axe finds no WCAG A/AA violations on checkout
+[14/110] [390] › tests\e2e\checkout.spec.ts:205:3 › reduced motion › the place order button does not animate a transform
+[15/110] [390] › tests\e2e\home.spec.ts:3:1 › catalog is the front door
+[16/110] [390] › tests\e2e\home.spec.ts:25:1 › header and footer shell
+[17/110] [390] › tests\e2e\home.spec.ts:52:1 › header search and cart keyboard path
+[18/110] [390] › tests\e2e\home.spec.ts:76:1 › category and sort queries still filter the catalog
+[19/110] [390] › tests\e2e\home.spec.ts:104:1 › home page is the brand landing
+[20/110] [390] › tests\e2e\home.spec.ts:167:1 › a catalog row opens the product and Add stays on the catalog
+[21/110] [390] › tests\e2e\home.spec.ts:232:1 › hero copy stays put when motion is reduced
+[22/110] [390] › tests\e2e\navigation.spec.ts:3:1 › speculation rules prerender product links and skip checkout
+[23/110] [390] › tests\e2e\navigation.spec.ts:20:1 › header condenses past 80px and restores at the top
+[24/110] [390] › tests\e2e\navigation.spec.ts:42:1 › reduced motion drops morph names and condenses without a transition
+[25/110] [390] › tests\e2e\navigation.spec.ts:60:1 › keyboard focus stays below the header after it condenses
+[26/110] [390] › tests\e2e\product-image.spec.ts:3:1 › product photo is sized, eager, and does not shift
+[27/110] [390] › tests\e2e\product-image.spec.ts:48:1 › catalog thumbnail and product photo share a view-transition name
+[28/110] [390] › tests\e2e\product-image.spec.ts:74:1 › cart line uses the optimized thumb
+[29/110] [390] › tests\e2e\product-image.spec.ts:90:1 › product photo stays visible with reduced motion
+[30/110] [390] › tests\e2e\product.spec.ts:4:1 › product page buy panel, specs, and no horizontal overflow
+[31/110] [390] › tests\e2e\product.spec.ts:61:1 › longest part numbers stay inside the viewport
+[32/110] [390] › tests\e2e\product.spec.ts:81:1 › search lm 7805, add, correct quantity, and match the cart price
+[33/110] [390] › tests\e2e\product.spec.ts:115:1 › mobile sticky add bar and desktop keyboard focus
+[34/110] [390] › tests\e2e\product.spec.ts:185:1 › reduced motion keeps the add control still
+[35/110] [390] › tests\e2e\product.spec.ts:203:1 › axe finds no WCAG A/AA violations on the product page
+[36/110] [390] › tests\e2e\product.spec.ts:209:1 › layout at the 900px switch
+[37/110] [390] › tests\e2e\quick-order.spec.ts:5:1 › quick order previews matches, misses, stock limits, and adds them
+[38/110] [390] › tests\e2e\quick-order.spec.ts:35:1 › a cart link rebuilds the cart
+[39/110] [390] › tests\e2e\quick-order.spec.ts:47:1 › command palette opens with ctrl+k and highlights a match
+[40/110] [390] › tests\e2e\quick-order.spec.ts:65:1 › selection highlight slides, and jumps when reduced motion is on
+[41/110] [390] › tests\e2e\quick-order.spec.ts:103:1 › palette and quick order screenshots
+[42/110] [390] › tests\e2e\search-dialog.spec.ts:3:1 › search dialog finds a part, misses cleanly, and traps focus
+[43/110] [390] › tests\e2e\search-dialog.spec.ts:100:1 › slash does not open search from a field or while the cart is open
+[44/110] [390] › tests\e2e\search-dialog.spec.ts:118:1 › a dock control opens search and returns focus
+[45/110] [390] › tests\e2e\search-dialog.spec.ts:142:1 › search dialog stays put with reduced motion
+[46/110] [390] › tests\e2e\secondary.spec.ts:18:1 › shipping and payment renders the policy modules
+[47/110] [390] › tests\e2e\secondary.spec.ts:51:1 › about states only what the catalog and the modules can prove
+[48/110] [390] › tests\e2e\secondary.spec.ts:84:1 › contact keeps the typed value and names the broken rule
+[49/110] [390] › tests\e2e\secondary.spec.ts:124:1 › missing pages and unknown parts
+[50/110] [390] › tests\e2e\secondary.spec.ts:173:1 › axe finds no WCAG A/AA violations on the secondary pages
+[51/110] [390] › tests\e2e\secondary.spec.ts:181:1 › layout at the 900px switch
+[52/110] [390] › tests\e2e\secondary.spec.ts:196:3 › reduced motion › shipping controls do not animate a transform
+[53/110] [390] › tests\e2e\secondary.spec.ts:212:1 › the header is solid when transparency is reduced
+[54/110] [390] › tests\e2e\vitals.spec.ts:3:1 › a field vital is accepted and an order id is not required
+[55/110] [390] › tests\e2e\vitals.spec.ts:30:1 › the layout loads the web vitals reporter
+[56/110] [1440] › tests\e2e\a11y.spec.ts:4:1 › axe finds no WCAG A/AA violations on the catalog
+[57/110] [1440] › tests\e2e\a11y.spec.ts:10:1 › axe finds no WCAG A/AA violations on the home page
+[58/110] [1440] › tests\e2e\a11y.spec.ts:23:1 › axe finds no WCAG A/AA violations on an unknown order
+[59/110] [1440] › tests\e2e\a11y.spec.ts:17:1 › axe finds no WCAG A/AA violations on the longest part page
+[60/110] [1440] › tests\e2e\a11y.spec.ts:29:1 › axe finds no WCAG A/AA violations on the component gallery
+[61/110] [1440] › tests\e2e\a11y.spec.ts:35:1 › axe finds no WCAG A/AA violations in the search dialog
+[62/110] [1440] › tests\e2e\a11y.spec.ts:44:1 › axe finds no WCAG A/AA violations in the cart sheet
+[63/110] [1440] › tests\e2e\cart-sheet.spec.ts:3:1 › cart sheet traps tab, closes on escape, and returns focus
+[64/110] [1440] › tests\e2e\cart-sheet.spec.ts:57:1 › cart sheet flags a part the shop no longer sells
+[65/110] [1440] › tests\e2e\cart-sheet.spec.ts:73:1 › dev gallery renders the new components
+[66/110] [1440] › tests\e2e\checkout.spec.ts:48:1 › add to cart, clear field errors, and save the order
+[67/110] [1440] › tests\e2e\checkout.spec.ts:167:1 › an empty cart shows an empty state instead of the form
+[68/110] [1440] › tests\e2e\checkout.spec.ts:186:1 › axe finds no WCAG A/AA violations on checkout
+[69/110] [1440] › tests\e2e\checkout.spec.ts:205:3 › reduced motion › the place order button does not animate a transform
+[70/110] [1440] › tests\e2e\home.spec.ts:3:1 › catalog is the front door
+[71/110] [1440] › tests\e2e\home.spec.ts:25:1 › header and footer shell
+[72/110] [1440] › tests\e2e\home.spec.ts:52:1 › header search and cart keyboard path
+[73/110] [1440] › tests\e2e\home.spec.ts:76:1 › category and sort queries still filter the catalog
+[74/110] [1440] › tests\e2e\home.spec.ts:104:1 › home page is the brand landing
+[75/110] [1440] › tests\e2e\home.spec.ts:167:1 › a catalog row opens the product and Add stays on the catalog
+[76/110] [1440] › tests\e2e\home.spec.ts:232:1 › hero copy stays put when motion is reduced
+[77/110] [1440] › tests\e2e\navigation.spec.ts:3:1 › speculation rules prerender product links and skip checkout
+[78/110] [1440] › tests\e2e\navigation.spec.ts:20:1 › header condenses past 80px and restores at the top
+[79/110] [1440] › tests\e2e\navigation.spec.ts:42:1 › reduced motion drops morph names and condenses without a transition
+[80/110] [1440] › tests\e2e\navigation.spec.ts:60:1 › keyboard focus stays below the header after it condenses
+[81/110] [1440] › tests\e2e\product-image.spec.ts:3:1 › product photo is sized, eager, and does not shift
+[82/110] [1440] › tests\e2e\product-image.spec.ts:48:1 › catalog thumbnail and product photo share a view-transition name
+[83/110] [1440] › tests\e2e\product-image.spec.ts:74:1 › cart line uses the optimized thumb
+[84/110] [1440] › tests\e2e\product-image.spec.ts:90:1 › product photo stays visible with reduced motion
+[85/110] [1440] › tests\e2e\product.spec.ts:4:1 › product page buy panel, specs, and no horizontal overflow
+[86/110] [1440] › tests\e2e\product.spec.ts:61:1 › longest part numbers stay inside the viewport
+[87/110] [1440] › tests\e2e\product.spec.ts:81:1 › search lm 7805, add, correct quantity, and match the cart price
+[88/110] [1440] › tests\e2e\product.spec.ts:115:1 › mobile sticky add bar and desktop keyboard focus
+[89/110] [1440] › tests\e2e\product.spec.ts:185:1 › reduced motion keeps the add control still
+[90/110] [1440] › tests\e2e\product.spec.ts:203:1 › axe finds no WCAG A/AA violations on the product page
+[91/110] [1440] › tests\e2e\product.spec.ts:209:1 › layout at the 900px switch
+[92/110] [1440] › tests\e2e\quick-order.spec.ts:5:1 › quick order previews matches, misses, stock limits, and adds them
+[93/110] [1440] › tests\e2e\quick-order.spec.ts:35:1 › a cart link rebuilds the cart
+[94/110] [1440] › tests\e2e\quick-order.spec.ts:47:1 › command palette opens with ctrl+k and highlights a match
+[95/110] [1440] › tests\e2e\quick-order.spec.ts:65:1 › selection highlight slides, and jumps when reduced motion is on
+[96/110] [1440] › tests\e2e\quick-order.spec.ts:103:1 › palette and quick order screenshots
+[97/110] [1440] › tests\e2e\search-dialog.spec.ts:3:1 › search dialog finds a part, misses cleanly, and traps focus
+[98/110] [1440] › tests\e2e\search-dialog.spec.ts:100:1 › slash does not open search from a field or while the cart is open
+[99/110] [1440] › tests\e2e\search-dialog.spec.ts:118:1 › a dock control opens search and returns focus
+[100/110] [1440] › tests\e2e\search-dialog.spec.ts:142:1 › search dialog stays put with reduced motion
+[101/110] [1440] › tests\e2e\secondary.spec.ts:18:1 › shipping and payment renders the policy modules
+[102/110] [1440] › tests\e2e\secondary.spec.ts:51:1 › about states only what the catalog and the modules can prove
+[103/110] [1440] › tests\e2e\secondary.spec.ts:84:1 › contact keeps the typed value and names the broken rule
+[104/110] [1440] › tests\e2e\secondary.spec.ts:124:1 › missing pages and unknown parts
+[105/110] [1440] › tests\e2e\secondary.spec.ts:173:1 › axe finds no WCAG A/AA violations on the secondary pages
+[106/110] [1440] › tests\e2e\secondary.spec.ts:181:1 › layout at the 900px switch
+[107/110] [1440] › tests\e2e\secondary.spec.ts:196:3 › reduced motion › shipping controls do not animate a transform
+[108/110] [1440] › tests\e2e\secondary.spec.ts:212:1 › the header is solid when transparency is reduced
+[109/110] [1440] › tests\e2e\vitals.spec.ts:3:1 › a field vital is accepted and an order id is not required
+[110/110] [1440] › tests\e2e\vitals.spec.ts:30:1 › the layout loads the web vitals reporter
+  3 skipped
+  107 passed (3.2m)

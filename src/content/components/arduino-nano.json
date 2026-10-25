@@ -1,0 +1,97 @@
+{
+  "part_number": "ARDUINO-NANO",
+  "manufacturer": "Arduino",
+  "mpn": "ARDUINO-NANO",
+  "name": "ATmega328P board, 5 V logic",
+  "category": "Boards",
+  "price": 850,
+  "currency": "PKR",
+  "stock_qty": 12,
+  "package_type": "DIP-30 module",
+  "mounting_type": "Through-hole",
+  "voltage": "5 V logic, 7–12 V in",
+  "summary": "ATmega328P board with 5 V logic, 14 digital pins, 8 analog inputs, and Mini-B USB.",
+  "key_specs": ["Logic voltage", "Clock", "Digital I/O", "Analog inputs"],
+  "logic_level": "5 V",
+  "specs": [
+    { "label": "Microcontroller", "value": "ATmega328P" },
+    { "label": "Logic voltage", "value": "5", "unit": "V" },
+    { "label": "3.3 V pin", "value": "3.3", "unit": "V" },
+    { "label": "Digital I/O", "value": "14" },
+    { "label": "Analog inputs", "value": "8" },
+    { "label": "USB connector", "value": "Mini-B" },
+    { "label": "Clock", "value": "16", "unit": "MHz" },
+    { "label": "Input voltage", "value": "7–12", "unit": "V" },
+    { "label": "Package", "value": "DIP-30 module" },
+    { "label": "Mounting", "value": "Through-hole" }
+  ],
+  "pinout": [
+    { "pin": "D0", "label": "RX" },
+    { "pin": "D1", "label": "TX" },
+    { "pin": "D2", "label": "Digital" },
+    { "pin": "D3", "label": "Digital", "note": "PWM" },
+    { "pin": "D4", "label": "Digital" },
+    { "pin": "D5", "label": "Digital", "note": "PWM" },
+    { "pin": "D6", "label": "Digital", "note": "PWM" },
+    { "pin": "D7", "label": "Digital" },
+    { "pin": "D8", "label": "Digital" },
+    { "pin": "D9", "label": "Digital", "note": "PWM" },
+    { "pin": "D10", "label": "Digital", "note": "PWM" },
+    { "pin": "D11", "label": "Digital", "note": "PWM" },
+    { "pin": "D12", "label": "Digital" },
+    { "pin": "D13", "label": "Digital", "note": "Built-in LED" },
+    { "pin": "A0", "label": "Analog" },
+    { "pin": "A1", "label": "Analog" },
+    { "pin": "A2", "label": "Analog" },
+    { "pin": "A3", "label": "Analog" },
+    { "pin": "A4", "label": "Analog", "note": "I2C SDA" },
+    { "pin": "A5", "label": "Analog", "note": "I2C SCL" },
+    { "pin": "A6", "label": "Analog", "note": "Analog only" },
+    { "pin": "A7", "label": "Analog", "note": "Analog only" },
+    { "pin": "VIN", "label": "Input", "note": "7–12 V" },
+    { "pin": "+5V", "label": "5 V" },
+    { "pin": "+3V3", "label": "3.3 V output" },
+    { "pin": "AREF", "label": "Analog reference" },
+    { "pin": "RESET", "label": "Reset", "note": "Active low. Both headers have one" },
+    { "pin": "GND", "label": "Ground", "note": "Both headers have one" }
+  ],
+  "not_included": "No USB cable.",
+  "faq": [
+    {
+      "q": "What logic voltage are the I/O pins?",
+      "a": "5 V. The 3.3 V pin is a separate supply pin, not the logic level."
+    },
+    {
+      "q": "How many pins does it bring out?",
+      "a": "14 digital I/O pins and 8 analog inputs. A6 and A7 are analog only."
+    },
+    {
+      "q": "What is VIN?",
+      "a": "7–12 V, from the Arduino Nano pinout."
+    },
+    {
+      "q": "What is the clock?",
+      "a": "16 MHz."
+    },
+    {
+      "q": "What is in the bag?",
+      "a": "The board in an antistatic bag. No USB cable."
+    },
+    {
+      "q": "What USB connector is it?",
+      "a": "Mini-B."
+    }
+  ],
+  "datasheet": "https://docs.arduino.cc/resources/datasheets/A000005-datasheet.pdf",
+  "images": [
+    {
+      "src": "../../assets/parts/cutouts/arduino-nano.webp",
+      "alt": "ARDUINO-NANO board with a Mini-B USB socket, a crystal marked 16.000, and unsoldered header holes.",
+      "note": "Representative studio photograph, not a photo of the lot in the drawer."
+    }
+  ],
+  "in_the_bag": "Board in an antistatic bag.",
+  "min_qty": 1,
+  "qty_multiple": 1,
+  "description": "Arduino Nano V3 with an ATmega328P at 16 MHz. Mini-B USB, 14 digital I/O pins, 8 analog inputs, 5 V logic, a 3.3 V pin, and a 7–12 V VIN pin. Sourced from Hall Road, Lahore."
+}

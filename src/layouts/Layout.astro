@@ -1,34 +1,125 @@
 ---
+import { Font } from 'astro:assets';
 import '../styles/global.css';
-import TopUtilityBanner from '../components/TopUtilityBanner.astro';
-import GlobalNavbar from '../components/GlobalNavbar.astro';
+import SiteHeader from '../components/SiteHeader.astro';
 import Footer from '../components/Footer.astro';
-import CartDrawer from '../components/CartDrawer.tsx';
+import VitalsReport from '../components/VitalsReport.astro';
+import IconSprite from '../components/IconSprite.astro';
+import PackageMark from '../components/illustrations/PackageMark.tsx';
+import CartSheet from '../components/CartSheet.tsx';
+import { loadCatalog } from '../lib/catalog';
+import { cspSha256 } from '../lib/csp';
+import { partTransitionCss } from '../lib/part-image';
+import { enterGateScript, speculationRules } from '../lib/speculation';
+import { shopName } from '../lib/shop';
+import { shippingWindows } from '../lib/shipping';
+import { themeColor } from '../lib/brand';
+import { ogPath } from '../lib/og';
 
 interface Props {
-	title?: string;
+  title?: string;
+  description?: string;
+  ogImage?: string;
+  canonical?: string;
+  robots?: string;
 }
 
-const { title = "Lahore Silicon - Electronic Component Sourcing" } = Astro.props;
+const name = shopName();
+const {
+  title = `${name} — Electronic Component Sourcing from Hall Road`,
+  description = `On-demand sourcing of ICs, microcontrollers, sensors, and passive components from Hall Road, Lahore. ${shippingWindows}`,
+  ogImage = ogPath(),
+  canonical = Astro.url.href,
+  robots = "index, follow",
+} = Astro.props;
+
+const ogUrl = new URL(ogImage, Astro.site ?? Astro.url).href;
+const catalog = await loadCatalog();
+const transitionCss = partTransitionCss(catalog.map((part) => part.part_number));
+if (Astro.csp) {
+  if (transitionCss) Astro.csp.insertStyleHash(await cspSha256(transitionCss));
+  Astro.csp.insertScriptHash(await cspSha256(enterGateScript));
+  Astro.csp.insertScriptHash(await cspSha256(speculationRules));
+}
 ---
 <!doctype html>
-<html lang="en" class="bg-brand-50 text-brand-900 scroll-smooth">
-	<head>
-		<meta charset="utf-8" />
-		<meta name="viewport" content="width=device-width, initial-scale=1.0" />
-		<link rel="icon" type="image/svg+xml" href="/favicon.svg" />
-		<link rel="icon" href="/favicon.ico" />
-		<meta name="generator" content={Astro.generator} />
-		<title>{title}</title>
-		<slot name="head" />
-	</head>
-	<body class="min-h-screen flex flex-col font-sans antialiased">
-		<TopUtilityBanner />
-		<GlobalNavbar />
-		<main class="flex-grow w-full pt-32 pb-16 px-4 max-w-5xl mx-auto">
-			<slot />
-		</main>
-		<Footer />
-		<CartDrawer client:load />
-	</body>
+<html lang="en" class="scroll-smooth">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <script is:inline set:html={enterGateScript} />
+    <meta name="generator" content={Astro.generator} />
+
+    <!-- SEO -->
+    <title>{title}</title>
+    <meta name="description" content={description} />
+    <link rel="canonical" href={canonical} />
+    <meta name="robots" content={robots} />
+
+    <!-- Open Graph -->
+    <meta property="og:type" content="website" />
+    <meta property="og:title" content={title} />
+    <meta property="og:description" content={description} />
+    <meta property="og:image" content={ogUrl} />
+    <meta property="og:image:width" content="1200" />
+    <meta property="og:image:height" content="630" />
+    <meta property="og:url" content={canonical} />
+    <meta property="og:site_name" content={name} />
+    <meta property="og:locale" content="en_PK" />
+
+    <!-- Twitter Card -->
+    <meta name="twitter:card" content="summary_large_image" />
+    <meta name="twitter:title" content={title} />
+    <meta name="twitter:description" content={description} />
+    <meta name="twitter:image" content={ogUrl} />
+
+    <meta name="theme-color" content={themeColor} />
+    <meta name="color-scheme" content="light" />
+
+    <!-- Favicon -->
+    <link rel="icon" href="/favicon.ico" sizes="32x32" />
+    <link rel="icon" type="image/svg+xml" href="/favicon.svg" />
+    <link rel="apple-touch-icon" href="/apple-touch-icon.png" />
+    <link rel="manifest" href="/site.webmanifest" />
+
+    <Font cssVariable="--font-mona" preload />
+    <Font cssVariable="--font-geist-mono" />
+    <style is:global set:html={transitionCss}></style>
+    <!-- Chromium prerenders product links. Other browsers use Astro prefetch. -->
+    <script type="speculationrules" is:inline set:html={speculationRules} />
+
+    <!-- Page-level head slot -->
+    <slot name="head" />
+  </head>
+  <body class="min-h-screen flex flex-col antialiased">
+    <div class="header-sentinel-anchor">
+      <div class="header-sentinel" aria-hidden="true"></div>
+    </div>
+    <IconSprite />
+    <SiteHeader parts={catalog} />
+    <main id="main" class="flex-grow w-full">
+      <slot />
+    </main>
+    <Footer />
+    <CartSheet client:intent="#cart-button|event:lahore-cart-wanted" catalog={catalog} />
+    <div class="toast-region">
+      <div id="toast-status" role="status" aria-live="polite"></div>
+      <div id="toast-alert" role="alert"></div>
+    </div>
+    <div id="offline-banner" class="offline-banner" role="status" hidden>
+      <PackageMark kind="module" empty />
+      <p class="offline-banner-copy">
+        <strong>You are offline.</strong>
+        <span>Your cart stays on this device.</span>
+      </p>
+      <button type="button" class="offline-retry" data-offline-retry>Retry</button>
+    </div>
+    <VitalsReport />
+    <script>
+      import { bindPress } from "../lib/press";
+      import { bindOffline } from "../lib/offline";
+      bindPress();
+      bindOffline();
+    </script>
+  </body>
 </html>

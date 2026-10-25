@@ -1,12 +1,106 @@
 {
   "part_number": "ESP32-WROOM-32D",
-  "name": "Wi-Fi & Bluetooth Dual-Core Microcontroller",
-  "category": "Microcontrollers",
-  "voltage": "3.3V",
-  "package_type": "Module (SMD)",
+  "manufacturer": "Espressif",
+  "mpn": "ESP32-WROOM-32D",
+  "name": "Wi-Fi and Bluetooth module, 3.3 V",
+  "category": "Boards",
   "price": 1250,
+  "currency": "PKR",
+  "stock_qty": 9,
+  "package_type": "Module",
   "mounting_type": "SMD",
-  "in_stock": true,
-  "image": "https://placehold.co/400x400/334155/f8fafc?text=ESP32",
-  "description": "ESP32-WROOM-32D Wi-Fi & Bluetooth Module. Powerful 32-bit MCU for IoT projects. Sourced direct from Hall Road, Lahore for electronic hobbyists, R&D labs, and B2B projects."
+  "voltage": "3.0–3.6 V",
+  "summary": "Wi-Fi and Bluetooth module on a 3.0–3.6 V supply, with 3.3 V I/O.",
+  "key_specs": ["Supply voltage", "Flash", "Processor", "Radio"],
+  "logic_level": "3.3 V",
+  "specs": [
+    { "label": "Supply voltage", "value": "3.0–3.6", "unit": "V" },
+    { "label": "Logic voltage", "value": "3.3", "unit": "V" },
+    { "label": "Radio", "value": "Wi-Fi 802.11 b/g/n, Bluetooth 4.2" },
+    { "label": "Processor", "value": "Dual-core Xtensa LX6" },
+    { "label": "Flash", "value": "4", "unit": "MB" },
+    { "label": "Package", "value": "Module" },
+    { "label": "Mounting", "value": "SMD" }
+  ],
+  "pinout": [
+    { "pin": "1", "label": "GND", "note": "Ground" },
+    { "pin": "2", "label": "3V3", "note": "Power supply" },
+    { "pin": "3", "label": "EN", "note": "Active high" },
+    { "pin": "4", "label": "SENSOR_VP", "note": "GPIO36, input only" },
+    { "pin": "5", "label": "SENSOR_VN", "note": "GPIO39, input only" },
+    { "pin": "6", "label": "IO34", "note": "GPIO34, input only" },
+    { "pin": "7", "label": "IO35", "note": "GPIO35, input only" },
+    { "pin": "8", "label": "IO32", "note": "GPIO32" },
+    { "pin": "9", "label": "IO33", "note": "GPIO33" },
+    { "pin": "10", "label": "IO25", "note": "GPIO25" },
+    { "pin": "11", "label": "IO26", "note": "GPIO26" },
+    { "pin": "12", "label": "IO27", "note": "GPIO27" },
+    { "pin": "13", "label": "IO14", "note": "GPIO14" },
+    { "pin": "14", "label": "IO12", "note": "GPIO12" },
+    { "pin": "15", "label": "GND", "note": "Ground" },
+    { "pin": "16", "label": "IO13", "note": "GPIO13" },
+    { "pin": "17", "label": "SHD/SD2", "note": "GPIO9, connected to the module flash" },
+    { "pin": "18", "label": "SWP/SD3", "note": "GPIO10, connected to the module flash" },
+    { "pin": "19", "label": "SCS/CMD", "note": "GPIO11, connected to the module flash" },
+    { "pin": "20", "label": "SCK/CLK", "note": "GPIO6, connected to the module flash" },
+    { "pin": "21", "label": "SDO/SD0", "note": "GPIO7, connected to the module flash" },
+    { "pin": "22", "label": "SDI/SD1", "note": "GPIO8, connected to the module flash" },
+    { "pin": "23", "label": "IO15", "note": "GPIO15" },
+    { "pin": "24", "label": "IO2", "note": "GPIO2, boot mode" },
+    { "pin": "25", "label": "IO0", "note": "GPIO0, boot mode" },
+    { "pin": "26", "label": "IO4", "note": "GPIO4" },
+    { "pin": "27", "label": "IO16", "note": "GPIO16" },
+    { "pin": "28", "label": "IO17", "note": "GPIO17" },
+    { "pin": "29", "label": "IO5", "note": "GPIO5" },
+    { "pin": "30", "label": "IO18", "note": "GPIO18" },
+    { "pin": "31", "label": "IO19", "note": "GPIO19" },
+    { "pin": "32", "label": "NC", "note": "No connection" },
+    { "pin": "33", "label": "IO21", "note": "GPIO21" },
+    { "pin": "34", "label": "RXD0", "note": "GPIO3, U0RXD" },
+    { "pin": "35", "label": "TXD0", "note": "GPIO1, U0TXD" },
+    { "pin": "36", "label": "IO22", "note": "GPIO22" },
+    { "pin": "37", "label": "IO23", "note": "GPIO23" },
+    { "pin": "38", "label": "GND", "note": "Ground" }
+  ],
+  "companions": ["AMS1117-3.3"],
+  "not_included": "No USB port and no pin headers.",
+  "faq": [
+    {
+      "q": "What supply does it need?",
+      "a": "3.0–3.6 V. The I/O is 3.3 V, not 5 V."
+    },
+    {
+      "q": "What radio and processor does it have?",
+      "a": "Wi-Fi 802.11 b/g/n, Bluetooth 4.2, and a dual-core Xtensa LX6. Flash is 4 MB."
+    },
+    {
+      "q": "Which antenna is on the 32D?",
+      "a": "A PCB antenna. This part is not the 32U, which uses an antenna connector."
+    },
+    {
+      "q": "Which pins are tied to the flash?",
+      "a": "Pins 17 to 22, GPIO6 to GPIO11. The datasheet says not to use them for anything else."
+    },
+    {
+      "q": "What is in the bag?",
+      "a": "The module in an antistatic bag. No USB port and no pin headers."
+    },
+    {
+      "q": "What else on the counter can feed it?",
+      "a": "AMS1117-3.3, the 3.3 V regulator."
+    }
+  ],
+  "datasheet": "https://documentation.espressif.com/esp32-wroom-32d_esp32-wroom-32u_datasheet_en.pdf",
+  "images": [
+    {
+      "src": "../../assets/parts/cutouts/esp32.webp",
+      "alt": "ESP32-WROOM-32D module with a metal shield, a PCB antenna, and castellated pads.",
+      "note": "Representative studio photograph, not a photo of the lot in the drawer."
+    }
+  ],
+  "in_the_bag": "Module in an antistatic bag.",
+  "limits": "I/O is 3.3 V logic.",
+  "min_qty": 1,
+  "qty_multiple": 1,
+  "description": "ESP32-WROOM-32D Wi-Fi and Bluetooth module. Dual-core Xtensa LX6, 4 MB flash, PCB antenna, supply 3.0–3.6 V. I/O is 3.3 V. Sourced from Hall Road, Lahore."
 }

@@ -17,7 +17,29 @@
 		{
 			"binding": "DB",
 			"database_name": "electronics-sourcing-db",
-			"database_id": "f13d4da5-1b2f-4387-9a18-dc5a7bc7c65c"
+			"database_id": "ecde0271-6c9a-4868-8dac-05b88fbc85a8",
+			"migrations_dir": "db/migrations"
 		}
-	]
+	],
+	"ratelimits": [
+		{
+			"name": "ORDER_LIMIT",
+			"namespace_id": "1001",
+			"simple": {
+				"limit": 5,
+				"period": 60
+			}
+		},
+		{
+			"name": "ADMIN_LOGIN_LIMIT",
+			"namespace_id": "1002",
+			"simple": {
+				"limit": 5,
+				"period": 60
+			}
+		}
+	],
+	"vars": {
+		"TURNSTILE_HOSTNAMES": "lahore-silicon-electronics-sourcing.lahoresilicon-pk.workers.dev"
+	}
 }

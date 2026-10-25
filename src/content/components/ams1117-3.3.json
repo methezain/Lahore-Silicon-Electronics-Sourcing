@@ -1,0 +1,57 @@
+{
+  "part_number": "AMS1117-3.3",
+  "manufacturer": "Advanced Monolithic Systems",
+  "mpn": "AMS1117-3.3",
+  "name": "3.3 V LDO regulator, SOT-223",
+  "category": "Power",
+  "price": 25,
+  "currency": "PKR",
+  "stock_qty": 80,
+  "package_type": "SOT-223",
+  "mounting_type": "SMD",
+  "voltage": "4.75–12 V in, 3.3 V out",
+  "summary": "Turns 4.75–12 V into a steady 3.3 V at up to 800 mA.",
+  "key_specs": ["Output voltage", "Output current", "Typical dropout", "Input voltage"],
+  "specs": [
+    { "label": "Output voltage", "value": "3.3", "unit": "V" },
+    { "label": "Output current", "value": "800", "unit": "mA" },
+    { "label": "Typical dropout", "value": "1.3", "unit": "V" },
+    { "label": "Input voltage", "value": "4.75–12", "unit": "V" },
+    { "label": "Package", "value": "SOT-223" },
+    { "label": "Mounting", "value": "SMD" }
+  ],
+  "pinout": [
+    { "pin": "1", "label": "Ground", "note": "Fixed 3.3 V version" },
+    { "pin": "2", "label": "Output", "note": "Tab is the output" },
+    { "pin": "3", "label": "Input" }
+  ],
+  "faq": [
+    {
+      "q": "What does it do?",
+      "a": "Turns 4.75–12 V into a steady 3.3 V at up to 800 mA."
+    },
+    {
+      "q": "What is the dropout?",
+      "a": "1.3 V typical, as listed for this part."
+    },
+    {
+      "q": "Which pin is ground?",
+      "a": "Pin 1 on the fixed 3.3 V part. Pin 2 is the output, and the tab is the output. Pin 3 is the input."
+    },
+    {
+      "q": "What is in the bag?",
+      "a": "A loose SOT-223 in an antistatic bag."
+    }
+  ],
+  "images": [
+    {
+      "src": "../../assets/parts/cutouts/ams1117.webp",
+      "alt": "AMS1117-3.3 regulator in a SOT-223 package, black body, three leads, and a metal tab.",
+      "note": "Representative studio photograph, not a photo of the lot in the drawer."
+    }
+  ],
+  "in_the_bag": "Loose SOT-223 in an antistatic bag.",
+  "min_qty": 1,
+  "qty_multiple": 1,
+  "description": "AMS1117-3.3 low-dropout linear regulator in SOT-223. 800 mA output, 1.3 V typical dropout. Used to feed 3.3 V logic such as an ESP32. Sourced from Hall Road, Lahore."
+}

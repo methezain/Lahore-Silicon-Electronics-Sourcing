@@ -1,0 +1,74 @@
+---
+import "../../../components/admin/admin-orders.css";
+import "../../../components/admin/admin-product.css";
+import { env } from "cloudflare:workers";
+import AdminLayout from "../../../layouts/AdminLayout.astro";
+import Button from "../../../components/Button.astro";
+import ProductForm from "../../../components/admin/ProductForm.astro";
+import { adminActor } from "../../../lib/admin/constants";
+import type { AdminDatabase } from "../../../lib/admin/db";
+import { submitProduct } from "../../../lib/admin/product-save";
+import { valuesFromRecord, type FieldErrors, type ProductValues } from "../../../lib/admin/product-form";
+import { listProducts, readProduct, setPublished } from "../../../lib/admin/products";
+import { invalidateProducts } from "../../../lib/catalog-db";
+
+export const prerender = false;
+
+const db = env?.DB as unknown as AdminDatabase | undefined;
+if (!db) return new Response("Database unavailable", { status: 500 });
+const found = await readProduct(db, decodeURIComponent(Astro.params.part_number ?? ""));
+if (!found) return new Response("Not found", { status: 404 });
+const partNumber = found.record.part_number;
+
+let values: ProductValues | null = null;
+let errors: FieldErrors = {};
+let error: string | undefined;
+
+if (Astro.request.method === "POST") {
+  const form = await Astro.request.formData();
+  const intent = String(form.get("intent") ?? "");
+  if (intent === "publish" || intent === "hide") {
+    await setPublished(db, { partNumber, published: intent === "publish", actor: adminActor });
+    invalidateProducts();
+    return Astro.redirect(`/admin/products/${encodeURIComponent(partNumber)}?notice=${intent === "publish" ? "shown" : "hidden"}`, 303);
+  }
+  const outcome = await submitProduct(db, form, "update", found);
+  if (outcome.saved) {
+    invalidateProducts();
+    return Astro.redirect(`/admin/products/${encodeURIComponent(partNumber)}?notice=saved`, 303);
+  }
+  values = outcome.values;
+  errors = outcome.errors;
+  error = outcome.error;
+  Astro.response.status = 400;
+}
+
+const current = values ?? valuesFromRecord(found.record, found.published, found.qty);
+const others = (await listProducts(db)).filter((row) => row.part_number !== partNumber).map((row) => ({ part_number: row.part_number, name: row.name ?? "" }));
+const NOTICES: Record<string, string> = { saved: "Saved.", created: "Product created.", hidden: "Hidden from the shop.", shown: "Showing on the shop." };
+const notice = NOTICES[Astro.url.searchParams.get("notice") ?? ""];
+const published = values ? values.published : found.published;
+---
+
+<AdminLayout title={`Edit ${partNumber}`} current="products">
+  <div class="admin-page">
+    <div class="admin-head">
+      <div>
+        <p class="label">Products</p>
+        <h1 class="title">Edit {partNumber}</h1>
+        <p class="count">{published ? "Showing on the shop" : "Hidden from the shop"}</p>
+      </div>
+      <div class="admin-tools">
+        {published && <Button variant="secondary" href={`/product/${encodeURIComponent(partNumber.toLowerCase())}`} target="_blank">Preview on shop</Button>}
+        <form method="POST" action="">
+          <input type="hidden" name="intent" value={published ? "hide" : "publish"} />
+          <Button variant="ghost" type="submit">{published ? "Hide product" : "Show on shop"}</Button>
+        </form>
+      </div>
+    </div>
+    {notice && (
+      <p class="admin-notice" role="status"><svg width="18" height="18" aria-hidden="true" focusable="false"><use href="#check" /></svg>{notice}</p>
+    )}
+    <ProductForm values={current} errors={errors} mode="update" updatedAt={found.updatedAt} otherParts={others} error={error} />
+  </div>
+</AdminLayout>

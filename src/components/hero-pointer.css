@@ -1,0 +1,74 @@
+/* Pointer tilt and spotlight for the /home hero. docs/motion.md items 24–25.
+   Data attributes select the variables so the page CSP can keep style attributes closed. */
+
+.deck-tilt[data-rx="-6"] { --tilt-x: -6deg; }
+.deck-tilt[data-rx="-5"] { --tilt-x: -5deg; }
+.deck-tilt[data-rx="-4"] { --tilt-x: -4deg; }
+.deck-tilt[data-rx="-3"] { --tilt-x: -3deg; }
+.deck-tilt[data-rx="-2"] { --tilt-x: -2deg; }
+.deck-tilt[data-rx="-1"] { --tilt-x: -1deg; }
+.deck-tilt[data-rx="0"] { --tilt-x: 0deg; }
+.deck-tilt[data-rx="1"] { --tilt-x: 1deg; }
+.deck-tilt[data-rx="2"] { --tilt-x: 2deg; }
+.deck-tilt[data-rx="3"] { --tilt-x: 3deg; }
+.deck-tilt[data-rx="4"] { --tilt-x: 4deg; }
+.deck-tilt[data-rx="5"] { --tilt-x: 5deg; }
+.deck-tilt[data-rx="6"] { --tilt-x: 6deg; }
+
+.deck-tilt[data-ry="-6"] { --tilt-y: -6deg; }
+.deck-tilt[data-ry="-5"] { --tilt-y: -5deg; }
+.deck-tilt[data-ry="-4"] { --tilt-y: -4deg; }
+.deck-tilt[data-ry="-3"] { --tilt-y: -3deg; }
+.deck-tilt[data-ry="-2"] { --tilt-y: -2deg; }
+.deck-tilt[data-ry="-1"] { --tilt-y: -1deg; }
+.deck-tilt[data-ry="0"] { --tilt-y: 0deg; }
+.deck-tilt[data-ry="1"] { --tilt-y: 1deg; }
+.deck-tilt[data-ry="2"] { --tilt-y: 2deg; }
+.deck-tilt[data-ry="3"] { --tilt-y: 3deg; }
+.deck-tilt[data-ry="4"] { --tilt-y: 4deg; }
+.deck-tilt[data-ry="5"] { --tilt-y: 5deg; }
+.deck-tilt[data-ry="6"] { --tilt-y: 6deg; }
+
+.home-hero[data-sx="0"] { --spot-x: 0%; }
+.home-hero[data-sx="5"] { --spot-x: 5%; }
+.home-hero[data-sx="10"] { --spot-x: 10%; }
+.home-hero[data-sx="15"] { --spot-x: 15%; }
+.home-hero[data-sx="20"] { --spot-x: 20%; }
+.home-hero[data-sx="25"] { --spot-x: 25%; }
+.home-hero[data-sx="30"] { --spot-x: 30%; }
+.home-hero[data-sx="35"] { --spot-x: 35%; }
+.home-hero[data-sx="40"] { --spot-x: 40%; }
+.home-hero[data-sx="45"] { --spot-x: 45%; }
+.home-hero[data-sx="50"] { --spot-x: 50%; }
+.home-hero[data-sx="55"] { --spot-x: 55%; }
+.home-hero[data-sx="60"] { --spot-x: 60%; }
+.home-hero[data-sx="65"] { --spot-x: 65%; }
+.home-hero[data-sx="70"] { --spot-x: 70%; }
+.home-hero[data-sx="75"] { --spot-x: 75%; }
+.home-hero[data-sx="80"] { --spot-x: 80%; }
+.home-hero[data-sx="85"] { --spot-x: 85%; }
+.home-hero[data-sx="90"] { --spot-x: 90%; }
+.home-hero[data-sx="95"] { --spot-x: 95%; }
+.home-hero[data-sx="100"] { --spot-x: 100%; }
+
+.home-hero[data-sy="0"] { --spot-y: 0%; }
+.home-hero[data-sy="5"] { --spot-y: 5%; }
+.home-hero[data-sy="10"] { --spot-y: 10%; }
+.home-hero[data-sy="15"] { --spot-y: 15%; }
+.home-hero[data-sy="20"] { --spot-y: 20%; }
+.home-hero[data-sy="25"] { --spot-y: 25%; }
+.home-hero[data-sy="30"] { --spot-y: 30%; }
+.home-hero[data-sy="35"] { --spot-y: 35%; }
+.home-hero[data-sy="40"] { --spot-y: 40%; }
+.home-hero[data-sy="45"] { --spot-y: 45%; }
+.home-hero[data-sy="50"] { --spot-y: 50%; }
+.home-hero[data-sy="55"] { --spot-y: 55%; }
+.home-hero[data-sy="60"] { --spot-y: 60%; }
+.home-hero[data-sy="65"] { --spot-y: 65%; }
+.home-hero[data-sy="70"] { --spot-y: 70%; }
+.home-hero[data-sy="75"] { --spot-y: 75%; }
+.home-hero[data-sy="80"] { --spot-y: 80%; }
+.home-hero[data-sy="85"] { --spot-y: 85%; }
+.home-hero[data-sy="90"] { --spot-y: 90%; }
+.home-hero[data-sy="95"] { --spot-y: 95%; }
+.home-hero[data-sy="100"] { --spot-y: 100%; }
